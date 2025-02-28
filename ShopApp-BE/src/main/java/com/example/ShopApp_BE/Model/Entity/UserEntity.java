@@ -1,0 +1,101 @@
+package com.example.ShopApp_BE.Model.Entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+@Entity
+@Table(name = "users")
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserEntity extends AbstractEntity implements UserDetails {
+    @Column(name = "full_name")
+    private String fullName;
+
+    @Column(name = "phone_number", nullable = false)
+    private String phoneNumber;
+
+    @Column(name= "address")
+    private String address;
+
+    @Column(name = "password", nullable = false)
+    private String password;
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
+    @Column(name = "date_of_birth")
+    private String dateOfBirth;
+
+    @Column(name = "facebook_account_id")
+    private Integer facebookAccountId;
+
+    @Column(name = "google_account_id")
+    private Integer googleAccountId;
+
+    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
+    private List<OrderEntity> orderEntities;
+
+    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
+    private List<TokenEntity> tokenEntities;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private RoleEntity roleEntity = new RoleEntity();
+
+    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
+    private List<SocialAccountEntity> socialAccountEntities;
+
+    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
+    private List<CommentEntity> commentEntities;
+
+    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
+    List<SocialAccountEntity> socialImageEntities;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + getRoleEntity().getRole()));
+        return authorities;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return phoneNumber;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+}
