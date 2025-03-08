@@ -16,3 +16,19 @@ spring:
       hibernate:
         format_sql: true
 
+
+api:
+  prefix: /api/v1
+
+jwt:
+  expiration: 3600
+  expiration-refresh-token: 86400
+  secret-key: "RIw1DJ/txeArNX2Nf6CmAbxobAI5LH9Qc1HJagsurGPiZROq91Ywe+2zKJ1fn1Ta"
+  refresh-key: "/LUlafmFDnG8hvW2ffNwk6zzzoJ+m3KLn3LVKoVzuWJVxHW2HqM74mGl9RsFKgCG"
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+
+

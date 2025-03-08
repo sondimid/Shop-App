@@ -1,4 +1,4 @@
-package com.example.ShopApp_BE.Model.DTO;
+package com.example.ShopApp_BE.DTO;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -6,13 +6,11 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
-@RequiredArgsConstructor
+
 public class UserRegisterDTO {
     @NotBlank(message = "full name is blank")
     private String fullName;
 
-    @NotBlank(message = "email is blank")
     private String email;
 
     @NotBlank(message = "phone number is blank")

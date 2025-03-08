@@ -1,0 +1,39 @@
+package com.example.ShopApp_BE.Utils;
+
+public class MessageKeys {
+    //register
+    public static final String PHONENUMBER_EXISTED = "phonenumber.existed";
+    public static final String PASSWORD_NOT_MATCH = "password.not.match";
+    public static final String EMAIL_EXISTED = "email.existed";
+    public static final String REGISTER_SUCCESS = "register.successfully";
+
+    //role
+    public static final String ROLE_ADMIN = "ADMIN";
+    public static final String ROLE_USER = "USER";
+
+    //login
+    public static final String LOGIN_SUCCESS = "login.successfully";
+    public static final String LOGIN_FAILED = "login.failed";
+    public static final String ACCOUNT_LOCK = "account.locked";
+
+    //user
+    public static final String UPDATE_SUCCESS = "update.successfully";
+    public static final String USER_ID_NOT_FOUND = "user.id.not.found";
+
+    //change password
+    public static final String CONFIRM_PASSWORD_NOT_MATCH = "confirm.password.mismatch";
+
+    //token
+    public static final String DELETE_TOKEN_SUCCESS = "delete.token.successfully";
+    public static final String REFRESH_TOKEN_INVALID = "refresh.token.invalid";
+    public static final String ACCESS_TOKEN_INVALID = "access.token.invalid";
+
+    //header
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+
+    //image
+    public static final String IMAGE_NOT_VALID = "image.not.valid";
+
+
+
+}

@@ -1,6 +1,7 @@
 package com.example.ShopApp_BE.Model.DTO;
 
 
+import com.example.ShopApp_BE.DTO.ImageDTO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;

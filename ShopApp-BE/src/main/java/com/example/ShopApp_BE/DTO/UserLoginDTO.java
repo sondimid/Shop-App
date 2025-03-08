@@ -1,4 +1,4 @@
-package com.example.ShopApp_BE.Model.DTO;
+package com.example.ShopApp_BE.DTO;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.validation.constraints.NotBlank;

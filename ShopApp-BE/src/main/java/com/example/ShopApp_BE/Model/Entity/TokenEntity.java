@@ -1,34 +1,26 @@
 package com.example.ShopApp_BE.Model.Entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "token")
+@Table(name = "tokens")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class TokenEntity extends AbstractEntity {
-    @Column(name = "token", nullable = false, unique = true)
-    private String token;
+    @Column(name = "access_token", nullable = false)
+    private String accessToken;
 
-    @Column(name = "token_type", nullable = false, unique = true)
-    private String tokenType;
+    @Column(name = "refresh_token", nullable = false)
+    private String refreshToken;
 
     @Column(name = "revoked", nullable = false)
     private Boolean revoked;
-
-    @Column(name = "expired", nullable = false)
-    private Boolean expired;
-
-    @Column(name = "expiration_date")
-    private LocalDateTime expirationDate;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

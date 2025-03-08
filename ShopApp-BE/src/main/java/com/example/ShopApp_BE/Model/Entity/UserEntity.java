@@ -18,11 +18,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserEntity extends AbstractEntity implements UserDetails {
-    @Column(name = "full_name")
+    @Column(name = "full_name", nullable = false)
     private String fullName;
 
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
+
+    @Column(name= "email")
+    private String email;
 
     @Column(name= "address")
     private String address;
@@ -42,11 +45,14 @@ public class UserEntity extends AbstractEntity implements UserDetails {
     @Column(name = "google_account_id")
     private Integer googleAccountId;
 
-    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
-    private List<OrderEntity> orderEntities;
+    @Column(name = "is_active")
+    private Boolean isActive = true;
 
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
     private List<TokenEntity> tokenEntities;
+
+    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
+    private List<OrderEntity> orderEntities;
 
     @ManyToOne
     @JoinColumn(name = "role_id")
@@ -85,7 +91,7 @@ public class UserEntity extends AbstractEntity implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !isActive;
     }
 
     @Override
