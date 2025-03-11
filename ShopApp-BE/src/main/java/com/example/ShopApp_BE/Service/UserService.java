@@ -8,6 +8,8 @@ import com.example.ShopApp_BE.Model.Entity.UserEntity;
 import com.example.ShopApp_BE.Model.Response.TokenResponse;
 import com.example.ShopApp_BE.Model.Response.UserResponse;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -26,7 +28,7 @@ public interface UserService {
 
     UserResponse getUserDetails(String token) throws Exception;
 
-    List<UserResponse> getAllUsers();
+    Page<UserResponse> getAllUsers(PageRequest pageRequest);
 
     UserResponse getById(Long id) throws Exception;
 

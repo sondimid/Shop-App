@@ -1,10 +1,7 @@
 package com.example.ShopApp_BE.Model.Entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "images")
@@ -12,6 +9,7 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ImageEntity extends AbstractEntity {
     @Column(name = "url")
     private String url;
@@ -19,12 +17,4 @@ public class ImageEntity extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private ProductEntity productEntity;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserEntity userEntity;
-
-    @ManyToOne
-    @JoinColumn(name = "image_id")
-    private ImageEntity imageEntity;
 }

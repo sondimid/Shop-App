@@ -13,18 +13,19 @@ import com.example.ShopApp_BE.Repository.RoleRepository;
 import com.example.ShopApp_BE.Repository.TokenRepository;
 import com.example.ShopApp_BE.Repository.UserRepository;
 import com.example.ShopApp_BE.Service.UserService;
-import com.example.ShopApp_BE.Utils.ImageFileUtils;
-import com.example.ShopApp_BE.Utils.JwtTokenUtils;
-import com.example.ShopApp_BE.Utils.MessageKeys;
+import com.example.ShopApp_BE.Utils.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,10 +43,8 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final JwtTokenUtils jwtTokenUtils;
-    private static final String REFRESH_TOKEN = "refresh_token";
-    private static final String ACCESS_TOKEN = "access_token";
-    private static final String UPLOAD_AVATAR_DIR = "D:/uploads/ShopApp-BE/";
-    private static final String FILE_URL = "http://localhost:8080/uploads/";
+    private final FileProperties fileProperties;
+
 
     @Override
     public Optional<UserEntity> getUserByEmail(String phoneNumber) {
@@ -85,8 +84,8 @@ public class UserServiceImpl implements UserService {
         }
 
         TokenEntity tokenEntity = TokenEntity.builder()
-                .accessToken(jwtTokenUtils.generateToken(userEntity, ACCESS_TOKEN))
-                .refreshToken(jwtTokenUtils.generateToken(userEntity, REFRESH_TOKEN))
+                .accessToken(jwtTokenUtils.generateToken(userEntity, TokenType.ACCESS))
+                .refreshToken(jwtTokenUtils.generateToken(userEntity, TokenType.REFRESH))
                 .userEntity(userEntity)
                 .revoked(Boolean.FALSE)
                 .build();
@@ -96,7 +95,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserEntity update(UserUpdateDTO userUpdateDTO, String token) {
-        UserEntity userEntity = userRepository.findByPhoneNumber(jwtTokenUtils.extractPhoneNumber(token, ACCESS_TOKEN)).get();
+        UserEntity userEntity = userRepository.findByPhoneNumber(jwtTokenUtils.extractPhoneNumber(token, TokenType.ACCESS)).get();
 
         if(userRepository.existsByEmail(userUpdateDTO.getEmail())){
             throw new DataIntegrityViolationException(MessageKeys.EMAIL_EXISTED);
@@ -107,7 +106,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void changePassword(UserChangePasswordDTO userChangePasswordDTO, String token) {
-        UserEntity userEntity = userRepository.findByPhoneNumber(jwtTokenUtils.extractPhoneNumber(token, ACCESS_TOKEN)).get();
+        UserEntity userEntity = userRepository.findByPhoneNumber(jwtTokenUtils.extractPhoneNumber(token, TokenType.ACCESS)).get();
 
         if(!passwordEncoder.matches(userChangePasswordDTO.getCurrentPassword(), userEntity.getPassword())){
             throw new DataIntegrityViolationException(MessageKeys.PASSWORD_NOT_MATCH);
@@ -124,15 +123,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getUserDetails(String token) throws Exception {
         UserEntity userEntity = userRepository
-                .findByPhoneNumber(jwtTokenUtils.extractPhoneNumber(token, ACCESS_TOKEN))
+                .findByPhoneNumber(jwtTokenUtils.extractPhoneNumber(token, TokenType.ACCESS))
                 .orElseThrow(() -> new Exception(MessageKeys.ACCESS_TOKEN_INVALID));
         return UserResponse.fromUserEntity(userEntity);
     }
 
     @Override
-    public List<UserResponse> getAllUsers() {
-        List<UserEntity> userEntities = userRepository.findAll();
-        return UserResponse.fromUserEntities(userEntities);
+    public Page<UserResponse> getAllUsers(PageRequest pageRequest) {
+        Page<UserEntity> userPage = userRepository.findAll(pageRequest);
+        return userPage.map(UserResponse::fromUserEntity);
     }
 
     @Override
@@ -165,17 +164,17 @@ public class UserServiceImpl implements UserService {
             throw new Exception(MessageKeys.IMAGE_NOT_VALID);
         }
         UserEntity userEntity = userRepository
-                .findByPhoneNumber(jwtTokenUtils.extractPhoneNumber(token, ACCESS_TOKEN))
+                .findByPhoneNumber(jwtTokenUtils.extractPhoneNumber(token, TokenType.ACCESS))
                 .orElseThrow(() -> new Exception(MessageKeys.ACCESS_TOKEN_INVALID));
-        Path uploadPath = Paths.get(UPLOAD_AVATAR_DIR);
+        Path uploadPath = Paths.get(fileProperties.getDir());
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
         // save file to Drive D
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename().replace(" ","");
-        file.transferTo(new File(UPLOAD_AVATAR_DIR + fileName));
+        file.transferTo(new File(fileProperties.getDir() + fileName));
 
-        String url = FILE_URL + fileName;
+        String url = fileProperties.getUrl() + fileName;
         userEntity.setAvatarUrl(url);
         userRepository.save(userEntity);
         return url;

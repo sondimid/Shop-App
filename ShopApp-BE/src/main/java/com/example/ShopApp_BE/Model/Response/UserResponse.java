@@ -1,16 +1,17 @@
 package com.example.ShopApp_BE.Model.Response;
 
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @Getter
 @Setter
 @Builder
-public class UserResponse {
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserResponse extends AbstractResponse {
     private Long Id;
 
     private String fullName;
@@ -32,7 +33,7 @@ public class UserResponse {
     private String role;
 
     public static UserResponse fromUserEntity(UserEntity userEntity) {
-        return UserResponse.builder()
+        UserResponse userResponse =  UserResponse.builder()
                 .Id(userEntity.getId())
                 .fullName(userEntity.getFullName())
                 .phoneNumber(userEntity.getPhoneNumber())
@@ -41,7 +42,11 @@ public class UserResponse {
                 .avatar(userEntity.getAvatarUrl())
                 .facebookAccountId(userEntity.getFacebookAccountId())
                 .googleAccountId(userEntity.getGoogleAccountId())
-                .role(userEntity.getRoleEntity().getRole()).build();
+                .role(userEntity.getRoleEntity().getRole())
+                .build();
+        userResponse.setCreatedAt(userEntity.getCreatedAt());
+        userResponse.setUpdatedAt(userEntity.getUpdatedAt());
+        return userResponse;
     }
 
     public static List<UserResponse> fromUserEntities(List<UserEntity> userEntities) {

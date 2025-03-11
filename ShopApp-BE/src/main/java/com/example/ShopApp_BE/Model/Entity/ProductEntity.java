@@ -21,10 +21,10 @@ public class ProductEntity extends AbstractEntity{
     @Column(name = "price", nullable = false)
     private Double price;
 
-    @Column(name = "url")
-    private String url;
+    @Column(name = "discount")
+    private Double discount;
 
-    @Column(name = "description", length = 200)
+    @Column(name = "description", length = 500)
     private String description;
 
     @ManyToOne

@@ -21,20 +21,18 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtTokenUtils {
     private final JwtProperties jwtProperties;
-    private final String REFRESH_TOKEN = "refresh_token";
-    private final String ACCESS_TOKEN = "access_token";
 
-    public String generateToken(UserEntity userEntity, String tokenType) {
+    public String generateToken(UserEntity userEntity, TokenType tokenType) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("phoneNumber", userEntity.getPhoneNumber());
         String token;
-        if(tokenType.equals(REFRESH_TOKEN)) {
+        if(tokenType.equals(TokenType.REFRESH)) {
             token = Jwts.builder()
                     .setClaims(claims)
                     .setIssuedAt(new Date())
                     .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpirationRefreshToken() * 1000))
                     .setSubject(userEntity.getPhoneNumber())
-                    .signWith(getSignInKey(REFRESH_TOKEN), SignatureAlgorithm.HS256)
+                    .signWith(getSignInKey(tokenType), SignatureAlgorithm.HS256)
                     .compact();
         }
         else{
@@ -43,13 +41,13 @@ public class JwtTokenUtils {
                     .setIssuedAt(new Date())
                     .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration() * 1000))
                     .setSubject(userEntity.getPhoneNumber())
-                    .signWith(getSignInKey(ACCESS_TOKEN), SignatureAlgorithm.HS256)
+                    .signWith(getSignInKey(tokenType), SignatureAlgorithm.HS256)
                     .compact();
         }
         return token;
     }
 
-    private Claims extractAllClaims(String token, String tokenType) {
+    private Claims extractAllClaims(String token, TokenType tokenType) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey(tokenType))
                 .build()
@@ -57,30 +55,30 @@ public class JwtTokenUtils {
                 .getBody();
     }
 
-    private Key getSignInKey(String tokenType){
+    private Key getSignInKey(TokenType tokenType){
         byte[] bytes;
-        if(tokenType.equals(ACCESS_TOKEN)){
+        if(tokenType == TokenType.ACCESS){
             bytes = Decoders.BASE64.decode(jwtProperties.getSecretKey());
         }
         else bytes = Decoders.BASE64.decode(jwtProperties.getRefreshKey());
         return Keys.hmacShaKeyFor(bytes);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver, String tokenType) {
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver, TokenType tokenType) {
         final Claims claims = extractAllClaims(token, tokenType);
         return claimsResolver.apply(claims);
     }
 
-    public String extractPhoneNumber(String token, String tokenType) {
+    public String extractPhoneNumber(String token, TokenType tokenType) {
         return extractClaim(token, Claims::getSubject, tokenType);
     }
 
-    public Boolean isNotExpired(String token, String tokenType) {
+    public Boolean isNotExpired(String token, TokenType tokenType) {
         Date expiration = extractClaim(token, Claims::getExpiration, tokenType);
         return expiration.after(new Date());
     }
 
-    public Boolean isValid(String token, UserEntity userEntity, String tokenType) {
+    public Boolean isValid(String token, UserEntity userEntity, TokenType tokenType) {
         String phoneNumber = extractPhoneNumber(token, tokenType);
         return userEntity.getPhoneNumber().equals(phoneNumber) && isNotExpired(token, tokenType);
     }

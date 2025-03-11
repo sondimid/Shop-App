@@ -9,6 +9,7 @@ import com.example.ShopApp_BE.Repository.UserRepository;
 import com.example.ShopApp_BE.Service.TokenService;
 import com.example.ShopApp_BE.Utils.JwtTokenUtils;
 import com.example.ShopApp_BE.Utils.MessageKeys;
+import com.example.ShopApp_BE.Utils.TokenType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,17 +22,15 @@ import java.util.Optional;
 public class TokenServiceImpl implements TokenService {
     private final TokenRepository tokenRepository;
     private final JwtTokenUtils jwtTokenUtils;
-    private final String ACCESS_TOKEN = "access_token";
-    private final String REFRESH_TOKEN = "refresh_token";
 
     @Override
     public TokenResponse refreshToken(String refreshToken) {
         TokenEntity tokenEntity = tokenRepository.findByRefreshToken(refreshToken);
-        if(tokenEntity == null || !jwtTokenUtils.isNotExpired(refreshToken, REFRESH_TOKEN)) {
+        if(tokenEntity == null || !jwtTokenUtils.isNotExpired(refreshToken, TokenType.REFRESH)) {
             throw new NullPointerException(MessageKeys.REFRESH_TOKEN_INVALID);
         }
         UserEntity userEntity = tokenEntity.getUserEntity();
-        String accessToken = jwtTokenUtils.generateToken(userEntity, ACCESS_TOKEN);
+        String accessToken = jwtTokenUtils.generateToken(userEntity, TokenType.ACCESS);
         tokenEntity.setAccessToken(accessToken);
         tokenRepository.save(tokenEntity);
         return TokenResponse.fromTokenEntity(tokenEntity);

@@ -33,6 +33,18 @@ public class MessageKeys {
 
     //image
     public static final String IMAGE_NOT_VALID = "image.not.valid";
+    public static final String IMAGE_NOT_FOUND = "image.not.found";
+
+    //product
+    public static final String CREATE_PRODUCT_SUCCESS = "product.create.successfully";
+    public static final String PRODUCT_NOT_FOUND = "product.not.found";
+    public static final String DELETE_PRODUCT_SUCCESS = "delete.product.successfully";
+
+    //category
+    public static final String CATEGORY_NOT_FOUND = "category.not.found";
+    public static final String CREATE_CATEGORY_SUCCESS = "category.create.successfully";
+
+    //
 
 
 

@@ -1,21 +1,14 @@
 package com.example.ShopApp_BE.DTO;
 
-
-import com.example.ShopApp_BE.DTO.ImageDTO;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
 @Getter
 @Setter
 @Builder
-public class ProductDTO {
-
+public class ProductUpdateDTO {
     @NotBlank(message = "name of product is blank")
     private String name;
 
@@ -32,4 +25,7 @@ public class ProductDTO {
     private Long categoryId;
 
     private Double discount;
+
+    private List<Long> IdImageDelete;
+
 }

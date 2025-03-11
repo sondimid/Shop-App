@@ -2,12 +2,15 @@ package com.example.ShopApp_BE.Config;
 
 import com.example.ShopApp_BE.Filter.JwtTokenFilter;
 import com.example.ShopApp_BE.Utils.ApiProperties;
+import com.example.ShopApp_BE.Utils.WhiteList;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.util.Pair;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,8 +19,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -27,14 +33,16 @@ import java.util.Set;
 public class WebSecurityConfig {
     private final ApiProperties apiProperties;
     private final JwtTokenFilter jwtTokenFilter;
-    private final Set<String> WHITE_LIST = new HashSet<>();
+    private static List<String> WHITE_LIST = new ArrayList<>();
 
     @PostConstruct
     public void initWhiteList() {
-        WHITE_LIST.add(String.format("%s/users/login", apiProperties.getPrefix()));
-        WHITE_LIST.add(String.format("%s/users/register", apiProperties.getPrefix()));
-        WHITE_LIST.add(String.format("%s/users/refresh-token", apiProperties.getPrefix()));
-        WHITE_LIST.add("/uploads/**");
+        WHITE_LIST = List.of(
+                String.format("%s/users/login", apiProperties.getPrefix()),
+                String.format("%s/users/register", apiProperties.getPrefix()),
+                String.format("%s/users/refresh-token", apiProperties.getPrefix()),
+                "/uploads/**"
+        );
     }
 
     @Bean
@@ -43,7 +51,9 @@ public class WebSecurityConfig {
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request ->
                     request.requestMatchers(WHITE_LIST.toArray(new String[0])).permitAll()
-                            .requestMatchers(String.format("%s/users/update",apiProperties.getPrefix())).hasAnyRole("USER", "ADMIN")
+                            .requestMatchers(HttpMethod.GET, String.format("%s/products/**", apiProperties.getPrefix()),
+                                    String.format("%s/categories/**", apiProperties.getPrefix()))
+                            .permitAll()
                             .anyRequest().authenticated());
 
         return http.build();

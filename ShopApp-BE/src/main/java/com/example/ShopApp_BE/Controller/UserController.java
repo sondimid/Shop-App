@@ -37,7 +37,6 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_USER') OR hasRole('ROLE_ADMIN')")
     @PutMapping("/profiles")
     public ResponseEntity<?> update(@Valid @RequestBody UserUpdateDTO userUpdateDTO,
                                     @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) {
@@ -50,7 +49,6 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_USER') OR hasRole('ROLE_ADMIN')")
     @PutMapping("/password")
     public ResponseEntity<?> changePassword(@Valid @RequestBody UserChangePasswordDTO userChangePasswordDTO,
                                             @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization){
@@ -64,15 +62,14 @@ public class UserController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) {
+    public ResponseEntity<?> refreshToken(@RequestHeader("refresh_token") String refreshToken) {
         try{
-            return ResponseEntity.accepted().body(tokenService.refreshToken(authorization.substring(7)));
+            return ResponseEntity.accepted().body(tokenService.refreshToken(refreshToken));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_USER') OR hasRole('ROLE_ADMIN')")
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) {
         String accessToken = authorization.substring(7);
@@ -82,7 +79,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_USER')")
+
     @GetMapping("/profiles")
     public ResponseEntity<?> getUserDetails(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) {
         String token = authorization.substring(7);
@@ -93,7 +90,6 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_USER')")
     @PutMapping("/avatar")
     public ResponseEntity<?> uploadAvatar(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization,
                                         @RequestBody MultipartFile file) throws Exception {

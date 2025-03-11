@@ -1,0 +1,123 @@
+package com.example.ShopApp_BE.Service.Impl;
+
+import com.example.ShopApp_BE.DTO.ProductDTO;
+import com.example.ShopApp_BE.DTO.ProductUpdateDTO;
+import com.example.ShopApp_BE.Model.Entity.CategoryEntity;
+import com.example.ShopApp_BE.Model.Entity.ImageEntity;
+import com.example.ShopApp_BE.Model.Entity.ProductEntity;
+import com.example.ShopApp_BE.Model.Response.ProductResponse;
+import com.example.ShopApp_BE.Repository.CategoryRepository;
+import com.example.ShopApp_BE.Repository.ImageRepository;
+import com.example.ShopApp_BE.Repository.ProductRepository;
+import com.example.ShopApp_BE.Service.ProductService;
+import com.example.ShopApp_BE.Utils.FileProperties;
+import com.example.ShopApp_BE.Utils.MessageKeys;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class ProductServiceImpl implements ProductService {
+    private final ProductRepository productRepository;
+    private final ModelMapper modelMapper;
+    private final CategoryRepository categoryRepository;
+    private final FileProperties fileProperties;
+    private final ImageRepository imageRepository;
+    @Override
+    public ProductEntity createProduct(ProductDTO productDTO) throws IOException {
+        ProductEntity productEntity = modelMapper.map(productDTO, ProductEntity.class);
+        CategoryEntity categoryEntity = categoryRepository.findById(productDTO.getCategoryId())
+                .orElseThrow(() -> new IOException(MessageKeys.CATEGORY_NOT_FOUND));
+        productEntity.setCategoryEntity(categoryEntity);
+        Path uploadPath = Paths.get(fileProperties.getDir());
+        if(!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+        List<ImageEntity> imageEntities = new ArrayList<>();
+        for(MultipartFile file : productDTO.getImages()) {
+            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename().replace(" ","");
+            file.transferTo(new File(fileProperties.getDir() + fileName));
+            String url = fileProperties.getUrl() + fileName;
+            ImageEntity imageEntity = ImageEntity.builder()
+                    .url(url)
+                    .productEntity(productEntity)
+                    .build();
+            imageEntities.add(imageEntity);
+        }
+        productEntity.setImageEntities(imageEntities);
+        return productRepository.save(productEntity);
+    }
+
+    @Override
+    public ProductResponse getProduct(Long id) throws Exception {
+        ProductEntity productEntity = productRepository.findById(id)
+                .orElseThrow(() -> new Exception(MessageKeys.PRODUCT_NOT_FOUND));
+        return ProductResponse.fromProductEntity(productEntity);
+    }
+
+    @Override
+    public Page<ProductResponse> getByCategoryId(Long categoryId, Pageable pageable) {
+        Page<ProductEntity> productEntities = productRepository.findByCategoryEntity_Id(categoryId, pageable);
+        return productEntities.map(ProductResponse::fromProductEntity);
+    }
+
+    @Override
+    public ProductResponse updateProduct(ProductUpdateDTO productUpdateDTO, Long id) throws Exception {
+        ProductEntity productEntity = productRepository.findById(id)
+                .orElseThrow(() -> new Exception(MessageKeys.PRODUCT_NOT_FOUND));
+        productEntity.setName(productUpdateDTO.getName());
+        productEntity.setDescription(productUpdateDTO.getDescription());
+        productEntity.setPrice(productUpdateDTO.getPrice());
+        productEntity.setDiscount(productUpdateDTO.getDiscount());
+        productEntity.setCategoryEntity(categoryRepository.findById(productUpdateDTO.getCategoryId()).orElseThrow(
+                () -> new Exception(MessageKeys.CATEGORY_NOT_FOUND)
+        ));
+
+        Path uploadPath = Paths.get(fileProperties.getDir());
+        if(!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+        if(productUpdateDTO.getImages() != null) {
+            for(MultipartFile file : productUpdateDTO.getImages()) {
+                String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename().replace(" ","");
+                file.transferTo(new File(fileProperties.getDir() + fileName));
+                String url = fileProperties.getUrl() + fileName;
+                ImageEntity imageEntity = ImageEntity.builder()
+                        .url(url)
+                        .productEntity(productEntity).build();
+                productEntity.getImageEntities().add(imageEntity);
+            }
+        }
+        if(productUpdateDTO.getIdImageDelete() != null) {
+            for(Long imageId : productUpdateDTO.getIdImageDelete()){
+                ImageEntity imageEntity = imageRepository.findById(imageId).orElseThrow(
+                        () -> new Exception(MessageKeys.IMAGE_NOT_FOUND)
+                );
+//            productEntity.getImageEntities().remove(imageEntity);
+                imageRepository.delete(imageEntity);
+            }
+        }
+        return ProductResponse.fromProductEntity(productRepository.save(productEntity));
+    }
+
+    @Override
+    public void deleteProductById(Long id) throws Exception {
+        ProductEntity productEntity = productRepository.findById(id)
+                .orElseThrow(() -> new Exception(MessageKeys.PRODUCT_NOT_FOUND));
+        productRepository.delete(productEntity);
+    }
+}

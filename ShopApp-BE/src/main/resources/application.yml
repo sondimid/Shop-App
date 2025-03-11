@@ -19,9 +19,12 @@ spring:
 
 api:
   prefix: /api/v1
+file:
+  url: http://localhost:8080/uploads/
+  dir: D:/uploads/ShopApp-BE/
 
 jwt:
-  expiration: 3600
+  expiration: 30
   expiration-refresh-token: 86400
   secret-key: "RIw1DJ/txeArNX2Nf6CmAbxobAI5LH9Qc1HJagsurGPiZROq91Ywe+2zKJ1fn1Ta"
   refresh-key: "/LUlafmFDnG8hvW2ffNwk6zzzoJ+m3KLn3LVKoVzuWJVxHW2HqM74mGl9RsFKgCG"
@@ -29,6 +32,8 @@ jwt:
 logging:
   level:
     org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate: ERROR
 
 
 
