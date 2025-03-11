@@ -14,5 +14,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     @Query(ConfixSql.Product.SEARCH_BY_CATEGORY)
-    Page<ProductEntity> findByCategoryEntity_Id(@Param("categoryId") Long categoryId, Pageable pageable);
+    Page<ProductEntity> findByCategoryEntity_Id(@Param("categoryId") Long categoryId,
+            @Param("keyword") String keyword, Pageable pageable);
+
+    boolean existsByName(String name);
 }

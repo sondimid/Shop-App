@@ -62,7 +62,7 @@ public class UserController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestHeader("refresh_token") String refreshToken) {
+    public ResponseEntity<?> refreshToken(@RequestHeader(MessageKeys.REFRESH_TOKEN_HEADER) String refreshToken) {
         try{
             return ResponseEntity.accepted().body(tokenService.refreshToken(refreshToken));
         } catch (Exception e) {

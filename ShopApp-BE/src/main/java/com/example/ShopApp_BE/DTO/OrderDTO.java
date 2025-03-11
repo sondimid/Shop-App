@@ -1,13 +1,17 @@
-package com.example.ShopApp_BE.Model.DTO;
+package com.example.ShopApp_BE.DTO;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
+
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
+@Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderDTO {
@@ -21,7 +25,8 @@ public class OrderDTO {
 
     private String note;
 
-    private String orderDate;
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    private LocalDateTime orderDate;
 
     private String status;
 
@@ -31,13 +36,12 @@ public class OrderDTO {
 
     private String shippingAddress;
 
-    private String shippingDate;
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    private LocalDateTime shippingDate;
 
     private String trackingNumber;
 
     private String paymentMethod;
 
-    private Long userId;
-
-
+    private List<OrderDetailDTO> orderDetailDTOs;
 }

@@ -1,14 +1,15 @@
 package com.example.ShopApp_BE.Model.Entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "order_details")
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
+@Builder
 public class OrderDetailEntity extends AbstractEntity{
     @Column(name = "price", nullable = false)
     private Double price;

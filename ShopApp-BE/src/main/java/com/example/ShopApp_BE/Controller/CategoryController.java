@@ -27,4 +27,32 @@ public class CategoryController {
         }
     }
 
+    @PutMapping("")
+    public ResponseEntity<?> updateCategory(@ModelAttribute CategoryDTO categoryDTO,
+                                            @PathVariable(name = "id") Long id) {
+        try{
+            categoryService.updateCategory(categoryDTO, id);
+            return ResponseEntity.ok(MessageKeys.UPDATE_SUCCESS);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("")
+    public ResponseEntity<?> getAllCategories() {
+        try{
+            return ResponseEntity.ok().body(categoryService.getAll());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable("id") Long id) {
+        try {
+            return ResponseEntity.ok(categoryService.deleteById(id));
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

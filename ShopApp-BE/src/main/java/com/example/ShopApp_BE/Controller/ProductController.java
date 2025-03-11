@@ -6,10 +6,9 @@ import com.example.ShopApp_BE.Model.Response.PageResponse;
 import com.example.ShopApp_BE.Model.Response.ProductResponse;
 import com.example.ShopApp_BE.Service.ProductService;
 import com.example.ShopApp_BE.Utils.MessageKeys;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+
+import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.query.SortDirection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+
 
 @RestController
 @RequestMapping("${api.prefix}/products")
@@ -62,7 +63,7 @@ public class ProductController {
             Sort.Direction sortDirection =
                     sort.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
             Pageable pageable = PageRequest.of(page, limit, sortDirection, sortField);
-            Page<ProductResponse> productPage = productService.getByCategoryId(categoryId, pageable);
+            Page<ProductResponse> productPage = productService.getByCategoryId(categoryId, keyword, pageable);
             return ResponseEntity.ok().body(PageResponse.builder()
                     .pageSize(limit)
                     .pageNumber(page)
@@ -92,6 +93,29 @@ public class ProductController {
         try{
             productService.deleteProductById(id);
             return ResponseEntity.ok().body(MessageKeys.DELETE_PRODUCT_SUCCESS);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("/fake-data")
+    public ResponseEntity<?> fakeData(@RequestBody List<MultipartFile> images) {
+        try {
+            Faker faker = new Faker(new Locale("vi"));
+            for(int i = 0; i < 10000; i++){
+                String name = faker.commerce().productName();
+                if(productService.existByName(name)) continue;
+                ProductDTO productDTO = ProductDTO.builder()
+                        .name(name)
+                        .description(faker.lorem().sentence())
+                        .categoryId((long)faker.number().numberBetween(1,5))
+                        .price(faker.number().randomDouble(2, 5000000, 100000000))
+                        .discount(faker.number().randomDouble(0, 5, 50))
+                        .images(images)
+                        .build();
+                productService.createProduct(productDTO);
+            }
+            return ResponseEntity.ok().body(MessageKeys.FAKE_DATA_SUCCESS);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

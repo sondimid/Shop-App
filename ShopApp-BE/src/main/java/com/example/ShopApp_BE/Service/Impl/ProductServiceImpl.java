@@ -43,22 +43,25 @@ public class ProductServiceImpl implements ProductService {
         CategoryEntity categoryEntity = categoryRepository.findById(productDTO.getCategoryId())
                 .orElseThrow(() -> new IOException(MessageKeys.CATEGORY_NOT_FOUND));
         productEntity.setCategoryEntity(categoryEntity);
+
         Path uploadPath = Paths.get(fileProperties.getDir());
         if(!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
         List<ImageEntity> imageEntities = new ArrayList<>();
-        for(MultipartFile file : productDTO.getImages()) {
-            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename().replace(" ","");
-            file.transferTo(new File(fileProperties.getDir() + fileName));
-            String url = fileProperties.getUrl() + fileName;
-            ImageEntity imageEntity = ImageEntity.builder()
-                    .url(url)
-                    .productEntity(productEntity)
-                    .build();
-            imageEntities.add(imageEntity);
+        if(productDTO.getImages() != null) {
+            for(MultipartFile file : productDTO.getImages()) {
+                String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename().replace(" ","");
+                file.transferTo(new File(fileProperties.getDir() + fileName));
+                String url = fileProperties.getUrl() + fileName;
+                ImageEntity imageEntity = ImageEntity.builder()
+                        .url(url)
+                        .productEntity(productEntity)
+                        .build();
+                imageEntities.add(imageEntity);
+            }
+            productEntity.setImageEntities(imageEntities);
         }
-        productEntity.setImageEntities(imageEntities);
         return productRepository.save(productEntity);
     }
 
@@ -70,8 +73,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> getByCategoryId(Long categoryId, Pageable pageable) {
-        Page<ProductEntity> productEntities = productRepository.findByCategoryEntity_Id(categoryId, pageable);
+    public Page<ProductResponse> getByCategoryId(Long categoryId, String keyword, Pageable pageable) {
+        Page<ProductEntity> productEntities = productRepository.findByCategoryEntity_Id(categoryId, keyword, pageable);
         return productEntities.map(ProductResponse::fromProductEntity);
     }
 
@@ -119,5 +122,10 @@ public class ProductServiceImpl implements ProductService {
         ProductEntity productEntity = productRepository.findById(id)
                 .orElseThrow(() -> new Exception(MessageKeys.PRODUCT_NOT_FOUND));
         productRepository.delete(productEntity);
+    }
+
+    @Override
+    public boolean existByName(String name) {
+        return productRepository.existsByName(name);
     }
 }

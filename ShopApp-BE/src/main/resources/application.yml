@@ -24,7 +24,7 @@ file:
   dir: D:/uploads/ShopApp-BE/
 
 jwt:
-  expiration: 30
+  expiration: 1800
   expiration-refresh-token: 86400
   secret-key: "RIw1DJ/txeArNX2Nf6CmAbxobAI5LH9Qc1HJagsurGPiZROq91Ywe+2zKJ1fn1Ta"
   refresh-key: "/LUlafmFDnG8hvW2ffNwk6zzzoJ+m3KLn3LVKoVzuWJVxHW2HqM74mGl9RsFKgCG"

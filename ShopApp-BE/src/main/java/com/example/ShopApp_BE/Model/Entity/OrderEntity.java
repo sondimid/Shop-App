@@ -1,12 +1,10 @@
 package com.example.ShopApp_BE.Model.Entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -15,6 +13,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class OrderEntity extends AbstractEntity {
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
@@ -31,9 +30,8 @@ public class OrderEntity extends AbstractEntity {
     @Column(name = "note", length = 200)
     private String note;
 
-    @CreatedDate
     @Column(name = "order_date", nullable = false)
-    private String orderDate;
+    private LocalDateTime orderDate;
 
     @Column(name = "status", nullable = false)
     private String status;
@@ -48,7 +46,7 @@ public class OrderEntity extends AbstractEntity {
     private String shippingAddress;
 
     @Column(name = "shipping_date")
-    private String shippingDate;
+    private LocalDateTime shippingDate;
 
     @Column(name = "tracking_number", length = 20)
     private String trackingNumber;
@@ -61,6 +59,6 @@ public class OrderEntity extends AbstractEntity {
     private UserEntity userEntity;
 
     @OneToMany(mappedBy = "orderEntity", cascade = CascadeType.ALL)
-    private List<OrderDetailEntity> orderDetailEntityList;
+    private List<OrderDetailEntity> orderDetailEntities;
 
 }

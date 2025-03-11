@@ -30,6 +30,7 @@ public class MessageKeys {
 
     //header
     public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String REFRESH_TOKEN_HEADER = "refresh_token";
 
     //image
     public static final String IMAGE_NOT_VALID = "image.not.valid";
@@ -43,8 +44,15 @@ public class MessageKeys {
     //category
     public static final String CATEGORY_NOT_FOUND = "category.not.found";
     public static final String CREATE_CATEGORY_SUCCESS = "category.create.successfully";
+    public static final String DELETE_CATEGORY_SUCCESS = "category.delete.successfully";
 
-    //
+    //fake data
+    public static final String FAKE_DATA_SUCCESS = "fake.data.successfully";
+
+    //order
+    public static final String CREATE_ORDER_SUCCESS = "order.create.successfully";
+    public static final String DELETE_ORDER_SUCCESS = "order.delete.successfully";
+    public static final String ORDER_NOT_FOUND = "order.not.found";
 
 
 

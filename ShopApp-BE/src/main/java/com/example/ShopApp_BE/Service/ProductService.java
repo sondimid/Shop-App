@@ -19,9 +19,11 @@ public interface ProductService {
 
     ProductResponse getProduct(Long id) throws Exception;
 
-    Page<ProductResponse> getByCategoryId(Long categoryId, Pageable pageable);
+    Page<ProductResponse> getByCategoryId(Long categoryId, String keyword, Pageable pageable);
 
     ProductResponse updateProduct(ProductUpdateDTO productUpdateDTO, Long id) throws Exception;
 
     void deleteProductById(Long id) throws Exception;
+
+    boolean existByName(String name);
 }
