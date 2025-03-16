@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -37,7 +38,10 @@ public class UserEntity extends AbstractEntity implements UserDetails {
     private String avatarUrl;
 
     @Column(name = "date_of_birth")
-    private String dateOfBirth;
+    private LocalDateTime dateOfBirth;
+
+    @Column(name = "reset-token")
+    private String resetToken;
 
     @Column(name = "facebook_account_id")
     private Integer facebookAccountId;

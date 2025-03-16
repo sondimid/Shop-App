@@ -1,9 +1,6 @@
 package com.example.ShopApp_BE.Service;
 
-import com.example.ShopApp_BE.DTO.UserChangePasswordDTO;
-import com.example.ShopApp_BE.DTO.UserLoginDTO;
-import com.example.ShopApp_BE.DTO.UserRegisterDTO;
-import com.example.ShopApp_BE.DTO.UserUpdateDTO;
+import com.example.ShopApp_BE.DTO.*;
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
 import com.example.ShopApp_BE.Model.Response.TokenResponse;
 import com.example.ShopApp_BE.Model.Response.UserResponse;
@@ -37,4 +34,8 @@ public interface UserService {
     String unLockByIds(List<Long> ids);
 
     String uploadAvatar(String token, MultipartFile file) throws Exception;
+
+    String forgotPassword(String email) throws Exception;
+
+    UserEntity resetPassword(ResetPasswordDTO resetPasswordDTO) throws Exception;
 }

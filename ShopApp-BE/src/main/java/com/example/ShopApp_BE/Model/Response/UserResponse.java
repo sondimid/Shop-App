@@ -3,6 +3,7 @@ package com.example.ShopApp_BE.Model.Response;
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class UserResponse extends AbstractResponse {
 
     private String password;
 
-    private String dateOfBirth;
+    private LocalDateTime dateOfBirth;
 
     private String avatar;
 

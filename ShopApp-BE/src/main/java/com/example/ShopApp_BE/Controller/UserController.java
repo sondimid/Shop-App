@@ -100,4 +100,23 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody EmailDTO emailDTO) {
+        try{
+            return ResponseEntity.accepted().body(userService.forgotPassword(emailDTO.getEmail()));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) {
+        try{
+            userService.resetPassword(resetPasswordDTO);
+            return ResponseEntity.accepted().body(MessageKeys.RESET_PASSWORD_SUCCESS);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

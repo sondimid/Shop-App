@@ -19,14 +19,19 @@ public class MessageKeys {
     //user
     public static final String UPDATE_SUCCESS = "update.successfully";
     public static final String USER_ID_NOT_FOUND = "user.id.not.found";
+    public static final String UNAUTHORIZED = "unauthorized";
 
-    //change password
+    //password
     public static final String CONFIRM_PASSWORD_NOT_MATCH = "confirm.password.mismatch";
+    public static final String RESET_PASSWORD = "RESET PASSWORD";
+    public static final String SEND_EMAIL_RESET_PASSWORD_SUCCESS = "send.email.reset.password.successfully";
+    public static final String RESET_PASSWORD_SUCCESS = "reset.password.successfully";
 
     //token
     public static final String DELETE_TOKEN_SUCCESS = "delete.token.successfully";
     public static final String REFRESH_TOKEN_INVALID = "refresh.token.invalid";
     public static final String ACCESS_TOKEN_INVALID = "access.token.invalid";
+    public static final String RESET_TOKEN_INVALID = "reset.token.invalid";
 
     //header
     public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -53,6 +58,7 @@ public class MessageKeys {
     public static final String CREATE_ORDER_SUCCESS = "order.create.successfully";
     public static final String DELETE_ORDER_SUCCESS = "order.delete.successfully";
     public static final String ORDER_NOT_FOUND = "order.not.found";
+    public static final String STATUS_IN_VALID = "status.in.valid";
 
 
 

@@ -25,6 +25,7 @@ public class JwtTokenUtils {
     public String generateToken(UserEntity userEntity, TokenType tokenType) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("phoneNumber", userEntity.getPhoneNumber());
+        claims.put("role", userEntity.getRoleEntity().getRole());
         String token;
         if(tokenType.equals(TokenType.REFRESH)) {
             token = Jwts.builder()
@@ -35,11 +36,20 @@ public class JwtTokenUtils {
                     .signWith(getSignInKey(tokenType), SignatureAlgorithm.HS256)
                     .compact();
         }
-        else{
+        else if (tokenType.equals(TokenType.ACCESS)){
             token = Jwts.builder()
                     .setClaims(claims)
                     .setIssuedAt(new Date())
                     .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration() * 1000))
+                    .setSubject(userEntity.getPhoneNumber())
+                    .signWith(getSignInKey(tokenType), SignatureAlgorithm.HS256)
+                    .compact();
+        }
+        else {
+            token = Jwts.builder()
+                    .setClaims(claims)
+                    .setIssuedAt(new Date())
+                    .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpirationResetToken() * 1000))
                     .setSubject(userEntity.getPhoneNumber())
                     .signWith(getSignInKey(tokenType), SignatureAlgorithm.HS256)
                     .compact();
@@ -57,10 +67,11 @@ public class JwtTokenUtils {
 
     private Key getSignInKey(TokenType tokenType){
         byte[] bytes;
-        if(tokenType == TokenType.ACCESS){
+        if(tokenType.equals(TokenType.ACCESS)){
             bytes = Decoders.BASE64.decode(jwtProperties.getSecretKey());
         }
-        else bytes = Decoders.BASE64.decode(jwtProperties.getRefreshKey());
+        else if (tokenType.equals(TokenType.REFRESH)) bytes = Decoders.BASE64.decode(jwtProperties.getRefreshKey());
+        else bytes = Decoders.BASE64.decode(jwtProperties.getResetKey());
         return Keys.hmacShaKeyFor(bytes);
     }
 
@@ -71,6 +82,10 @@ public class JwtTokenUtils {
 
     public String extractPhoneNumber(String token, TokenType tokenType) {
         return extractClaim(token, Claims::getSubject, tokenType);
+    }
+
+    public String extractRole(String token, TokenType tokenType) {
+        return extractClaim(token, claims -> claims.get("role", String.class), tokenType);
     }
 
     public Boolean isNotExpired(String token, TokenType tokenType) {

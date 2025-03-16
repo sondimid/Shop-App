@@ -1,9 +1,6 @@
 package com.example.ShopApp_BE.Service.Impl;
 
-import com.example.ShopApp_BE.DTO.UserChangePasswordDTO;
-import com.example.ShopApp_BE.DTO.UserLoginDTO;
-import com.example.ShopApp_BE.DTO.UserRegisterDTO;
-import com.example.ShopApp_BE.DTO.UserUpdateDTO;
+import com.example.ShopApp_BE.DTO.*;
 import com.example.ShopApp_BE.Model.Entity.RoleEntity;
 import com.example.ShopApp_BE.Model.Entity.TokenEntity;
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
@@ -12,6 +9,7 @@ import com.example.ShopApp_BE.Model.Response.UserResponse;
 import com.example.ShopApp_BE.Repository.RoleRepository;
 import com.example.ShopApp_BE.Repository.TokenRepository;
 import com.example.ShopApp_BE.Repository.UserRepository;
+import com.example.ShopApp_BE.Service.MailService;
 import com.example.ShopApp_BE.Service.UserService;
 import com.example.ShopApp_BE.Utils.*;
 import jakarta.transaction.Transactional;
@@ -29,6 +27,8 @@ import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -44,6 +44,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final JwtTokenUtils jwtTokenUtils;
     private final FileProperties fileProperties;
+    private final MailService mailService;
 
 
     @Override
@@ -57,6 +58,9 @@ public class UserServiceImpl implements UserService {
             throw new DataIntegrityViolationException(MessageKeys.PHONENUMBER_EXISTED);
         }
 
+        if(userRepository.existsByEmail(userRegisterDTO.getEmail())){
+            throw new DataIntegrityViolationException(MessageKeys.EMAIL_EXISTED);
+        }
         if(!userRegisterDTO.getPassword().equals(userRegisterDTO.getConfirmPassword())){
             throw new DataIntegrityViolationException(MessageKeys.PASSWORD_NOT_MATCH);
         }
@@ -178,5 +182,34 @@ public class UserServiceImpl implements UserService {
         userEntity.setAvatarUrl(url);
         userRepository.save(userEntity);
         return url;
+    }
+
+    @Override
+    public String forgotPassword(String email) throws Exception {
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new Exception(MessageKeys.USER_ID_NOT_FOUND));
+        if(userEntity.getIsActive().equals(Boolean.FALSE)){
+            throw new Exception(MessageKeys.ACCOUNT_LOCK);
+        }
+        String resetToken = jwtTokenUtils.generateToken(userEntity, TokenType.RESET);
+        userEntity.setResetToken(resetToken);
+        String confirmUrl = "http://localhost:8080/api/v1/users/reset-password?token=" + resetToken;
+        mailService.sendEmailResetPassword(confirmUrl, userRepository.save(userEntity));
+        return MessageKeys.SEND_EMAIL_RESET_PASSWORD_SUCCESS;
+    }
+
+    @Override
+    public UserEntity resetPassword(ResetPasswordDTO resetPasswordDTO) throws Exception {
+        if(!jwtTokenUtils.isNotExpired(resetPasswordDTO.getResetToken(), TokenType.RESET)){
+            throw new Exception(MessageKeys.RESET_TOKEN_INVALID);
+        }
+        UserEntity userEntity = userRepository.findByResetToken(resetPasswordDTO.getResetToken())
+                .orElseThrow(() -> new Exception(MessageKeys.USER_ID_NOT_FOUND));
+        if(userEntity.getIsActive().equals(Boolean.FALSE)) throw new Exception(MessageKeys.ACCOUNT_LOCK);
+        if(!resetPasswordDTO.getNewPassword().equals(resetPasswordDTO.getConfirmPassword()))
+            throw new Exception(MessageKeys.CONFIRM_PASSWORD_NOT_MATCH);
+        userEntity.setPassword(passwordEncoder.encode(resetPasswordDTO.getNewPassword()));
+        userEntity.setResetToken(null);
+        return userRepository.save(userEntity);
     }
 }

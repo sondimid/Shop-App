@@ -41,6 +41,8 @@ public class WebSecurityConfig {
                 String.format("%s/users/login", apiProperties.getPrefix()),
                 String.format("%s/users/register", apiProperties.getPrefix()),
                 String.format("%s/users/refresh-token", apiProperties.getPrefix()),
+                String.format("%s/users/forgot-password", apiProperties.getPrefix()),
+                String.format("%s/users/reset-password", apiProperties.getPrefix()),
                 "/uploads/**"
         );
     }
