@@ -13,9 +13,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class TokenEntity extends AbstractEntity {
-    @Column(name = "access_token", nullable = false)
-    private String accessToken;
-
     @Column(name = "refresh_token", nullable = false)
     private String refreshToken;
 

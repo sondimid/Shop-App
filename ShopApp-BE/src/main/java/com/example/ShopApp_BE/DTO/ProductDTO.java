@@ -15,6 +15,7 @@ import java.util.List;
 @Setter
 @Builder
 public class ProductDTO {
+    private Long id;
 
     @NotBlank(message = "name of product is blank")
     private String name;

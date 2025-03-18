@@ -18,9 +18,9 @@ public class TokenResponse extends AbstractResponse{
 
     private Long userId;
 
-    public static TokenResponse fromTokenEntity(TokenEntity tokenEntity) {
+    public static TokenResponse fromTokenEntity(TokenEntity tokenEntity, String accessToken) {
         TokenResponse tokenResponse = TokenResponse.builder()
-            .accessToken(tokenEntity.getAccessToken())
+            .accessToken(accessToken)
             .refreshToken(tokenEntity.getRefreshToken())
             .revoke(tokenEntity.getRevoked())
             .userId(tokenEntity.getUserEntity().getId())

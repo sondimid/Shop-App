@@ -60,6 +60,11 @@ public class MessageKeys {
     public static final String ORDER_NOT_FOUND = "order.not.found";
     public static final String STATUS_IN_VALID = "status.in.valid";
 
+    //comment
+    public static final String CREATE_COMMENT_SUCCESS = "comment.create.successfully";
+    public static final String DELETE_COMMENT_SUCCESS = "comment.delete.successfully";
+    public static final String COMMENT_NOT_FOUND = "comment.not.found";
+
 
 
 }

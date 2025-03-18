@@ -20,103 +20,81 @@ public class UserController {
 
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
-        try{
-            return ResponseEntity.accepted().body(userService.login(userLoginDTO));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+
+        return ResponseEntity.accepted().body(userService.login(userLoginDTO));
+
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserRegisterDTO userRegisterDTO) {
-        try{
-            userService.createUser(userRegisterDTO);
-            return ResponseEntity.accepted().body(MessageKeys.REGISTER_SUCCESS);
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+
+        userService.createUser(userRegisterDTO);
+        return ResponseEntity.accepted().body(MessageKeys.REGISTER_SUCCESS);
+
     }
 
     @PutMapping("/profiles")
     public ResponseEntity<?> update(@Valid @RequestBody UserUpdateDTO userUpdateDTO,
                                     @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) {
         String token = authorization.substring(7);
-        try{
-            userService.update(userUpdateDTO, token);
-            return ResponseEntity.accepted().body(MessageKeys.UPDATE_SUCCESS);
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+
+        userService.update(userUpdateDTO, token);
+        return ResponseEntity.accepted().body(MessageKeys.UPDATE_SUCCESS);
+
     }
 
     @PutMapping("/password")
     public ResponseEntity<?> changePassword(@Valid @RequestBody UserChangePasswordDTO userChangePasswordDTO,
                                             @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization){
         String token = authorization.substring(7);
-        try {
-            userService.changePassword(userChangePasswordDTO, token);
-            return ResponseEntity.accepted().body(MessageKeys.UPDATE_SUCCESS);
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+
+        userService.changePassword(userChangePasswordDTO, token);
+        return ResponseEntity.accepted().body(MessageKeys.UPDATE_SUCCESS);
+
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestHeader(MessageKeys.REFRESH_TOKEN_HEADER) String refreshToken) {
-        try{
-            return ResponseEntity.accepted().body(tokenService.refreshToken(refreshToken));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<?> refreshToken(@RequestHeader(MessageKeys.REFRESH_TOKEN_HEADER) String refreshToken) throws Exception {
+
+        return ResponseEntity.accepted().body(tokenService.refreshToken(refreshToken));
+
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) {
-        String accessToken = authorization.substring(7);
-        try{
-            return ResponseEntity.accepted().body(tokenService.deleteToken(accessToken));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<?> logout(@RequestHeader(MessageKeys.REFRESH_TOKEN_HEADER) String refreshToken) throws Exception {
+        tokenService.deleteToken(refreshToken);
+        return ResponseEntity.accepted().body(MessageKeys.DELETE_TOKEN_SUCCESS);
+
     }
 
     @GetMapping("/profiles")
-    public ResponseEntity<?> getUserDetails(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) {
+    public ResponseEntity<?> getUserDetails(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) throws Exception {
         String token = authorization.substring(7);
-        try{
-            return ResponseEntity.ok().body(userService.getUserDetails(token));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+
+        return ResponseEntity.ok().body(userService.getUserDetails(token));
+
     }
 
     @PutMapping("/avatar")
     public ResponseEntity<?> uploadAvatar(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization,
                                         @RequestBody MultipartFile file) throws Exception {
-        try {
-            return ResponseEntity.accepted()
-                    .body(userService.uploadAvatar(authorization.substring(7), file));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+
+        return ResponseEntity.accepted()
+                .body(userService.uploadAvatar(authorization.substring(7), file));
+
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestBody EmailDTO emailDTO) {
-        try{
-            return ResponseEntity.accepted().body(userService.forgotPassword(emailDTO.getEmail()));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<?> forgotPassword(@RequestBody EmailDTO emailDTO) throws Exception {
+
+        return ResponseEntity.accepted().body(userService.forgotPassword(emailDTO.getEmail()));
+
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) {
-        try{
-            userService.resetPassword(resetPasswordDTO);
-            return ResponseEntity.accepted().body(MessageKeys.RESET_PASSWORD_SUCCESS);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) throws Exception {
+        userService.resetPassword(resetPasswordDTO);
+        return ResponseEntity.accepted().body(MessageKeys.RESET_PASSWORD_SUCCESS);
+
     }
 }

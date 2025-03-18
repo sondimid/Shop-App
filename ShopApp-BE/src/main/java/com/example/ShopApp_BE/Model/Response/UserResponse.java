@@ -21,8 +21,6 @@ public class UserResponse extends AbstractResponse {
 
     private String address;
 
-    private String password;
-
     private LocalDateTime dateOfBirth;
 
     private String avatar;

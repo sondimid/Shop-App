@@ -63,8 +63,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         final String token = authHeader.replace("Bearer ", "");
         String phoneNumber = jwtTokenUtils.extractPhoneNumber(token, TokenType.ACCESS);
-        if(phoneNumber != null && SecurityContextHolder.getContext().getAuthentication() == null
-            && tokenRepository.existsByAccessToken(token)) {
+        if(phoneNumber != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserEntity userEntity = (UserEntity) userDetailsService.loadUserByUsername(phoneNumber);
             if(jwtTokenUtils.isValid(token, userEntity, TokenType.ACCESS)) {
                 UsernamePasswordAuthenticationToken authenticationToken =

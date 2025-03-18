@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("${api.prefix}/admin")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
     private final UserService userService;
 
@@ -25,45 +25,37 @@ public class AdminController {
     public ResponseEntity<?> getAllUsers(
             @RequestParam(name = "page", defaultValue = "0") Integer page,
             @RequestParam(name = "limit", defaultValue = "3") Integer limit) {
-        try{
+
             PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
             Page<UserResponse> userPage = userService.getAllUsers(pageRequest);
-            return ResponseEntity.ok().body(PageResponse.builder()
-                    .content(Arrays.asList(userPage.getContent().toArray()))
+        return ResponseEntity.ok().body(PageResponse.builder()
+                    .content(userPage.getContent())
                     .pageNumber(page)
                     .pageSize(limit)
                     .totalElements(userPage.getTotalElements())
                     .totalPages(userPage.getTotalPages())
                     .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable(name = "id") Long id) {
-        try{
-            return ResponseEntity.ok().body(userService.getById(id));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<?> getUserById(@PathVariable(name = "id") Long id) throws Exception {
+
+        return ResponseEntity.ok().body(userService.getById(id));
+
     }
 
     @PutMapping("/users/lock")
     public ResponseEntity<?> lockUserByIds(@RequestBody List<Long> ids) {
-        try {
-            return ResponseEntity.accepted().body(userService.lockByIds(ids));
-        }catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+
+        return ResponseEntity.accepted().body(userService.lockByIds(ids));
+
     }
 
     @PutMapping("/users/unlock")
     public ResponseEntity<?> unlockUserByIds(@RequestBody List<Long> ids) {
-        try {
-            return ResponseEntity.accepted().body(userService.unLockByIds(ids));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+
+        return ResponseEntity.accepted().body(userService.unLockByIds(ids));
+
     }
 }

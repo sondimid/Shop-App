@@ -8,8 +8,8 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class PageResponse<T>  {
-    List<T> content;
+public class PageResponse {
+    List<?> content;
     Integer pageNumber;
     Integer pageSize;
     Long totalElements;

@@ -2,6 +2,7 @@ package com.example.ShopApp_BE.Service.Impl;
 
 import com.example.ShopApp_BE.DTO.ProductDTO;
 import com.example.ShopApp_BE.DTO.ProductUpdateDTO;
+import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
 import com.example.ShopApp_BE.Model.Entity.CategoryEntity;
 import com.example.ShopApp_BE.Model.Entity.ImageEntity;
 import com.example.ShopApp_BE.Model.Entity.ProductEntity;
@@ -15,7 +16,6 @@ import com.example.ShopApp_BE.Utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,10 +38,10 @@ public class ProductServiceImpl implements ProductService {
     private final FileProperties fileProperties;
     private final ImageRepository imageRepository;
     @Override
-    public ProductEntity createProduct(ProductDTO productDTO) throws IOException {
+    public ProductEntity createProduct(ProductDTO productDTO) throws NotFoundException, IOException {
         ProductEntity productEntity = modelMapper.map(productDTO, ProductEntity.class);
         CategoryEntity categoryEntity = categoryRepository.findById(productDTO.getCategoryId())
-                .orElseThrow(() -> new IOException(MessageKeys.CATEGORY_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(MessageKeys.CATEGORY_NOT_FOUND));
         productEntity.setCategoryEntity(categoryEntity);
 
         Path uploadPath = Paths.get(fileProperties.getDir());
@@ -68,7 +68,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse getProduct(Long id) throws Exception {
         ProductEntity productEntity = productRepository.findById(id)
-                .orElseThrow(() -> new Exception(MessageKeys.PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(MessageKeys.PRODUCT_NOT_FOUND));
         return ProductResponse.fromProductEntity(productEntity);
     }
 
@@ -81,13 +81,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse updateProduct(ProductUpdateDTO productUpdateDTO, Long id) throws Exception {
         ProductEntity productEntity = productRepository.findById(id)
-                .orElseThrow(() -> new Exception(MessageKeys.PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(MessageKeys.PRODUCT_NOT_FOUND));
         productEntity.setName(productUpdateDTO.getName());
         productEntity.setDescription(productUpdateDTO.getDescription());
         productEntity.setPrice(productUpdateDTO.getPrice());
         productEntity.setDiscount(productUpdateDTO.getDiscount());
         productEntity.setCategoryEntity(categoryRepository.findById(productUpdateDTO.getCategoryId()).orElseThrow(
-                () -> new Exception(MessageKeys.CATEGORY_NOT_FOUND)
+                () -> new NotFoundException(MessageKeys.CATEGORY_NOT_FOUND)
         ));
 
         Path uploadPath = Paths.get(fileProperties.getDir());
@@ -108,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
         if(productUpdateDTO.getIdImageDelete() != null) {
             for(Long imageId : productUpdateDTO.getIdImageDelete()){
                 ImageEntity imageEntity = imageRepository.findById(imageId).orElseThrow(
-                        () -> new Exception(MessageKeys.IMAGE_NOT_FOUND)
+                        () -> new NotFoundException(MessageKeys.IMAGE_NOT_FOUND)
                 );
 //            productEntity.getImageEntities().remove(imageEntity);
                 imageRepository.delete(imageEntity);
@@ -120,7 +120,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProductById(Long id) throws Exception {
         ProductEntity productEntity = productRepository.findById(id)
-                .orElseThrow(() -> new Exception(MessageKeys.PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(MessageKeys.PRODUCT_NOT_FOUND));
         productRepository.delete(productEntity);
     }
 

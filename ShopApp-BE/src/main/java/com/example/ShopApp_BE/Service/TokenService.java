@@ -8,7 +8,7 @@ import jakarta.validation.Valid;
 
 
 public interface TokenService {
-    TokenResponse refreshToken(String refreshToken);
+    TokenResponse refreshToken(String refreshToken) throws Exception;
 
-    String deleteToken(String accessToken);
+    void deleteToken(String refreshToken) throws Exception;
 }

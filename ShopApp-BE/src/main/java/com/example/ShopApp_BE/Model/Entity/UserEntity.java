@@ -52,6 +52,9 @@ public class UserEntity extends AbstractEntity implements UserDetails {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
+    @OneToOne(mappedBy = "userEntity", cascade = CascadeType.ALL)
+    private CartEntity cartEntity = new CartEntity();
+
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
     private List<TokenEntity> tokenEntities;
 

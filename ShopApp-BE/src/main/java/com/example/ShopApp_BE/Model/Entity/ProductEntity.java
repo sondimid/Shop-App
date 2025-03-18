@@ -39,4 +39,7 @@ public class ProductEntity extends AbstractEntity{
 
     @OneToMany(mappedBy = "productEntity", cascade = CascadeType.ALL)
     private List<ImageEntity> imageEntities;
+
+    @OneToMany(mappedBy = "productEntity", cascade = CascadeType.ALL)
+    private List<CartDetailEntity> cartDetailEntities;
 }

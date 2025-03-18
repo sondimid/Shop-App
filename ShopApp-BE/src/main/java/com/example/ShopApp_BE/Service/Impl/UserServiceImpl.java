@@ -1,6 +1,7 @@
 package com.example.ShopApp_BE.Service.Impl;
 
 import com.example.ShopApp_BE.DTO.*;
+import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
 import com.example.ShopApp_BE.Model.Entity.RoleEntity;
 import com.example.ShopApp_BE.Model.Entity.TokenEntity;
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
@@ -23,12 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Date;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -86,15 +84,14 @@ public class UserServiceImpl implements UserService {
         if(userEntity.getIsActive().equals(Boolean.FALSE)){
             throw new DataIntegrityViolationException(MessageKeys.ACCOUNT_LOCK);
         }
-
+        String accessToken = jwtTokenUtils.generateToken(userEntity, TokenType.ACCESS);
         TokenEntity tokenEntity = TokenEntity.builder()
-                .accessToken(jwtTokenUtils.generateToken(userEntity, TokenType.ACCESS))
                 .refreshToken(jwtTokenUtils.generateToken(userEntity, TokenType.REFRESH))
                 .userEntity(userEntity)
                 .revoked(Boolean.FALSE)
                 .build();
         tokenRepository.save(tokenEntity);
-        return TokenResponse.fromTokenEntity(tokenEntity);
+        return TokenResponse.fromTokenEntity(tokenEntity, accessToken);
     }
 
     @Override
@@ -142,7 +139,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse getById(Long id) throws Exception {
         UserEntity userEntity = userRepository
                 .findById(id)
-                .orElseThrow(() -> new Exception(MessageKeys.USER_ID_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
         return UserResponse.fromUserEntity(userEntity);
     }
 
@@ -187,7 +184,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public String forgotPassword(String email) throws Exception {
         UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new Exception(MessageKeys.USER_ID_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
         if(userEntity.getIsActive().equals(Boolean.FALSE)){
             throw new Exception(MessageKeys.ACCOUNT_LOCK);
         }
@@ -210,6 +207,7 @@ public class UserServiceImpl implements UserService {
             throw new Exception(MessageKeys.CONFIRM_PASSWORD_NOT_MATCH);
         userEntity.setPassword(passwordEncoder.encode(resetPasswordDTO.getNewPassword()));
         userEntity.setResetToken(null);
+        userEntity.setTokenEntities(null);
         return userRepository.save(userEntity);
     }
 }

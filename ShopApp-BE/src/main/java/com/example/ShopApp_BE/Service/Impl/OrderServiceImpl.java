@@ -1,7 +1,9 @@
 package com.example.ShopApp_BE.Service.Impl;
 
+import com.example.ShopApp_BE.ControllerAdvice.Exceptions.UnauthorizedAccessException;
 import com.example.ShopApp_BE.DTO.OrderDTO;
 import com.example.ShopApp_BE.DTO.OrderDetailDTO;
+import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
 import com.example.ShopApp_BE.Model.Entity.OrderDetailEntity;
 import com.example.ShopApp_BE.Model.Entity.OrderEntity;
 import com.example.ShopApp_BE.Model.Entity.ProductEntity;
@@ -15,18 +17,12 @@ import com.example.ShopApp_BE.Service.MailService;
 import com.example.ShopApp_BE.Service.OrderService;
 import com.example.ShopApp_BE.Utils.MessageKeys;
 import com.example.ShopApp_BE.Utils.OrderStatus;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,13 +41,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderEntity createOrder(OrderDTO orderDTO, String phoneNumber) throws Exception {
         UserEntity userEntity = userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new Exception(MessageKeys.USER_ID_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
         OrderEntity orderEntity = modelMapper.map(orderDTO, OrderEntity.class);
         orderEntity.setUserEntity(userEntity);
         orderEntity.setOrderDetailEntities(new ArrayList<>());
         for(OrderDetailDTO orderDetailDTO : orderDTO.getOrderDetailDTOs()){
             ProductEntity productEntity = productRepository.findById(orderDetailDTO.getProductId()).orElseThrow(
-                    () -> new Exception(MessageKeys.PRODUCT_NOT_FOUND));
+                    () -> new NotFoundException(MessageKeys.PRODUCT_NOT_FOUND));
             OrderDetailEntity orderDetailEntity = modelMapper.map(orderDetailDTO,OrderDetailEntity.class);
             orderDetailEntity.setOrderEntity(orderEntity);
             orderDetailEntity.setProductEntity(productEntity);
@@ -65,15 +61,15 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderEntity updateOrder(OrderDTO orderDTO, Long orderId, String phoneNumber) throws Exception {
         OrderEntity orderEntity = orderRepository.findById(orderId)
-                .orElseThrow(() -> new Exception(MessageKeys.ORDER_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(MessageKeys.ORDER_NOT_FOUND));
         UserEntity userEntity = userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new Exception(MessageKeys.USER_ID_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
         orderEntity = modelMapper.map(orderDTO, OrderEntity.class);
         orderEntity.setUserEntity(userEntity);
         orderEntity.setOrderDetailEntities(new ArrayList<>());
         for(OrderDetailDTO orderDetailDTO : orderDTO.getOrderDetailDTOs()){
             ProductEntity productEntity = productRepository.findById(orderDetailDTO.getProductId()).orElseThrow(
-                    () -> new Exception(MessageKeys.PRODUCT_NOT_FOUND)
+                    () -> new NotFoundException(MessageKeys.PRODUCT_NOT_FOUND)
             );
             OrderDetailEntity orderDetailEntity = modelMapper.map(orderDetailDTO,OrderDetailEntity.class);
             orderDetailEntity.setOrderEntity(orderEntity);
@@ -87,7 +83,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<OrderResponse> getOrderByUser(String phoneNumber, Pageable pageable) throws Exception {
         UserEntity userEntity = userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new Exception(MessageKeys.USER_ID_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
         Page<OrderEntity> orderEntityPage = orderRepository.findByUserEntity_Id(userEntity.getId(),pageable);
         return orderEntityPage.map(OrderResponse::fromOrderEntity);
     }
@@ -95,7 +91,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderEntity setStatus(Long orderId, String status) throws Exception {
         OrderEntity orderEntity = orderRepository.findById(orderId)
-                .orElseThrow(() -> new Exception(MessageKeys.ORDER_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(MessageKeys.ORDER_NOT_FOUND));
         OrderStatus orderStatus = OrderStatus.fromString(status);
         orderEntity.setStatus(orderStatus.toString());
         mailService.sendEmailOrder(orderEntity);
@@ -106,9 +102,9 @@ public class OrderServiceImpl implements OrderService {
     public OrderEntity cancelOrder(String phoneNumber, Long orderId) throws Exception {
 
         OrderEntity orderEntity = orderRepository.findById(orderId)
-                .orElseThrow(() -> new Exception(MessageKeys.ORDER_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(MessageKeys.ORDER_NOT_FOUND));
         if(!orderEntity.getUserEntity().getPhoneNumber().equals(phoneNumber)){
-            throw new Exception(MessageKeys.UNAUTHORIZED);
+            throw new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED);
         }
         return setStatus(orderId, OrderStatus.CANCELLED.toString());
     }
@@ -116,9 +112,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponse getById(Long orderId, String phoneNumber) throws Exception {
         OrderEntity orderEntity = orderRepository.findById(orderId)
-                .orElseThrow(() -> new Exception(MessageKeys.ORDER_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(MessageKeys.ORDER_NOT_FOUND));
         if(!orderEntity.getUserEntity().getPhoneNumber().equals(phoneNumber)){
-            throw new Exception(MessageKeys.UNAUTHORIZED);
+            throw new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED);
         }
         return OrderResponse.fromOrderEntity(orderEntity);
     }
@@ -126,7 +122,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderEntity deleteOrders(List<Long> orderIds) throws Exception {
         for(Long order : orderIds){
-            if(!orderRepository.existsById(order)) throw new Exception(MessageKeys.ORDER_NOT_FOUND);
+            if(!orderRepository.existsById(order)) throw new NotFoundException(MessageKeys.ORDER_NOT_FOUND);
             orderRepository.deleteById(order);
         }
         return null;

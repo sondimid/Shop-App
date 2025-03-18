@@ -1,11 +1,11 @@
 package com.example.ShopApp_BE.Service.Impl;
 
 
+import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
 import com.example.ShopApp_BE.Model.Entity.TokenEntity;
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
 import com.example.ShopApp_BE.Model.Response.TokenResponse;
 import com.example.ShopApp_BE.Repository.TokenRepository;
-import com.example.ShopApp_BE.Repository.UserRepository;
 import com.example.ShopApp_BE.Service.TokenService;
 import com.example.ShopApp_BE.Utils.JwtTokenUtils;
 import com.example.ShopApp_BE.Utils.MessageKeys;
@@ -13,8 +13,6 @@ import com.example.ShopApp_BE.Utils.TokenType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,21 +22,25 @@ public class TokenServiceImpl implements TokenService {
     private final JwtTokenUtils jwtTokenUtils;
 
     @Override
-    public TokenResponse refreshToken(String refreshToken) {
+    public TokenResponse refreshToken(String refreshToken) throws Exception {
         TokenEntity tokenEntity = tokenRepository.findByRefreshToken(refreshToken);
         if(tokenEntity == null || !jwtTokenUtils.isNotExpired(refreshToken, TokenType.REFRESH)) {
-            throw new NullPointerException(MessageKeys.REFRESH_TOKEN_INVALID);
+            throw new Exception(MessageKeys.REFRESH_TOKEN_INVALID);
         }
         UserEntity userEntity = tokenEntity.getUserEntity();
         String accessToken = jwtTokenUtils.generateToken(userEntity, TokenType.ACCESS);
-        tokenEntity.setAccessToken(accessToken);
         tokenRepository.save(tokenEntity);
-        return TokenResponse.fromTokenEntity(tokenEntity);
+        return TokenResponse.fromTokenEntity(tokenEntity, accessToken);
     }
 
     @Override
-    public String deleteToken(String accessToken) {
-        tokenRepository.deleteByAccessToken(accessToken);
-        return MessageKeys.DELETE_TOKEN_SUCCESS;
+    public void deleteToken(String refreshToken) throws Exception {
+        TokenEntity tokenEntity = tokenRepository.findByRefreshToken(refreshToken);
+        if(tokenEntity == null || !jwtTokenUtils.isNotExpired(refreshToken, TokenType.REFRESH)) {
+            throw new NotFoundException(MessageKeys.REFRESH_TOKEN_INVALID);
+        }
+        tokenRepository.delete(tokenEntity);
     }
+
+
 }

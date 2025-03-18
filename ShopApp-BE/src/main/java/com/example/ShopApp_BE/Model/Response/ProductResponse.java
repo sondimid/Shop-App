@@ -28,7 +28,7 @@ public class ProductResponse extends AbstractResponse {
 
     private List<ImageResponse> imageResponses;
 
-    private List<CommmentResponse> comments;
+    private List<CommentResponse> comments;
 
     public static ProductResponse fromProductEntity(ProductEntity productEntity) {
         ProductResponse productResponse =  ProductResponse.builder()
@@ -39,7 +39,7 @@ public class ProductResponse extends AbstractResponse {
                 .categoryId(productEntity.getCategoryEntity().getId())
                 .discount(productEntity.getDiscount())
                 .imageResponses(productEntity.getImageEntities().stream().map(ImageResponse::fromImageEntity).toList())
-                .comments(productEntity.getCommentEntities().stream().map(CommmentResponse::fromCommentEntity).toList())
+                .comments(productEntity.getCommentEntities().stream().map(CommentResponse::fromCommentEntity).toList())
                 .build();
         productResponse.setCreatedAt(productEntity.getCreatedAt());
         productResponse.setUpdatedAt(productEntity.getUpdatedAt());
