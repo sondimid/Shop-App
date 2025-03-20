@@ -1,15 +1,22 @@
 package com.example.ShopApp_BE.Controller;
 
 import com.example.ShopApp_BE.DTO.*;
+import com.example.ShopApp_BE.Service.OAuth2Service;
 import com.example.ShopApp_BE.Service.TokenService;
 import com.example.ShopApp_BE.Service.UserService;
 import com.example.ShopApp_BE.Utils.MessageKeys;
+import com.example.ShopApp_BE.Utils.OAuth2Provider;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("${api.prefix}/users")
@@ -17,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
     private final UserService userService;
     private final TokenService tokenService;
+    private final OAuth2Service oAuth2Service;
 
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
@@ -95,6 +103,12 @@ public class UserController {
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) throws Exception {
         userService.resetPassword(resetPasswordDTO);
         return ResponseEntity.accepted().body(MessageKeys.RESET_PASSWORD_SUCCESS);
-
     }
+
+    @GetMapping("/oauth2/{provider}")
+    public ResponseEntity<?> socialLogin(@RequestParam("code") String code,
+                                         @PathVariable("provider") String provider) {
+        return ResponseEntity.ok().body(oAuth2Service.getUserInfoFromSocial(code, OAuth2Provider.valueOf(provider.toUpperCase())));
+    }
+
 }

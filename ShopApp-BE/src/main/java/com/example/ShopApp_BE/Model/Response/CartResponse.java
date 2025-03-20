@@ -11,6 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CartResponse extends AbstractResponse{
+    private Long id;
+
     private Double totalMoney;
 
     private List<CartDetailResponse> cartDetailResponses;
@@ -20,6 +22,7 @@ public class CartResponse extends AbstractResponse{
                 CartDetailResponse.fromCartDetailEntities(cartEntity.getCartDetailEntities());
         CartResponse cartResponse = CartResponse.builder()
                 .cartDetailResponses(cartDetailResponses)
+                .id(cartEntity.getId())
                 .totalMoney(cartDetailResponses.stream().mapToDouble(CartDetailResponse::getTotalMoney).sum())
                 .build();
         cartResponse.setCreatedAt(cartEntity.getCreatedAt());

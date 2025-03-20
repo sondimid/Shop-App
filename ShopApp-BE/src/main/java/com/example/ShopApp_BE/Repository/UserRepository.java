@@ -18,4 +18,8 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByEmail(String email);
 
     Optional<UserEntity> findByResetToken(String resetToken);
+
+    boolean existsByGoogleAccountId(String googleAccountId);
+
+    Optional<UserEntity> findByGoogleAccountId(String googleAccountId);
 }

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,14 +33,14 @@ public class ProductEntity extends AbstractEntity{
     private CategoryEntity categoryEntity;
 
     @OneToMany(mappedBy = "productEntity",cascade = CascadeType.ALL)
-    private List<OrderDetailEntity> orderDetailEntities;
+    private List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
 
     @OneToMany(mappedBy = "productEntity", cascade = CascadeType.ALL)
-    private List<CommentEntity> commentEntities;
+    private List<CommentEntity> commentEntities = new ArrayList<>();
 
     @OneToMany(mappedBy = "productEntity", cascade = CascadeType.ALL)
-    private List<ImageEntity> imageEntities;
+    private List<ImageEntity> imageEntities = new ArrayList<>();
 
     @OneToMany(mappedBy = "productEntity", cascade = CascadeType.ALL)
-    private List<CartDetailEntity> cartDetailEntities;
+    private List<CartDetailEntity> cartDetailEntities =  new ArrayList<>();
 }

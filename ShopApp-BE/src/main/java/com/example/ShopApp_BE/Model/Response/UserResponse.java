@@ -25,9 +25,9 @@ public class UserResponse extends AbstractResponse {
 
     private String avatar;
 
-    private Integer facebookAccountId;
+    private String facebookAccountId;
 
-    private Integer googleAccountId;
+    private String googleAccountId;
 
     private String role;
 

@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,11 +39,12 @@ public class WebSecurityConfig {
     @PostConstruct
     public void initWhiteList() {
         WHITE_LIST = List.of(
-                String.format("%s/users/login", apiProperties.getPrefix()),
+                String.format("%s/users/login/**", apiProperties.getPrefix()),
                 String.format("%s/users/register", apiProperties.getPrefix()),
                 String.format("%s/users/refresh-token", apiProperties.getPrefix()),
                 String.format("%s/users/forgot-password", apiProperties.getPrefix()),
                 String.format("%s/users/reset-password", apiProperties.getPrefix()),
+                String.format("%s/users/oauth2/**", apiProperties.getPrefix()),
                 "/uploads/**"
         );
     }
@@ -57,7 +59,6 @@ public class WebSecurityConfig {
                                     String.format("%s/categories/**", apiProperties.getPrefix()))
                             .permitAll()
                             .anyRequest().authenticated());
-
         return http.build();
     }
 }

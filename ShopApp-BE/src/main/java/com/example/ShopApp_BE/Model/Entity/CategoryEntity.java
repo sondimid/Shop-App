@@ -3,6 +3,7 @@ package com.example.ShopApp_BE.Model.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,5 +21,5 @@ public class CategoryEntity extends AbstractEntity {
     private String imageUrl;
 
     @OneToMany(mappedBy = "categoryEntity", cascade = CascadeType.ALL)
-    private List<ProductEntity> productEntities;
+    private List<ProductEntity> productEntities = new ArrayList<>();
 }

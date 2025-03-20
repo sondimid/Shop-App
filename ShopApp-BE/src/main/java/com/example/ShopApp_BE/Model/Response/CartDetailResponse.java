@@ -11,6 +11,8 @@ import java.util.List;
 @Setter
 @Builder
 public class CartDetailResponse extends AbstractResponse{
+    private Long id;
+
     private Integer numberOfProducts;
 
     private String color;
@@ -23,6 +25,7 @@ public class CartDetailResponse extends AbstractResponse{
 
     public static CartDetailResponse fromCartDetailEntity(CartDetailEntity cartDetailEntity) {
         CartDetailResponse cartDetailResponse = CartDetailResponse.builder()
+                .id(cartDetailEntity.getId())
                 .numberOfProducts(cartDetailEntity.getNumberOfProducts())
                 .color(cartDetailEntity.getColor())
                 .price(cartDetailEntity.getProductEntity().getPrice())

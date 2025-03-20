@@ -28,8 +28,6 @@ public class OrderDTO {
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime orderDate;
 
-    private Double totalMoney;
-
     private String shippingMethod;
 
     private String shippingAddress;

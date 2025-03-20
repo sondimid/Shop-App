@@ -3,6 +3,7 @@ package com.example.ShopApp_BE.Model.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,6 +18,6 @@ public class RoleEntity extends AbstractEntity {
     private String role;
 
     @OneToMany(mappedBy = "roleEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<UserEntity> userEntities;
+    private List<UserEntity> userEntities = new ArrayList<>();
 
 }

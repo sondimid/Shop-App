@@ -22,7 +22,7 @@ public class UserEntity extends AbstractEntity implements UserDetails {
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
-    @Column(name = "phone_number", nullable = false)
+    @Column(name = "phone_number")
     private String phoneNumber;
 
     @Column(name= "email")
@@ -31,23 +31,20 @@ public class UserEntity extends AbstractEntity implements UserDetails {
     @Column(name= "address")
     private String address;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password")
     private String password;
 
     @Column(name = "avatar_url")
     private String avatarUrl;
 
-    @Column(name = "date_of_birth")
-    private LocalDateTime dateOfBirth;
-
     @Column(name = "reset-token")
     private String resetToken;
 
     @Column(name = "facebook_account_id")
-    private Integer facebookAccountId;
+    private String facebookAccountId;
 
     @Column(name = "google_account_id")
-    private Integer googleAccountId;
+    private String googleAccountId;
 
     @Column(name = "is_active")
     private Boolean isActive = true;
@@ -56,10 +53,10 @@ public class UserEntity extends AbstractEntity implements UserDetails {
     private CartEntity cartEntity = new CartEntity();
 
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
-    private List<TokenEntity> tokenEntities;
+    private List<TokenEntity> tokenEntities = new ArrayList<>();
 
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
-    private List<OrderEntity> orderEntities;
+    private List<OrderEntity> orderEntities = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "role_id")
@@ -69,10 +66,10 @@ public class UserEntity extends AbstractEntity implements UserDetails {
     private List<SocialAccountEntity> socialAccountEntities;
 
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
-    private List<CommentEntity> commentEntities;
+    private List<CommentEntity> commentEntities = new ArrayList<>();
 
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
-    List<SocialAccountEntity> socialImageEntities;
+    List<SocialAccountEntity> socialImageEntities = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -2,9 +2,11 @@ package com.example.ShopApp_BE.Model.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,6 +32,7 @@ public class OrderEntity extends AbstractEntity {
     @Column(name = "note", length = 200)
     private String note;
 
+    @CreationTimestamp
     @Column(name = "order_date", nullable = false)
     private LocalDateTime orderDate;
 
@@ -59,6 +62,6 @@ public class OrderEntity extends AbstractEntity {
     private UserEntity userEntity;
 
     @OneToMany(mappedBy = "orderEntity", cascade = CascadeType.ALL)
-    private List<OrderDetailEntity> orderDetailEntities;
+    private List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
 
 }

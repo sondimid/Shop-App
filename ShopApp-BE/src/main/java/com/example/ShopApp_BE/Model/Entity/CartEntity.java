@@ -19,6 +19,6 @@ public class CartEntity extends AbstractEntity{
     private UserEntity userEntity;
 
     @OneToMany(mappedBy = "cartEntity", cascade = CascadeType.ALL)
-    private List<CartDetailEntity> cartDetailEntities;
+    private List<CartDetailEntity> cartDetailEntities =  new ArrayList<>();
 
 }

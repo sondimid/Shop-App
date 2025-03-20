@@ -2,11 +2,13 @@ package com.example.ShopApp_BE.Service.Impl;
 
 import com.example.ShopApp_BE.DTO.*;
 import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
+import com.example.ShopApp_BE.Model.Entity.CartEntity;
 import com.example.ShopApp_BE.Model.Entity.RoleEntity;
 import com.example.ShopApp_BE.Model.Entity.TokenEntity;
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
 import com.example.ShopApp_BE.Model.Response.TokenResponse;
 import com.example.ShopApp_BE.Model.Response.UserResponse;
+import com.example.ShopApp_BE.Repository.CartRepository;
 import com.example.ShopApp_BE.Repository.RoleRepository;
 import com.example.ShopApp_BE.Repository.TokenRepository;
 import com.example.ShopApp_BE.Repository.UserRepository;
@@ -27,6 +29,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,6 +40,7 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
+    private final CartRepository cartRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
@@ -62,12 +66,15 @@ public class UserServiceImpl implements UserService {
         if(!userRegisterDTO.getPassword().equals(userRegisterDTO.getConfirmPassword())){
             throw new DataIntegrityViolationException(MessageKeys.PASSWORD_NOT_MATCH);
         }
-
         UserEntity userEntity = modelMapper.map(userRegisterDTO, UserEntity.class);
         RoleEntity roleEntity = roleRepository.findById(2L).get();
         userEntity.setRoleEntity(roleEntity);
         userEntity.setPassword(passwordEncoder.encode(userRegisterDTO.getPassword()));
-
+        CartEntity cartEntity = CartEntity.builder()
+                .userEntity(userEntity)
+                .cartDetailEntities(new ArrayList<>())
+                .build();
+        userEntity.setCartEntity(cartEntity);
         return userRepository.save(userEntity);
     }
 

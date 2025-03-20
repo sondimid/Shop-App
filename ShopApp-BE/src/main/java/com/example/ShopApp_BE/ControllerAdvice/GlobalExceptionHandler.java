@@ -25,7 +25,7 @@ public class GlobalExceptionHandler  {
         }
 
         if(exception instanceof ExpiredJwtException){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
+            return ResponseEntity.status(415).body(exception.getMessage());
         }
 
         if(exception instanceof UsernameNotFoundException){

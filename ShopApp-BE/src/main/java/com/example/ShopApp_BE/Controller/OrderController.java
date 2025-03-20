@@ -32,7 +32,7 @@ public class OrderController {
     private final MailService mailService;
 
     @PostMapping("")
-    @PreAuthorize("hasRole('USER_ROLE')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> createOrder(@RequestBody OrderDTO orderDTO,
                                          @RequestHeader("Authorization") String authorization) throws Exception {
 
@@ -44,7 +44,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> updateOrder(@RequestBody OrderDTO orderDTO,
                                          @PathVariable("id") Long orderId,
                                          @RequestHeader("Authorization") String authorization) throws Exception {
@@ -56,7 +56,7 @@ public class OrderController {
     }
 
     @GetMapping("")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getAllOrders(@RequestHeader("Authorization") String authorization,
                                           @RequestParam(value = "page", defaultValue = "0") Integer page,
                                           @RequestParam(value = "limit", defaultValue = "5") Integer limit) throws Exception {
@@ -75,7 +75,7 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}/status")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateOrderStatus(@PathVariable(name = "orderId") Long orderId,
                                                @RequestBody StatusDTO statusDTO) throws Exception {
 
@@ -85,7 +85,7 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}/cancel")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> cancelOrder(@PathVariable(name = "orderId") Long orderId,
                                          @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) throws Exception {
 
@@ -106,7 +106,7 @@ public class OrderController {
     }
 
     @DeleteMapping("/{orderIds}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteOrders(@PathVariable(name = "orderIds") List<Long> orderIds) throws Exception {
 
         orderService.deleteOrders(orderIds);

@@ -59,6 +59,7 @@ public class MessageKeys {
     public static final String DELETE_ORDER_SUCCESS = "order.delete.successfully";
     public static final String ORDER_NOT_FOUND = "order.not.found";
     public static final String STATUS_IN_VALID = "status.in.valid";
+    public static final String CANNOT_CANCEL_ORDER = "cannot.cancel.order";
 
     //comment
     public static final String CREATE_COMMENT_SUCCESS = "comment.create.successfully";

@@ -19,9 +19,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,27 +36,35 @@ public class CartServiceImpl implements CartService {
         UserEntity userEntity = userRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
         CartEntity cartEntity = userEntity.getCartEntity();
-        if(cartEntity == null){
-            cartEntity = CartEntity.builder()
-                    .cartDetailEntities(new ArrayList<>())
-                    .userEntity(userEntity)
-                    .build();
+
+        for(Long id : cartDTO.getIdDeletes()){
+            boolean isPresent = cartEntity.getCartDetailEntities()
+                    .removeIf(cartDetail -> cartDetail.getId().equals(id));
+            if(!isPresent) throw new NotFoundException(MessageKeys.PRODUCT_NOT_FOUND);
+
+            cartDetailRepository.deleteById(id);
         }
-        else{
-            cartDetailRepository.deleteByCartEntity_Id(cartEntity.getId());
-//            cartEntity.setUpdatedAt(LocalDateTime.now());
-        }
-        if(cartDTO.getCartDetailDTOS() == null) cartDTO.setCartDetailDTOS(new ArrayList<>());
+
         for(CartDetailDTO cartDetailDTO: cartDTO.getCartDetailDTOS()){
             ProductEntity productEntity = productRepository.findById(cartDetailDTO.getProductId())
                     .orElseThrow(() -> new NotFoundException(MessageKeys.PRODUCT_NOT_FOUND));
+
+            Optional<CartDetailEntity> cartDetailEntityOptional = cartEntity.getCartDetailEntities()
+                    .stream()
+                    .filter(cartDetail -> cartDetail.getProductEntity().getId().equals(productEntity.getId()))
+                    .findFirst();
+
+            if(cartDetailEntityOptional.isPresent()){
+                cartDetailEntityOptional.get().setColor(cartDetailDTO.getColor());
+                cartDetailEntityOptional.get().setNumberOfProducts(cartDetailDTO.getNumberOfProducts());
+                continue;
+            }
             CartDetailEntity cartDetailEntity = modelMapper.map(cartDetailDTO, CartDetailEntity.class);
             cartDetailEntity.setProductEntity(productEntity);
             cartDetailEntity.setCartEntity(cartEntity);
             cartEntity.getCartDetailEntities().add(cartDetailEntity);
+
         }
-        userEntity.setCartEntity(cartEntity);
-        userRepository.save(userEntity);
         return cartRepository.save(cartEntity);
     }
 
@@ -67,6 +72,9 @@ public class CartServiceImpl implements CartService {
     public CartResponse getCart(String phoneNumber) throws NotFoundException {
         UserEntity userEntity = userRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
+        if(userEntity.getCartEntity() == null){
+            return new CartResponse();
+        }
         return CartResponse.fromCartEntity(userEntity.getCartEntity());
     }
 }

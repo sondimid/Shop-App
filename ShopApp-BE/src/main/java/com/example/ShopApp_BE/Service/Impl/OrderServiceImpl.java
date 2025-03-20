@@ -43,17 +43,25 @@ public class OrderServiceImpl implements OrderService {
         UserEntity userEntity = userRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
         OrderEntity orderEntity = modelMapper.map(orderDTO, OrderEntity.class);
+        double totalMoney = 0.0;
         orderEntity.setUserEntity(userEntity);
         orderEntity.setOrderDetailEntities(new ArrayList<>());
         for(OrderDetailDTO orderDetailDTO : orderDTO.getOrderDetailDTOs()){
             ProductEntity productEntity = productRepository.findById(orderDetailDTO.getProductId()).orElseThrow(
                     () -> new NotFoundException(MessageKeys.PRODUCT_NOT_FOUND));
-            OrderDetailEntity orderDetailEntity = modelMapper.map(orderDetailDTO,OrderDetailEntity.class);
-            orderDetailEntity.setOrderEntity(orderEntity);
-            orderDetailEntity.setProductEntity(productEntity);
-            orderEntity.getOrderDetailEntities().add(orderDetailEntity);
-            orderDetailRepository.save(orderDetailEntity);
+            OrderDetailEntity orderDetailEntity = OrderDetailEntity.builder()
+                    .color(orderDetailDTO.getColor())
+                    .price(productEntity.getPrice())
+                    .numberOfProducts(orderDetailDTO.getNumberOfProducts())
+                    .discount(productEntity.getDiscount())
+                    .orderEntity(orderEntity)
+                    .productEntity(productEntity)
+                    .build();
+            orderDetailEntity
+                    .setTotalMoney(orderDetailEntity.getNumberOfProducts() * productEntity.getPrice() * (100-orderDetailEntity.getPrice())/100.0 );
+            totalMoney += orderDetailEntity.getTotalMoney();
         }
+        orderEntity.setTotalMoney(totalMoney);
         orderEntity.setStatus(OrderStatus.PENDING.toString());
         return orderRepository.save(orderEntity);
     }
@@ -106,7 +114,9 @@ public class OrderServiceImpl implements OrderService {
         if(!orderEntity.getUserEntity().getPhoneNumber().equals(phoneNumber)){
             throw new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED);
         }
-        return setStatus(orderId, OrderStatus.CANCELLED.toString());
+        if(OrderStatus.fromString(orderEntity.getStatus()).getStatusCode() <= 2)
+            return setStatus(orderId, OrderStatus.CANCELLED.toString());
+        throw new UnauthorizedAccessException(MessageKeys.CANNOT_CANCEL_ORDER);
     }
 
     @Override

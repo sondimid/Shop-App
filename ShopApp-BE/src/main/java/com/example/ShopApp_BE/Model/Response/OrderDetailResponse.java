@@ -22,6 +22,8 @@ public class OrderDetailResponse extends AbstractResponse{
 
     private Long orderId;
 
+    private Double discount;
+
     public static OrderDetailResponse fromOrderDetailEntity(OrderDetailEntity orderDetailEntity) {
         OrderDetailResponse orderDetailResponse = OrderDetailResponse.builder()
                 .orderId(orderDetailEntity.getOrderEntity().getId())
@@ -29,7 +31,9 @@ public class OrderDetailResponse extends AbstractResponse{
                 .color(orderDetailEntity.getColor())
                 .numberOfProducts(orderDetailEntity.getNumberOfProducts())
                 .totalMoney(orderDetailEntity.getTotalMoney())
-                .price(orderDetailEntity.getPrice()).build();
+                .price(orderDetailEntity.getPrice())
+                .discount(orderDetailEntity.getDiscount())
+                .build();
         orderDetailResponse.setCreatedAt(orderDetailEntity.getCreatedAt());
         orderDetailResponse.setUpdatedAt(orderDetailEntity.getUpdatedAt());
         return orderDetailResponse;

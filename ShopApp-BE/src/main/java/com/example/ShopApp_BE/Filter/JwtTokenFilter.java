@@ -36,18 +36,18 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final TokenRepository tokenRepository;
 
-    private static List<Pair<String, String>> WHITE_LIST = new ArrayList<>();
+    private static List<String> WHITE_LIST = new ArrayList<>();
 
     @PostConstruct
     public void initWhiteList() {
         WHITE_LIST = List.of(
-                Pair.of(String.format("%s/products", apiProperties.getPrefix()), "GET"),
-                Pair.of(String.format("%s/users/login", apiProperties.getPrefix()), "POST"),
-                Pair.of(String.format("%s/users/register", apiProperties.getPrefix()), "POST"),
-                Pair.of(String.format("%s/users/refresh-token", apiProperties.getPrefix()), "POST"),
-                Pair.of(String.format("%s/users/forgot-password", apiProperties.getPrefix()), "POST"),
-                Pair.of(String.format("%s/users/reset-password", apiProperties.getPrefix()), "POST"),
-                Pair.of("/uploads/**", "GET")
+                String.format("%s/users/login/**", apiProperties.getPrefix()),
+                String.format("%s/users/register", apiProperties.getPrefix()),
+                String.format("%s/users/refresh-token", apiProperties.getPrefix()),
+                String.format("%s/users/forgot-password", apiProperties.getPrefix()),
+                String.format("%s/users/reset-password", apiProperties.getPrefix()),
+                String.format("%s/users/oauth2/**", apiProperties.getPrefix()),
+                "/uploads/**"
         );
     }
 
@@ -78,11 +78,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        for(Pair<String, String> byPassToken: WHITE_LIST) {
-            String path = request.getRequestURI();
-            String method = request.getMethod();
-            if(path.contains(byPassToken.getFirst()) && byPassToken.getSecond().equals(method)) return true;
-        }
-        return false;
+        AntPathMatcher antPathMatcher = new AntPathMatcher();
+        return WHITE_LIST.stream().anyMatch(endpoint -> antPathMatcher.match(endpoint, request.getRequestURI()));
     }
 }

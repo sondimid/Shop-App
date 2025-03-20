@@ -11,6 +11,9 @@ import lombok.*;
 @Setter
 @Builder
 public class OrderDetailEntity extends AbstractEntity{
+    @Column(name = "discount")
+    private Double discount;
+
     @Column(name = "price", nullable = false)
     private Double price;
 
