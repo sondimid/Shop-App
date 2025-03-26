@@ -53,7 +53,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                     + "&redirect_uri=" + facebookProperties.getRedirectUri()
                     + "&grant_type=authorization_code";
         }
-        Map userMap = getToken(requestBody, provider);
+        Map userMap = getUser(requestBody, provider);
 
         UserEntity userEntity;
         if(!userRepository.existsByEmail(userMap.get("email").toString())){
@@ -110,7 +110,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
 
 
-    private Map getToken(String requestBody, OAuth2Provider provider) {
+    private Map getUser(String requestBody, OAuth2Provider provider) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders tokenHeaders = new HttpHeaders();
         tokenHeaders.set("Content-Type", "application/x-www-form-urlencoded");

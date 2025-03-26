@@ -4,7 +4,6 @@ import com.example.ShopApp_BE.DTO.CategoryDTO;
 import com.example.ShopApp_BE.Repository.CategoryRepository;
 import com.example.ShopApp_BE.Service.CategoryService;
 import com.example.ShopApp_BE.Utils.MessageKeys;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,7 +28,7 @@ public class CategoryController {
 
     @PutMapping("")
     public ResponseEntity<?> updateCategory(@ModelAttribute CategoryDTO categoryDTO,
-                                            @PathVariable(name = "id") Long id) throws Exception {
+                                            @PathVariable("id") Long id) throws Exception {
 
         categoryService.updateCategory(categoryDTO, id);
         return ResponseEntity.ok(MessageKeys.UPDATE_SUCCESS);

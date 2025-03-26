@@ -37,7 +37,6 @@ public class UserResponse extends AbstractResponse {
                 .fullName(userEntity.getFullName())
                 .phoneNumber(userEntity.getPhoneNumber())
                 .address(userEntity.getAddress())
-                .dateOfBirth(userEntity.getDateOfBirth())
                 .avatar(userEntity.getAvatarUrl())
                 .facebookAccountId(userEntity.getFacebookAccountId())
                 .googleAccountId(userEntity.getGoogleAccountId())

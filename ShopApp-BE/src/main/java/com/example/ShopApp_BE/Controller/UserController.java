@@ -94,7 +94,6 @@ public class UserController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody EmailDTO emailDTO) throws Exception {
-
         return ResponseEntity.accepted().body(userService.forgotPassword(emailDTO.getEmail()));
 
     }
