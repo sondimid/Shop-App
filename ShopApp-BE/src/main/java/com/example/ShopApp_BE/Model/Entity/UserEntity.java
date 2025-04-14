@@ -37,7 +37,7 @@ public class UserEntity extends AbstractEntity implements UserDetails {
     @Column(name = "avatar_url")
     private String avatarUrl;
 
-    @Column(name = "reset-token")
+    @Column(name = "reset_token")
     private String resetToken;
 
     @Column(name = "facebook_account_id")
@@ -46,8 +46,14 @@ public class UserEntity extends AbstractEntity implements UserDetails {
     @Column(name = "google_account_id")
     private String googleAccountId;
 
+    @Column(name = "otp")
+    private String otp;
+
+    @Column(name = "otp_expiration")
+    private LocalDateTime otpExpiration;
+
     @Column(name = "is_active")
-    private Boolean isActive = true;
+    private Boolean isActive;
 
     @OneToOne(mappedBy = "userEntity", cascade = CascadeType.ALL)
     private CartEntity cartEntity = new CartEntity();
@@ -95,7 +101,7 @@ public class UserEntity extends AbstractEntity implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !isActive;
+        return true;
     }
 
     @Override
@@ -105,7 +111,7 @@ public class UserEntity extends AbstractEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return isActive;
     }
 
 }

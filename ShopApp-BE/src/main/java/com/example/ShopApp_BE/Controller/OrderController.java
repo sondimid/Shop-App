@@ -37,7 +37,7 @@ public class OrderController {
                                          @RequestHeader("Authorization") String authorization) throws Exception {
 
         OrderEntity orderEntity = orderService.createOrder(orderDTO,
-                    jwtTokenUtils.extractPhoneNumber(authorization.substring(7), TokenType.ACCESS));
+                    jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS));
         mailService.sendEmailOrder(orderEntity);
         return ResponseEntity.accepted().body(MessageKeys.CREATE_ORDER_SUCCESS);
 
@@ -50,7 +50,7 @@ public class OrderController {
                                          @RequestHeader("Authorization") String authorization) throws Exception {
 
         orderService.updateOrder(orderDTO, orderId,
-                    jwtTokenUtils.extractPhoneNumber(authorization.substring(7), TokenType.ACCESS));
+                    jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS));
         return ResponseEntity.accepted().body(MessageKeys.UPDATE_SUCCESS);
 
     }
@@ -63,7 +63,7 @@ public class OrderController {
 
         Pageable pageable = PageRequest.of(page, limit);
         Page<OrderResponse> pageResponse = orderService.
-                getOrderByUser(jwtTokenUtils.extractPhoneNumber(authorization.substring(7), TokenType.ACCESS),pageable);
+                getOrderByUser(jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS),pageable);
         return ResponseEntity.ok().body(PageResponse.builder()
                 .content(pageResponse.getContent())
                 .totalPages(pageResponse.getTotalPages())
@@ -90,7 +90,7 @@ public class OrderController {
                                          @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) throws Exception {
 
         OrderEntity orderEntity = orderService.cancelOrder(jwtTokenUtils.
-                extractPhoneNumber(authorization.substring(7), TokenType.ACCESS), orderId);
+                extractEmail(authorization.substring(7), TokenType.ACCESS), orderId);
         mailService.sendEmailOrder(orderEntity);
         return ResponseEntity.accepted().body(MessageKeys.UPDATE_SUCCESS);
 
@@ -101,7 +101,7 @@ public class OrderController {
                                       @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) throws Exception {
 
         return ResponseEntity.ok().body(orderService.getById(orderId,
-                jwtTokenUtils.extractPhoneNumber(authorization.substring(7), TokenType.ACCESS)));
+                jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS)));
 
     }
 
@@ -122,7 +122,7 @@ public class OrderController {
 
         Pageable pageable = PageRequest.of(page, limit);
         Page<OrderResponse> pageResponse = orderService.getByKeyWord(keyword,
-                jwtTokenUtils.extractPhoneNumber(authorization.substring(7), TokenType.ACCESS),pageable);
+                jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS),pageable);
 
         return ResponseEntity.ok().body(PageResponse.builder()
                 .content(pageResponse.getContent())

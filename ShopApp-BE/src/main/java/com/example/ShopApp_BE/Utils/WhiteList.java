@@ -10,5 +10,4 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WhiteList {
     private final ApiProperties apiProperties;
-
 }

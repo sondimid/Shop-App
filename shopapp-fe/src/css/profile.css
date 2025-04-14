@@ -1,0 +1,70 @@
+.profile-left {
+    flex: 100;
+  }
+  
+  .profile-left .form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 10px;
+  }
+  
+  .profile-left .form-group label {
+    min-width: 150px;
+    font-weight: 500;
+  }
+  
+  .profile-left .form-group input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    width: 420px;
+  }
+  
+  .profile-left .btn-save {
+    background-color: #f6891a;
+  }
+
+  .profile-content {
+    display: flex;
+    gap: 100px;
+    padding: 30px;
+  }
+  .profile-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .avatar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px; 
+    margin-top: 10px;
+  }
+  
+  .avatar-image {
+    width: 270px;
+    height: 270px;
+    border-radius: 50%; 
+    object-fit: cover;
+    border: 2px solid #ccc;
+  }
+  
+  .btn-save {
+    padding: 8px 16px;
+    background-color: #f6891a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .btn-save:hover {
+    background-color: #f6891a;
+  }
+  

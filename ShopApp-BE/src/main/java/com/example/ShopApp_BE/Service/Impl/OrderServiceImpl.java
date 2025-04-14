@@ -39,8 +39,8 @@ public class OrderServiceImpl implements OrderService {
     private final MailService mailService;
 
     @Override
-    public OrderEntity createOrder(OrderDTO orderDTO, String phoneNumber) throws Exception {
-        UserEntity userEntity = userRepository.findByPhoneNumber(phoneNumber)
+    public OrderEntity createOrder(OrderDTO orderDTO, String email) throws Exception {
+        UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
         OrderEntity orderEntity = modelMapper.map(orderDTO, OrderEntity.class);
         double totalMoney = 0.0;
@@ -67,10 +67,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderEntity updateOrder(OrderDTO orderDTO, Long orderId, String phoneNumber) throws Exception {
+    public OrderEntity updateOrder(OrderDTO orderDTO, Long orderId, String email) throws Exception {
         OrderEntity orderEntity = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.ORDER_NOT_FOUND));
-        UserEntity userEntity = userRepository.findByPhoneNumber(phoneNumber)
+        UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
         orderEntity = modelMapper.map(orderDTO, OrderEntity.class);
         orderEntity.setUserEntity(userEntity);
@@ -89,8 +89,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<OrderResponse> getOrderByUser(String phoneNumber, Pageable pageable) throws Exception {
-        UserEntity userEntity = userRepository.findByPhoneNumber(phoneNumber)
+    public Page<OrderResponse> getOrderByUser(String email, Pageable pageable) throws Exception {
+        UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
         Page<OrderEntity> orderEntityPage = orderRepository.findByUserEntity_Id(userEntity.getId(),pageable);
         return orderEntityPage.map(OrderResponse::fromOrderEntity);
@@ -107,11 +107,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderEntity cancelOrder(String phoneNumber, Long orderId) throws Exception {
+    public OrderEntity cancelOrder(String email, Long orderId) throws Exception {
 
         OrderEntity orderEntity = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.ORDER_NOT_FOUND));
-        if(!orderEntity.getUserEntity().getPhoneNumber().equals(phoneNumber)){
+        if(!orderEntity.getUserEntity().getEmail().equals(email)){
             throw new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED);
         }
         if(OrderStatus.fromString(orderEntity.getStatus()).getStatusCode() <= 2)
@@ -139,8 +139,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<OrderResponse> getByKeyWord(String keyword, String phoneNumber, Pageable pageable) throws Exception {
-        UserEntity userEntity = userRepository.findByPhoneNumber(phoneNumber)
+    public Page<OrderResponse> getByKeyWord(String keyword, String email, Pageable pageable) throws Exception {
+        UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new Exception(MessageKeys.USER_ID_NOT_FOUND));
         Page<OrderEntity> orderEntityPage;
         if(userEntity.getRoleEntity().getRole().equals(MessageKeys.ROLE_ADMIN)){

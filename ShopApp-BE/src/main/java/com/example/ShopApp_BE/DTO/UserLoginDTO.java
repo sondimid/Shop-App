@@ -14,8 +14,8 @@ import java.io.Serializable;
 @Builder
 @Data
 public class UserLoginDTO implements Serializable {
-    @NotBlank(message = "phone number is blank")
-    private String phoneNumber;
+    @NotBlank(message = "Email is blank")
+    private String email;
 
     @NotBlank(message = "password is blank")
     private String password;

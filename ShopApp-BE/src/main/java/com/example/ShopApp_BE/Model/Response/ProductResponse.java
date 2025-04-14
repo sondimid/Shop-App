@@ -24,7 +24,11 @@ public class ProductResponse extends AbstractResponse {
 
     private String category;
 
+    private Long categoryId;
+
     private Double discount;
+
+    private Double finalPrice;
 
     private List<ImageResponse> imageResponses;
 
@@ -35,9 +39,11 @@ public class ProductResponse extends AbstractResponse {
                 .id(productEntity.getId())
                 .name(productEntity.getName())
                 .price(productEntity.getPrice())
+                .finalPrice(Math.round(productEntity.getFinalPrice() * 100.0) / 100.0)
                 .description(productEntity.getDescription())
                 .category(productEntity.getCategoryEntity().getName())
                 .discount(productEntity.getDiscount())
+                .categoryId(productEntity.getCategoryEntity().getId())
                 .imageResponses(productEntity.getImageEntities().stream().map(ImageResponse::fromImageEntity).toList())
                 .comments(productEntity.getCommentEntities().stream().map(CommentResponse::fromCommentEntity).toList())
                 .build();

@@ -36,7 +36,6 @@ public class ProductController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping(value = "",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createProduct(@ModelAttribute ProductDTO productDTO) throws IOException, NotFoundException {
-
         productService.createProduct(productDTO);
         return ResponseEntity.ok(MessageKeys.CREATE_PRODUCT_SUCCESS);
 
@@ -56,18 +55,20 @@ public class ProductController {
             @RequestParam(name = "limit", defaultValue = "10") Integer limit,
             @RequestParam(name = "sort", defaultValue = "ASC") String sort,
             @RequestParam(name = "sortField", defaultValue = "id") String sortField,
+            @RequestParam(name = "fromPrice", defaultValue = "0") Double fromPrice,
+            @RequestParam(name = "toPrice", defaultValue = "2000") Double toPrice,
             @RequestParam(name = "categoryId") Long categoryId){
 
         Sort.Direction sortDirection =
                 sort.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, limit, sortDirection, sortField);
-        Page<ProductResponse> productPage = productService.getByCategoryId(categoryId, keyword, pageable);
+        Page<ProductResponse> productPage = productService.getByCategoryId(categoryId, keyword, fromPrice, toPrice, pageable);
         return ResponseEntity.ok().body(PageResponse.builder()
                 .pageSize(limit)
                 .pageNumber(page)
                 .totalElements(productPage.getTotalElements())
                 .totalPages(productPage.getTotalPages())
-                .content(Arrays.asList(productPage.getContent().toArray()))
+                .content(productPage.getContent())
                 .build());
 
     }
@@ -89,10 +90,21 @@ public class ProductController {
         return ResponseEntity.ok().body(MessageKeys.DELETE_PRODUCT_SUCCESS);
 
     }
+
+    @GetMapping("/lastest")
+    public ResponseEntity<?> getLastestProduct(){
+        return ResponseEntity.ok().body(productService.getLastestProduct());
+    }
+
+    @GetMapping("/best-deal")
+    public ResponseEntity<?> getBestDealProduct(){
+        return ResponseEntity.ok().body(productService.getBestDealProduct());
+    }
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/fake-data")
-    public ResponseEntity<?> fakeData(@RequestBody List<MultipartFile> images) throws IOException, NotFoundException {
-
+    public ResponseEntity<?> fakeData(@ModelAttribute List<MultipartFile> images) throws IOException, NotFoundException {
+        List<MultipartFile> image = images;
         Faker faker = new Faker(new Locale("vi"));
         for(int i = 0; i < 100; i++){
             String name = faker.commerce().productName();
@@ -103,12 +115,14 @@ public class ProductController {
                     .categoryId((long)faker.number().numberBetween(1,5))
                     .price(faker.number().randomDouble(1, 5, 100))
                     .discount(faker.number().randomDouble(0, 5, 50))
-                    .images(images)
+                    .images(List.of(image.get(i % images.size())))
                     .build();
             productService.createProduct(productDTO);
         }
         return ResponseEntity.ok().body(MessageKeys.FAKE_DATA_SUCCESS);
 
     }
+
+
 
 }

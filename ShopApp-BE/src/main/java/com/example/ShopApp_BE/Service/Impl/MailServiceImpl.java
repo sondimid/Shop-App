@@ -11,9 +11,13 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import java.security.SecureRandom;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -62,6 +66,24 @@ public class MailServiceImpl implements MailService {
         helper.setTo(userEntity.getEmail());
         helper.setSubject(MessageKeys.RESET_PASSWORD);
         helper.setText(htmlContent, true);
+        mailSender.send(message);
+    }
+
+    @Override
+    public void sendEmailOtp(UserEntity userEntity, String otp) throws Exception {
+        Context context = new Context();
+        context.setVariable("fullName", userEntity.getFullName());
+        context.setVariable("otp", otp);
+
+        String htmlContent = thymeleafEngine.process("email/otp", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setFrom("daongocson12022004@gmail.com");
+        helper.setTo(userEntity.getEmail());
+        helper.setText(htmlContent, true);
+        helper.setSubject("OTP CODE");
         mailSender.send(message);
     }
 

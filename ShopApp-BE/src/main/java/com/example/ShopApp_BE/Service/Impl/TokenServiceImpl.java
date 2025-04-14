@@ -2,9 +2,11 @@ package com.example.ShopApp_BE.Service.Impl;
 
 
 import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
+import com.example.ShopApp_BE.Model.Entity.BlackListTokenEntity;
 import com.example.ShopApp_BE.Model.Entity.TokenEntity;
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
 import com.example.ShopApp_BE.Model.Response.TokenResponse;
+import com.example.ShopApp_BE.Repository.BackListTokenRepository;
 import com.example.ShopApp_BE.Repository.TokenRepository;
 import com.example.ShopApp_BE.Service.TokenService;
 import com.example.ShopApp_BE.Utils.JwtTokenUtils;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TokenServiceImpl implements TokenService {
     private final TokenRepository tokenRepository;
     private final JwtTokenUtils jwtTokenUtils;
+    private final BackListTokenRepository backListTokenRepository;
 
     @Override
     public TokenResponse refreshToken(String refreshToken) throws Exception {
@@ -34,11 +37,14 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public void deleteToken(String refreshToken) throws Exception {
+    public void deleteToken(String accessToken, String refreshToken) throws Exception {
         TokenEntity tokenEntity = tokenRepository.findByRefreshToken(refreshToken);
         if(tokenEntity == null || !jwtTokenUtils.isNotExpired(refreshToken, TokenType.REFRESH)) {
             throw new NotFoundException(MessageKeys.REFRESH_TOKEN_INVALID);
         }
+        BlackListTokenEntity token = BlackListTokenEntity.builder()
+                .accessToken(accessToken).build();
+        backListTokenRepository.save(token);
         tokenRepository.delete(tokenEntity);
     }
 

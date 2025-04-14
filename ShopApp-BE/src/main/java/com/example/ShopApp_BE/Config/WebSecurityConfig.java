@@ -43,8 +43,12 @@ public class WebSecurityConfig {
                 String.format("%s/users/register", apiProperties.getPrefix()),
                 String.format("%s/users/refresh-token", apiProperties.getPrefix()),
                 String.format("%s/users/forgot-password", apiProperties.getPrefix()),
+                String.format("%s/users/verify-account", apiProperties.getPrefix()),
                 String.format("%s/users/reset-password", apiProperties.getPrefix()),
                 String.format("%s/users/oauth2/**", apiProperties.getPrefix()),
+                String.format("%s/products/lastest", apiProperties.getPrefix()),
+                String.format("%s/products/best-deal", apiProperties.getPrefix()),
+                String.format("%s/categories", apiProperties.getPrefix()),
                 "/uploads/**"
         );
     }

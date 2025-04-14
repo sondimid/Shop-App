@@ -1,6 +1,6 @@
 package com.example.ShopApp_BE.DTO;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.Setter;
 

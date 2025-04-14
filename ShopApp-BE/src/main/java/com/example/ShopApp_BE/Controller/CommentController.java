@@ -27,8 +27,8 @@ public class CommentController {
     public ResponseEntity<?> createComment(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization,
                                             @ModelAttribute CommentDTO commentDTO) throws Exception {
 
-        String phoneNumber = jwtTokenUtils.extractPhoneNumber(authorization.substring(7), TokenType.ACCESS);
-        commentService.createComment(commentDTO, phoneNumber);
+        String email = jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS);
+        commentService.createComment(commentDTO, email);
         return ResponseEntity.accepted().body(MessageKeys.CREATE_COMMENT_SUCCESS);
     }
 
@@ -41,9 +41,9 @@ public class CommentController {
     public ResponseEntity<?> getCommentsByUser(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization,
                                                @RequestParam(name = "page", defaultValue = "0") Integer page,
                                                @RequestParam(name = "limit", defaultValue = "5") Integer limit) throws NotFoundException {
-        String phoneNumber = jwtTokenUtils.extractPhoneNumber(authorization.substring(7), TokenType.ACCESS);
+        String email = jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS);
         Pageable pageable = PageRequest.of(page, limit);
-        Page<CommentResponse> comments = commentService.getByUser(phoneNumber, pageable);
+        Page<CommentResponse> comments = commentService.getByUser(email, pageable);
         return ResponseEntity.ok().body(PageResponse.builder()
                 .pageSize(comments.getSize())
                 .pageNumber(comments.getNumber())
@@ -70,8 +70,8 @@ public class CommentController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteComment(@PathVariable("id") Long id,
                                            @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) throws NotFoundException {
-        String phoneNumber = jwtTokenUtils.extractPhoneNumber(authorization.substring(7), TokenType.ACCESS);
-        commentService.deleteById(id, phoneNumber);
+        String email = jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS);
+        commentService.deleteById(id, email);
         return ResponseEntity.accepted().body(MessageKeys.DELETE_COMMENT_SUCCESS);
     }
 }

@@ -2,6 +2,7 @@ package com.example.ShopApp_BE.Filter;
 
 import com.example.ShopApp_BE.Config.WebSecurityConfig;
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
+import com.example.ShopApp_BE.Repository.BackListTokenRepository;
 import com.example.ShopApp_BE.Repository.TokenRepository;
 import com.example.ShopApp_BE.Utils.ApiProperties;
 import com.example.ShopApp_BE.Utils.JwtProperties;
@@ -23,10 +24,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -35,20 +33,29 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final ApiProperties apiProperties;
     private final UserDetailsService userDetailsService;
     private final TokenRepository tokenRepository;
+    private final BackListTokenRepository backListTokenRepository;
+    private static Map<String, List<String>> WHITE_LIST = new HashMap<>();
 
-    private static List<String> WHITE_LIST = new ArrayList<>();
 
     @PostConstruct
     public void initWhiteList() {
-        WHITE_LIST = List.of(
-                String.format("%s/users/login/**", apiProperties.getPrefix()),
-                String.format("%s/users/register", apiProperties.getPrefix()),
-                String.format("%s/users/refresh-token", apiProperties.getPrefix()),
-                String.format("%s/users/forgot-password", apiProperties.getPrefix()),
-                String.format("%s/users/reset-password", apiProperties.getPrefix()),
-                String.format("%s/users/oauth2/**", apiProperties.getPrefix()),
+        String prefix = apiProperties.getPrefix();
+
+        WHITE_LIST.put("POST", List.of(
+                String.format("%s/users/login/**", prefix),
+                String.format("%s/users/register", prefix),
+                String.format("%s/users/refresh-token", prefix),
+                String.format("%s/users/forgot-password", prefix),
+                String.format("%s/users/reset-password", prefix),
+                String.format("%s/users/verify-account", prefix)
+        ));
+
+        WHITE_LIST.put("GET", List.of(
+                String.format("%s/users/oauth2/**", prefix),
+                String.format("%s/products/**", prefix),
+                String.format("%s/categories/**", prefix),
                 "/uploads/**"
-        );
+        ));
     }
 
     @Override
@@ -60,11 +67,15 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-
         final String token = authHeader.replace("Bearer ", "");
-        String phoneNumber = jwtTokenUtils.extractPhoneNumber(token, TokenType.ACCESS);
-        if(phoneNumber != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserEntity userEntity = (UserEntity) userDetailsService.loadUserByUsername(phoneNumber);
+        if(backListTokenRepository.existsByAccessToken(token)){
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        String email = jwtTokenUtils.extractEmail(token, TokenType.ACCESS);
+        if(email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserEntity userEntity = (UserEntity) userDetailsService.loadUserByUsername(email);
             if(jwtTokenUtils.isValid(token, userEntity, TokenType.ACCESS)) {
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(userEntity,
@@ -78,7 +89,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        AntPathMatcher antPathMatcher = new AntPathMatcher();
-        return WHITE_LIST.stream().anyMatch(endpoint -> antPathMatcher.match(endpoint, request.getRequestURI()));
+        String method = request.getMethod();
+        String uri = request.getRequestURI();
+        AntPathMatcher matcher = new AntPathMatcher();
+
+        List<String> paths = WHITE_LIST.get(method);
+        if (paths == null) return false;
+
+        return paths.stream().anyMatch(pattern -> matcher.match(pattern, uri));
     }
+
 }

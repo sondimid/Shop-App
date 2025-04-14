@@ -11,10 +11,10 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class UserUpdateDTO {
-    private String email;
+    private String fullName;
 
     private String address;
 
-    private String dateOfBirth;
+    private String phoneNumber;
 
 }

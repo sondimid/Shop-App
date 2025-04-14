@@ -6,21 +6,17 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-
 public class UserRegisterDTO {
-    @NotBlank(message = "full name is blank")
+    @NotBlank(message = "Full name is blank")
     private String fullName;
 
-    @NotBlank(message = "email is blank")
+    @NotBlank(message = "Email is blank")
     private String email;
 
-    @NotBlank(message = "phone number is blank")
-    private String phoneNumber;
-
-    @NotBlank(message = "password is blank")
+    @NotBlank(message = "Password is blank")
     private String password;
 
-    @NotBlank(message = "confirm password is blank")
+    @NotBlank(message = "Confirm password is blank")
     private String confirmPassword;
 
 }

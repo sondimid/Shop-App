@@ -23,10 +23,10 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return phoneNumber ->
+        return email ->
              userRepository
-                    .findByPhoneNumber(phoneNumber)
-                    .orElseThrow(() -> new UsernameNotFoundException("Phone number is not exist!"));
+                    .findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("Email is not exist!"));
     }
 
     @Bean

@@ -34,11 +34,17 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserRegisterDTO userRegisterDTO) {
+    public ResponseEntity<?> register(@Valid @RequestBody UserRegisterDTO userRegisterDTO) throws Exception {
 
         userService.createUser(userRegisterDTO);
-        return ResponseEntity.accepted().body(MessageKeys.REGISTER_SUCCESS);
+        return ResponseEntity.accepted().body(MessageKeys.EMAIL_SEND_SUCCESS);
 
+    }
+
+    @PostMapping("/verify-account")
+    public ResponseEntity<?> verifyAccount(@Valid @RequestBody UserVerifyDTO userVerifyDTO) throws Exception {
+        userService.verifyAccount(userVerifyDTO);
+        return ResponseEntity.accepted().body(MessageKeys.REGISTER_SUCCESS);
     }
 
     @PutMapping("/profiles")
@@ -46,8 +52,7 @@ public class UserController {
                                     @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) {
         String token = authorization.substring(7);
 
-        userService.update(userUpdateDTO, token);
-        return ResponseEntity.accepted().body(MessageKeys.UPDATE_SUCCESS);
+        return ResponseEntity.accepted().body(userService.update(userUpdateDTO, token));
 
     }
 
@@ -69,8 +74,9 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader(MessageKeys.REFRESH_TOKEN_HEADER) String refreshToken) throws Exception {
-        tokenService.deleteToken(refreshToken);
+    public ResponseEntity<?> logout(@RequestHeader(MessageKeys.REFRESH_TOKEN_HEADER) String refreshToken,
+                                    @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String accessToken) throws Exception {
+        tokenService.deleteToken(accessToken, refreshToken);
         return ResponseEntity.accepted().body(MessageKeys.DELETE_TOKEN_SUCCESS);
 
     }
@@ -78,7 +84,6 @@ public class UserController {
     @GetMapping("/profiles")
     public ResponseEntity<?> getUserDetails(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) throws Exception {
         String token = authorization.substring(7);
-
         return ResponseEntity.ok().body(userService.getUserDetails(token));
 
     }
@@ -93,7 +98,7 @@ public class UserController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestBody EmailDTO emailDTO) throws Exception {
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody EmailDTO emailDTO) throws Exception {
         return ResponseEntity.accepted().body(userService.forgotPassword(emailDTO.getEmail()));
 
     }

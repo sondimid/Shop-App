@@ -16,6 +16,7 @@ import com.example.ShopApp_BE.Utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +41,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductEntity createProduct(ProductDTO productDTO) throws NotFoundException, IOException {
         ProductEntity productEntity = modelMapper.map(productDTO, ProductEntity.class);
+        productEntity.setFinalPrice(productEntity.getPrice() - productEntity.getDiscount() / 100.0 * productEntity.getPrice());
         CategoryEntity categoryEntity = categoryRepository.findById(productDTO.getCategoryId())
                 .orElseThrow(() -> new NotFoundException(MessageKeys.CATEGORY_NOT_FOUND));
         productEntity.setCategoryEntity(categoryEntity);
@@ -73,8 +75,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> getByCategoryId(Long categoryId, String keyword, Pageable pageable) {
-        Page<ProductEntity> productEntities = productRepository.findByCategoryEntity_Id(categoryId, keyword, pageable);
+    public Page<ProductResponse> getByCategoryId(Long categoryId, String keyword, Double fromPrice, Double toPrice, Pageable pageable) {
+        Page<ProductEntity> productEntities = productRepository.findByCategoryEntity_Id(categoryId, keyword, fromPrice, toPrice, pageable);
         return productEntities.map(ProductResponse::fromProductEntity);
     }
 
@@ -86,6 +88,7 @@ public class ProductServiceImpl implements ProductService {
         productEntity.setDescription(productUpdateDTO.getDescription());
         productEntity.setPrice(productUpdateDTO.getPrice());
         productEntity.setDiscount(productUpdateDTO.getDiscount());
+        productEntity.setFinalPrice(productEntity.getPrice() - productEntity.getDiscount() / 100.0 * productEntity.getPrice());
         productEntity.setCategoryEntity(categoryRepository.findById(productUpdateDTO.getCategoryId()).orElseThrow(
                 () -> new NotFoundException(MessageKeys.CATEGORY_NOT_FOUND)
         ));
@@ -127,5 +130,19 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public boolean existByName(String name) {
         return productRepository.existsByName(name);
+    }
+
+    @Override
+    public List<ProductResponse> getLastestProduct() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ProductEntity> productEntityPage = productRepository.findByCreatedAt(pageable);
+        return productEntityPage.getContent().stream().map(ProductResponse::fromProductEntity).toList();
+    }
+
+    @Override
+    public List<ProductResponse> getBestDealProduct() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ProductEntity> productEntityPage = productRepository.findByDiscount(pageable);
+        return productEntityPage.getContent().stream().map(ProductResponse::fromProductEntity).toList();
     }
 }

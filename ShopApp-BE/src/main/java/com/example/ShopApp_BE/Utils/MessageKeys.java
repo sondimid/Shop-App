@@ -1,71 +1,74 @@
 package com.example.ShopApp_BE.Utils;
 
 public class MessageKeys {
-    //register
-    public static final String PHONENUMBER_EXISTED = "phonenumber.existed";
-    public static final String PASSWORD_NOT_MATCH = "password.not.match";
-    public static final String EMAIL_EXISTED = "email.existed";
-    public static final String REGISTER_SUCCESS = "register.successfully";
+    // Register
+    public static final String PHONENUMBER_EXISTED = "Số điện thoại đã tồn tại.";
+    public static final String PASSWORD_NOT_MATCH = "Mật khẩu không khớp.";
+    public static final String EMAIL_EXISTED = "Email đã tồn tại.";
+    public static final String REGISTER_SUCCESS = "Đăng ký tài khoản thành công.";
 
-    //role
+    // Role
     public static final String ROLE_ADMIN = "ADMIN";
     public static final String ROLE_USER = "USER";
 
-    //login
-    public static final String LOGIN_SUCCESS = "login.successfully";
-    public static final String LOGIN_FAILED = "login.failed";
-    public static final String ACCOUNT_LOCK = "account.locked";
+    // Login
+    public static final String LOGIN_SUCCESS = "Đăng nhập thành công.";
+    public static final String LOGIN_FAILED = "Đăng nhập thất bại.";
+    public static final String ACCOUNT_LOCK = "Tài khoản đã bị khóa.";
 
-    //user
-    public static final String UPDATE_SUCCESS = "update.successfully";
-    public static final String USER_ID_NOT_FOUND = "user.id.not.found";
-    public static final String UNAUTHORIZED = "unauthorized";
+    // User
+    public static final String UPDATE_SUCCESS = "Cập nhật thông tin thành công.";
+    public static final String USER_ID_NOT_FOUND = "ID người dùng không chính xác.";
+    public static final String UNAUTHORIZED = "Bạn không có quyền thực hiện hành động này.";
 
-    //password
-    public static final String CONFIRM_PASSWORD_NOT_MATCH = "confirm.password.mismatch";
-    public static final String RESET_PASSWORD = "RESET PASSWORD";
-    public static final String SEND_EMAIL_RESET_PASSWORD_SUCCESS = "send.email.reset.password.successfully";
-    public static final String RESET_PASSWORD_SUCCESS = "reset.password.successfully";
+    // Password
+    public static final String CONFIRM_PASSWORD_NOT_MATCH = "Xác nhận mật khẩu không trùng khớp.";
+    public static final String RESET_PASSWORD = "Đặt lại mật khẩu.";
+    public static final String SEND_EMAIL_RESET_PASSWORD_SUCCESS = "Gửi email đặt lại mật khẩu thành công.";
+    public static final String RESET_PASSWORD_SUCCESS = "Đặt lại mật khẩu thành công.";
 
-    //token
-    public static final String DELETE_TOKEN_SUCCESS = "delete.token.successfully";
-    public static final String REFRESH_TOKEN_INVALID = "refresh.token.invalid";
-    public static final String ACCESS_TOKEN_INVALID = "access.token.invalid";
-    public static final String RESET_TOKEN_INVALID = "reset.token.invalid";
+    // Token
+    public static final String DELETE_TOKEN_SUCCESS = "Xóa token thành công.";
+    public static final String REFRESH_TOKEN_INVALID = "Refresh token không hợp lệ.";
+    public static final String ACCESS_TOKEN_INVALID = "Access token không hợp lệ.";
+    public static final String RESET_TOKEN_INVALID = "Reset token không hợp lệ.";
 
-    //header
+    // Header
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String REFRESH_TOKEN_HEADER = "refresh_token";
 
-    //image
-    public static final String IMAGE_NOT_VALID = "image.not.valid";
-    public static final String IMAGE_NOT_FOUND = "image.not.found";
+    // Image
+    public static final String IMAGE_NOT_VALID = "Hình ảnh không hợp lệ.";
+    public static final String IMAGE_NOT_FOUND = "Không tìm thấy hình ảnh.";
 
-    //product
-    public static final String CREATE_PRODUCT_SUCCESS = "product.create.successfully";
-    public static final String PRODUCT_NOT_FOUND = "product.not.found";
-    public static final String DELETE_PRODUCT_SUCCESS = "delete.product.successfully";
+    // Product
+    public static final String CREATE_PRODUCT_SUCCESS = "Tạo sản phẩm thành công.";
+    public static final String PRODUCT_NOT_FOUND = "Không tìm thấy sản phẩm.";
+    public static final String DELETE_PRODUCT_SUCCESS = "Xóa sản phẩm thành công.";
 
-    //category
-    public static final String CATEGORY_NOT_FOUND = "category.not.found";
-    public static final String CREATE_CATEGORY_SUCCESS = "category.create.successfully";
-    public static final String DELETE_CATEGORY_SUCCESS = "category.delete.successfully";
+    // Category
+    public static final String CATEGORY_NOT_FOUND = "Không tìm thấy danh mục.";
+    public static final String CREATE_CATEGORY_SUCCESS = "Tạo danh mục thành công.";
+    public static final String DELETE_CATEGORY_SUCCESS = "Xóa danh mục thành công.";
 
-    //fake data
-    public static final String FAKE_DATA_SUCCESS = "fake.data.successfully";
+    // Fake Data
+    public static final String FAKE_DATA_SUCCESS = "Dữ liệu giả đã được tạo thành công.";
 
-    //order
-    public static final String CREATE_ORDER_SUCCESS = "order.create.successfully";
-    public static final String DELETE_ORDER_SUCCESS = "order.delete.successfully";
-    public static final String ORDER_NOT_FOUND = "order.not.found";
-    public static final String STATUS_IN_VALID = "status.in.valid";
-    public static final String CANNOT_CANCEL_ORDER = "cannot.cancel.order";
+    // Order
+    public static final String CREATE_ORDER_SUCCESS = "Tạo đơn hàng thành công.";
+    public static final String DELETE_ORDER_SUCCESS = "Xóa đơn hàng thành công.";
+    public static final String ORDER_NOT_FOUND = "Không tìm thấy đơn hàng.";
+    public static final String STATUS_IN_VALID = "Trạng thái không hợp lệ.";
+    public static final String CANNOT_CANCEL_ORDER = "Không thể hủy đơn hàng.";
 
-    //comment
-    public static final String CREATE_COMMENT_SUCCESS = "comment.create.successfully";
-    public static final String DELETE_COMMENT_SUCCESS = "comment.delete.successfully";
-    public static final String COMMENT_NOT_FOUND = "comment.not.found";
+    // Comment
+    public static final String CREATE_COMMENT_SUCCESS = "Thêm bình luận thành công.";
+    public static final String DELETE_COMMENT_SUCCESS = "Xóa bình luận thành công.";
+    public static final String COMMENT_NOT_FOUND = "Không tìm thấy bình luận.";
 
-
-
+    // Email
+    public static final String EMAIL_SEND_SUCCESS = "Gửi email thành công.";
+    public static final String OTP_NOT_MATCH = "Mã OTP không khớp.";
+    public static final String OTP_EXPIRED = "Mã OTP đã hết hạn.";
+    public static final String EMAIL_NOT_MATCH = "Email không khớp.";
 }

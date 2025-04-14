@@ -15,7 +15,16 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     @Query(ConfixSql.Product.SEARCH_BY_CATEGORY)
     Page<ProductEntity> findByCategoryEntity_Id(@Param("categoryId") Long categoryId,
-            @Param("keyword") String keyword, Pageable pageable);
+                                                @Param("keyword") String keyword,
+                                                @Param("fromPrice") Double fromPrice,
+                                                @Param("toPrice") Double toPrice,
+                                                Pageable pageable);
 
     boolean existsByName(String name);
+
+    @Query(ConfixSql.Product.SEARCH_BY_CREATED_AT)
+    Page<ProductEntity> findByCreatedAt(Pageable pageable);
+
+    @Query(ConfixSql.Product.SEARCH_BY_DISCOUNT)
+    Page<ProductEntity> findByDiscount(Pageable pageable);
 }

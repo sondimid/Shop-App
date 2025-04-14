@@ -24,8 +24,9 @@ public class JwtTokenUtils {
 
     public String generateToken(UserEntity userEntity, TokenType tokenType) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("phoneNumber", userEntity.getPhoneNumber());
+        claims.put("email", userEntity.getEmail());
         claims.put("role", userEntity.getRoleEntity().getRole());
+        claims.put("id", userEntity.getId());
         String token;
         if(tokenType.equals(TokenType.REFRESH)) {
             token = Jwts.builder()
@@ -80,12 +81,16 @@ public class JwtTokenUtils {
         return claimsResolver.apply(claims);
     }
 
-    public String extractPhoneNumber(String token, TokenType tokenType) {
-        return extractClaim(token, Claims::getSubject, tokenType);
+    public String extractEmail(String token, TokenType tokenType) {
+        return extractClaim(token, claims -> claims.get("email", String.class), tokenType);
     }
 
     public String extractRole(String token, TokenType tokenType) {
         return extractClaim(token, claims -> claims.get("role", String.class), tokenType);
+    }
+
+    public Long extractId(String token, TokenType tokenType) {
+        return extractClaim(token, claims -> claims.get("id", Long.class), tokenType);
     }
 
     public Boolean isNotExpired(String token, TokenType tokenType) {
@@ -94,8 +99,8 @@ public class JwtTokenUtils {
     }
 
     public Boolean isValid(String token, UserEntity userEntity, TokenType tokenType) {
-        String phoneNumber = extractPhoneNumber(token, tokenType);
-        return userEntity.getPhoneNumber().equals(phoneNumber) && isNotExpired(token, tokenType);
+        String email = extractEmail(token, tokenType);
+        return userEntity.getEmail().equals(email) && isNotExpired(token, tokenType);
     }
 
 }

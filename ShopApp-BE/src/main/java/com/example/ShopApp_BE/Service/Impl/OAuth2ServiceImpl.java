@@ -89,10 +89,10 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         }
         else{
             userEntity = userRepository.findByEmail(userMap.get("email").toString()).get();
-            if(userEntity.getGoogleAccountId().isEmpty()){
+            if(userEntity.getGoogleAccountId() == null || userEntity.getGoogleAccountId().isEmpty()){
                 userEntity.setGoogleAccountId(userMap.getOrDefault("sub", "").toString());
             }
-            if(userEntity.getFacebookAccountId().isEmpty()){
+            if(userEntity.getFacebookAccountId() == null || userEntity.getFacebookAccountId().isEmpty()){
                 userEntity.setFacebookAccountId(userMap.getOrDefault("id", "").toString());
             }
         }
@@ -101,7 +101,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                 .userEntity(userEntity)
                 .refreshToken(jwtTokenUtils.generateToken(userEntity,TokenType.REFRESH))
                 .revoked(Boolean.FALSE).build();
-        if(userEntity.getTokenEntities().isEmpty()){
+        if(userEntity.getTokenEntities() == null || userEntity.getTokenEntities().isEmpty()){
             userEntity.setTokenEntities(new ArrayList<>(List.of(tokenEntity)));
         }
         else userEntity.getTokenEntities().add(tokenEntity);
@@ -110,22 +110,25 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
 
 
-    private Map getUser(String requestBody, OAuth2Provider provider) {
+    private String getToken(String requestBody, OAuth2Provider provider) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders tokenHeaders = new HttpHeaders();
         tokenHeaders.set("Content-Type", "application/x-www-form-urlencoded");
         HttpEntity<String> tokenRequest = new HttpEntity<>(requestBody, tokenHeaders);
         String tokenUri = provider.equals(OAuth2Provider.GOOGLE) ?
                 googleProperties.getTokenUri() : facebookProperties.getTokenUri();
-        String token = restTemplate.exchange(
+        return restTemplate.exchange(
                 tokenUri,
                 HttpMethod.POST,
                 tokenRequest,
                 Map.class
         ).getBody().get("access_token").toString();
-        HttpHeaders userHeaders = new HttpHeaders();
-        userHeaders.set("Authorization", "Bearer " + token);
-        HttpEntity<String> userRequest = new HttpEntity<>(userHeaders);
+    }
+    private Map getUser(String requestBody, OAuth2Provider provider) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + getToken(requestBody, provider));
+        HttpEntity<String> userRequest = new HttpEntity<>(requestBody, headers);
         String userUri = provider.equals(OAuth2Provider.GOOGLE) ?
                 googleProperties.getUserInfoUri() : facebookProperties.getUserInfoUri();
         return restTemplate.exchange(
@@ -135,6 +138,8 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                 Map.class
         ).getBody();
     }
+
+
 }
 
 

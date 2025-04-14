@@ -9,17 +9,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface ProductService {
     ProductEntity createProduct(ProductDTO productDTO) throws IOException, NotFoundException;
 
     ProductResponse getProduct(Long id) throws Exception;
 
-    Page<ProductResponse> getByCategoryId(Long categoryId, String keyword, Pageable pageable);
+    Page<ProductResponse> getByCategoryId(Long categoryId, String keyword, Double fromPrice, Double toPrice, Pageable pageable);
 
     ProductResponse updateProduct(ProductUpdateDTO productUpdateDTO, Long id) throws Exception;
 
     void deleteProductById(Long id) throws Exception;
 
     boolean existByName(String name);
+
+    List<ProductResponse> getLastestProduct();
+
+    List<ProductResponse> getBestDealProduct();
 }

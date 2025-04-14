@@ -14,11 +14,11 @@ import java.io.IOException;
 @RestController
 @RequestMapping("${api.prefix}/categories")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createCategory(@ModelAttribute CategoryDTO categoryDTO) throws IOException {
 
         categoryService.createCategory(categoryDTO);
@@ -27,9 +27,9 @@ public class CategoryController {
     }
 
     @PutMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateCategory(@ModelAttribute CategoryDTO categoryDTO,
                                             @PathVariable("id") Long id) throws Exception {
-
         categoryService.updateCategory(categoryDTO, id);
         return ResponseEntity.ok(MessageKeys.UPDATE_SUCCESS);
 
@@ -37,9 +37,7 @@ public class CategoryController {
 
     @GetMapping("")
     public ResponseEntity<?> getAllCategories() {
-
         return ResponseEntity.ok().body(categoryService.getAll());
-
     }
 
     @DeleteMapping("/{id}")

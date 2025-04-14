@@ -1,17 +1,18 @@
 package com.example.ShopApp_BE.Model.Response;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PageResponse {
-    List<?> content;
-    Integer pageNumber;
-    Integer pageSize;
-    Long totalElements;
-    Integer totalPages;
+    private List<?> content;
+    private Integer pageNumber;
+    private Integer pageSize;
+    private Long totalElements;
+    private Integer totalPages;
 }
+

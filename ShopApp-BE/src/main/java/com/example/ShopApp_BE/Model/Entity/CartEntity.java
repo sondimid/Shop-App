@@ -18,7 +18,7 @@ public class CartEntity extends AbstractEntity{
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity userEntity;
 
-    @OneToMany(mappedBy = "cartEntity", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "cartEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartDetailEntity> cartDetailEntities =  new ArrayList<>();
 
 }

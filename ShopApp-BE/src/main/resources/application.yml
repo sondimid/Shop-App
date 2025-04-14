@@ -22,14 +22,15 @@ spring:
             google:
               client-id: 567381700445-7gr2kvq4posh4f1fhca0fu3pv5qsvdmn.apps.googleusercontent.com
               client-secret: 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
-              redirect-uri: http://localhost:8080/api/v1/users/oauth2/google
+              redirect-uri: http://localhost:3000/authenticate
               user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
               token-uri: https://oauth2.googleapis.com/token
+              scope: profile, email, https://www.googleapis.com/auth/user.phonenumbers.read
 
             facebook:
               client-id: 639375768955190
               client-secret: 1e366421bb07788e6dbc01a83b0bb4bf
-              redirect-uri: http://localhost:8080/api/v1/users/oauth2/facebook
+              redirect-uri: http://localhost:3000/authenticate
               user-info-uri: https://graph.facebook.com/me?fields=id,name,email,picture.type(large),birthday
               token-uri: https://graph.facebook.com/v3.0/oauth/access_token
 

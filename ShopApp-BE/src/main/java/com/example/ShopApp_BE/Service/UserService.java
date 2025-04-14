@@ -1,5 +1,6 @@
 package com.example.ShopApp_BE.Service;
 
+import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
 import com.example.ShopApp_BE.DTO.*;
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
 import com.example.ShopApp_BE.Model.Response.TokenResponse;
@@ -15,11 +16,11 @@ import java.util.Optional;
 public interface UserService {
     Optional<UserEntity> getUserByEmail(String email);
 
-    UserEntity createUser(UserRegisterDTO userRegisterDTO);
+    UserEntity createUser(UserRegisterDTO userRegisterDTO) throws Exception;
 
     TokenResponse login(UserLoginDTO userLoginDTO);
 
-    UserEntity update(UserUpdateDTO userUpdateDTO, String token);
+    UserResponse update(UserUpdateDTO userUpdateDTO, String token);
 
     void changePassword(@Valid UserChangePasswordDTO userChangePasswordDTO, String token);
 
@@ -38,4 +39,6 @@ public interface UserService {
     String forgotPassword(String email) throws Exception;
 
     UserEntity resetPassword(ResetPasswordDTO resetPasswordDTO) throws Exception;
+
+    UserEntity verifyAccount(@Valid UserVerifyDTO userVerifyDTO) throws Exception;
 }

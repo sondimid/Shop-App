@@ -25,8 +25,11 @@ public class ProductEntity extends AbstractEntity{
     @Column(name = "discount")
     private Double discount;
 
-    @Column(name = "description", length = 500)
+    @Column(name = "description", length = 1000)
     private String description;
+
+    @Column(name = "final_price")
+    private Double finalPrice;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

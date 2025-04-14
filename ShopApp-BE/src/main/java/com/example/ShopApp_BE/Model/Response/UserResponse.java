@@ -17,11 +17,11 @@ public class UserResponse extends AbstractResponse {
 
     private String fullName;
 
+    private String email;
+
     private String phoneNumber;
 
     private String address;
-
-    private LocalDateTime dateOfBirth;
 
     private String avatar;
 
@@ -31,16 +31,20 @@ public class UserResponse extends AbstractResponse {
 
     private String role;
 
+    private Boolean isSocialLogin;
+
     public static UserResponse fromUserEntity(UserEntity userEntity) {
         UserResponse userResponse =  UserResponse.builder()
                 .Id(userEntity.getId())
                 .fullName(userEntity.getFullName())
+                .email(userEntity.getEmail())
                 .phoneNumber(userEntity.getPhoneNumber())
                 .address(userEntity.getAddress())
                 .avatar(userEntity.getAvatarUrl())
                 .facebookAccountId(userEntity.getFacebookAccountId())
                 .googleAccountId(userEntity.getGoogleAccountId())
                 .role(userEntity.getRoleEntity().getRole())
+                .isSocialLogin(userEntity.getPassword() != null)
                 .build();
         userResponse.setCreatedAt(userEntity.getCreatedAt());
         userResponse.setUpdatedAt(userEntity.getUpdatedAt());
