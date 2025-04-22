@@ -25,6 +25,8 @@ public class OrderDTO {
 
     private String note;
 
+    private Double totalMoney;
+
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime orderDate;
 
@@ -38,6 +40,10 @@ public class OrderDTO {
     private String trackingNumber;
 
     private String paymentMethod;
+
+    private Long code;
+
+    private Boolean active;
 
     private List<OrderDetailDTO> orderDetailDTOs;
 }

@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     Page<OrderEntity> findByUserEntity_Id(Long userId,Pageable pageable);
 
@@ -21,4 +23,6 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     @Query(ConfixSql.Category.SEARCH_BY_USER_AND_KEYWORD)
     Page<OrderEntity> findByUserAndKeyword(@Param("userId") Long userId,
                                            @Param("keyword") String keyword, Pageable pageable);
+
+    Optional<OrderEntity> findByCode(Long orderId);
 }

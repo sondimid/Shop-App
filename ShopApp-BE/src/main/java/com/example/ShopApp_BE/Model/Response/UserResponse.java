@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserResponse extends AbstractResponse {
-    private Long Id;
+    private Long id;
 
     private String fullName;
 
@@ -33,9 +33,11 @@ public class UserResponse extends AbstractResponse {
 
     private Boolean isSocialLogin;
 
+    private Boolean isActive;
+
     public static UserResponse fromUserEntity(UserEntity userEntity) {
         UserResponse userResponse =  UserResponse.builder()
-                .Id(userEntity.getId())
+                .id(userEntity.getId())
                 .fullName(userEntity.getFullName())
                 .email(userEntity.getEmail())
                 .phoneNumber(userEntity.getPhoneNumber())
@@ -45,6 +47,7 @@ public class UserResponse extends AbstractResponse {
                 .googleAccountId(userEntity.getGoogleAccountId())
                 .role(userEntity.getRoleEntity().getRole())
                 .isSocialLogin(userEntity.getPassword() != null)
+                .isActive(userEntity.getIsActive())
                 .build();
         userResponse.setCreatedAt(userEntity.getCreatedAt());
         userResponse.setUpdatedAt(userEntity.getUpdatedAt());

@@ -24,10 +24,14 @@ public class AdminController {
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers(
             @RequestParam(name = "page", defaultValue = "0") Integer page,
-            @RequestParam(name = "limit", defaultValue = "3") Integer limit) {
+            @RequestParam(name = "limit", defaultValue = "6") Integer limit,
+            @RequestParam(name = "keyword", defaultValue = "") String keyword,
+            @RequestParam(name = "sortField", defaultValue = "id") String sortField,
+            @RequestParam(name = "sortDirection", defaultValue = "ASC") String sortDirection) {
+        Sort.Direction sort = sortDirection.equals("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
 
-            PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
-            Page<UserResponse> userPage = userService.getAllUsers(pageRequest);
+        PageRequest pageRequest = PageRequest.of(page, limit, sort, sortField);
+        Page<UserResponse> userPage = userService.getAllUsers(keyword, pageRequest);
         return ResponseEntity.ok().body(PageResponse.builder()
                     .content(userPage.getContent())
                     .pageNumber(page)
@@ -35,7 +39,6 @@ public class AdminController {
                     .totalElements(userPage.getTotalElements())
                     .totalPages(userPage.getTotalPages())
                     .build());
-
     }
 
     @GetMapping("/users/{id}")

@@ -1,9 +1,11 @@
 package com.example.ShopApp_BE.Controller;
 
+import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
 import com.example.ShopApp_BE.DTO.CategoryDTO;
 import com.example.ShopApp_BE.Repository.CategoryRepository;
 import com.example.ShopApp_BE.Service.CategoryService;
 import com.example.ShopApp_BE.Utils.MessageKeys;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,7 +21,7 @@ public class CategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> createCategory(@ModelAttribute CategoryDTO categoryDTO) throws IOException {
+    public ResponseEntity<?> createCategory(@ModelAttribute CategoryDTO categoryDTO) throws IOException, NotFoundException {
 
         categoryService.createCategory(categoryDTO);
         return ResponseEntity.ok(MessageKeys.CREATE_CATEGORY_SUCCESS);

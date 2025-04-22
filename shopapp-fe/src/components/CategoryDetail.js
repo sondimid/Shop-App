@@ -7,6 +7,7 @@ import Loading from "./Loading";
 import { set } from "lodash";
 import Select from "react-select";
 import axios from "axios";
+import Pagination from "./Pagination";
 
 function CategoryDetail() {
   const [isLoading, setIsLoading] = useState(true);
@@ -19,8 +20,8 @@ function CategoryDetail() {
   const [toPrice, setToPrice] = useState(2000);
   const [page, setPage] = useState({
     pageNumber: 0,
-    totalPages: 1
-  })
+    totalPages: 1,
+  });
 
   const options = [
     { value: "high-to-low-price", label: "Giá: Cao-Thấp" },
@@ -53,8 +54,8 @@ function CategoryDetail() {
         setPage(() => {
           return {
             pageNumber: response.data.pageNumber,
-            totalPages: response.data.totalPages
-          }
+            totalPages: response.data.totalPages,
+          };
         });
         setIsLoading(false);
       } catch (error) {
@@ -65,37 +66,39 @@ function CategoryDetail() {
     fetchProducts();
   }, [sortBy, sortField, page.pageNumber]);
 
-  const fetchProductsByKeyWord = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.get(
-        "http://localhost:8080/api/v1/products",
-        {
-          params: {
-            categoryId: localStorage.getItem("categoryId"),
-            limit: 6,
-            page: 0,
-            sort: sortBy,
-            sortField: sortField,
-            keyword: keyword,
-            fromPrice: fromPrice,
-            toPrice: toPrice,
-          },
-        }
-      );
-      setProducts(response.data.content);
-      setPage(() => {
-        return {
-          pageNumber: response.data.pageNumber,
-          totalPages: response.data.totalPages
-        }
-      });
-      setIsLoading(false);
-    } catch (error) {
-      alert(error.response);
-      setIsLoading(false);
-    }
-  };
+  useEffect(() => {
+    const fetchProductsByKeyWord = async (e) => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8080/api/v1/products",
+          {
+            params: {
+              categoryId: localStorage.getItem("categoryId"),
+              limit: 6,
+              page: 0,
+              sort: sortBy,
+              sortField: sortField,
+              keyword: keyword,
+              fromPrice: fromPrice,
+              toPrice: toPrice,
+            },
+          }
+        );
+        setProducts(response.data.content);
+        setPage(() => {
+          return {
+            pageNumber: response.data.pageNumber,
+            totalPages: response.data.totalPages,
+          };
+        });
+        setIsLoading(false);
+      } catch (error) {
+        alert(error.response);
+        setIsLoading(false);
+      }
+    };
+    fetchProductsByKeyWord();
+  }, [keyword, toPrice, fromPrice]);
 
   const handleSortChange = (selectedOption) => {
     const value = selectedOption.value;
@@ -123,7 +126,7 @@ function CategoryDetail() {
       }));
     }
   };
-  
+
   const handleNextPage = () => {
     if (page.pageNumber < page.totalPages - 1) {
       setPage((prev) => ({
@@ -237,14 +240,6 @@ function CategoryDetail() {
                           </div>
                         </div>
                       </div>
-                      <a
-                        href="cart.html"
-                        className="d-block rounded py-2 text-center border mt-3 btn-cart"
-                        style={{ width: "100px" }}
-                        onClick={fetchProductsByKeyWord}
-                      >
-                        Lọc
-                      </a>
                     </div>
                   </div>
                 </aside>
@@ -358,61 +353,12 @@ function CategoryDetail() {
                     </div>
                   </div>
 
-                  <div className="row mt-5">
-                    <div className="col">
-                      <nav>
-                        <ul className="pagination">
-                          {/* Nút Previous */}
-                          <li
-                            className={`page-item ${
-                              page.pageNumber === 0 ? "disabled" : ""
-                            }`}
-                          >
-                            <a
-                              className="page-link mx-1"
-                              href="#"
-                              aria-label="Previous"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                handlePreviousPage();
-                              }}
-                            >
-                              <i className="bi bi-arrow-left-short"></i>
-                            </a>
-                          </li>
-
-                          {/* Hiển thị số trang hiện tại */}
-                          <li className="page-item">
-                            <a className="page-link mx-1 active" href="#">
-                              {page.pageNumber + 1} /{" "}
-                              {page.totalPages}
-                            </a>
-                          </li>
-
-                          {/* Nút Next */}
-                          <li
-                            className={`page-item ${
-                              page.pageNumber >= page.totalPages - 1
-                                ? "disabled"
-                                : ""
-                            }`}
-                          >
-                            <a
-                              className="page-link mx-1"
-                              href="#"
-                              aria-label="Next"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                handleNextPage();
-                              }}
-                            >
-                              <i className="bi bi-arrow-right-short"></i>
-                            </a>
-                          </li>
-                        </ul>
-                      </nav>
-                    </div>
-                  </div>
+                  <Pagination
+                    pageNumber={page.pageNumber}
+                    totalPages={page.totalPages}
+                    handlePreviousPage={handlePreviousPage}
+                    handleNextPage={handleNextPage}
+                  />
                 </section>
               </div>
             </div>

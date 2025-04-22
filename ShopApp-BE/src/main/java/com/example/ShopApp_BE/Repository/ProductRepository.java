@@ -22,9 +22,9 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
     boolean existsByName(String name);
 
-    @Query(ConfixSql.Product.SEARCH_BY_CREATED_AT)
-    Page<ProductEntity> findByCreatedAt(Pageable pageable);
-
-    @Query(ConfixSql.Product.SEARCH_BY_DISCOUNT)
-    Page<ProductEntity> findByDiscount(Pageable pageable);
+    @Query(ConfixSql.Product.SEARCH_BY_KEYWORD)
+    Page<ProductEntity> findByKeyword(@Param("keyword") String keyword,
+                                      @Param("fromPrice") Double fromPrice,
+                                      @Param("toPrice") Double toPrice,
+                                      Pageable pageable);
 }

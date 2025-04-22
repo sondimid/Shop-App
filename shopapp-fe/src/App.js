@@ -6,15 +6,17 @@ import RegisterPage from "./Pages/RegisterPage";
 import VerifyAccountPage from "./Pages/VerifyAccountPage";
 import ForgotPasswordPage from "./Pages/ForgotPasswordPage";
 import ResetPasswordPage from "./Pages/ResetPasswordPage";
-import ChangePasswordPage from "./components/ChangePassword";
 import AuthenticateOAuth2 from "./components/AuthenticateOAuth2";
-import ProductList from "./components/ProductList";
-import ShopSingle from "./Pages/ShopSingle";
 import ProductDetail from "./components/ProductDetail";
 import AccountPage from "./Pages/AccountPage";
 import UserRoute from "./utils/UserRoute";
 import CartPage from "./Pages/CartPage";
 import CategoryPage from "./Pages/CategoryPage";
+import AdminRoute from "./utils/AdminRoute";
+import AdminPage from "./Pages/AdminPage";
+import OrderPage from "./Pages/OrderPage";
+import OrderSuccess from "./components/OrderSuccess";
+
 function App() {
   return (
     <BrowserRouter>
@@ -45,7 +47,31 @@ function App() {
               </UserRoute>
             }
           />
-         
+           <Route
+            path="/order"
+            element={
+              <UserRoute>
+                <OrderPage />
+              </UserRoute>
+            }
+          />
+          <Route
+            path="/order/success"
+            element={
+              <UserRoute>
+                <OrderSuccess />
+              </UserRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminPage />
+              </AdminRoute>
+            }
+          />
+
           <Route path="*" element={<HomePage />} />
         </Routes>
       </>

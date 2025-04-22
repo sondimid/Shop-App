@@ -43,7 +43,6 @@ public class OrderServiceImpl implements OrderService {
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
         OrderEntity orderEntity = modelMapper.map(orderDTO, OrderEntity.class);
-        double totalMoney = 0.0;
         orderEntity.setUserEntity(userEntity);
         orderEntity.setOrderDetailEntities(new ArrayList<>());
         for(OrderDetailDTO orderDetailDTO : orderDTO.getOrderDetailDTOs()){
@@ -56,12 +55,10 @@ public class OrderServiceImpl implements OrderService {
                     .discount(productEntity.getDiscount())
                     .orderEntity(orderEntity)
                     .productEntity(productEntity)
+                    .totalMoney(orderDetailDTO.getTotalMoney())
                     .build();
-            orderDetailEntity
-                    .setTotalMoney(orderDetailEntity.getNumberOfProducts() * productEntity.getPrice() * (100-orderDetailEntity.getPrice())/100.0 );
-            totalMoney += orderDetailEntity.getTotalMoney();
+            orderEntity.getOrderDetailEntities().add(orderDetailEntity);
         }
-        orderEntity.setTotalMoney(totalMoney);
         orderEntity.setStatus(OrderStatus.PENDING.toString());
         return orderRepository.save(orderEntity);
     }
@@ -150,5 +147,14 @@ public class OrderServiceImpl implements OrderService {
             orderEntityPage = orderRepository.findByUserAndKeyword(userEntity.getId(), keyword, pageable);
         }
         return orderEntityPage.map(OrderResponse::fromOrderEntity);
+    }
+
+    @Override
+    public void confirmOrder(Long orderId) throws Exception {
+        OrderEntity orderEntity = orderRepository.findByCode(orderId)
+                .orElseThrow(() -> new NotFoundException(MessageKeys.ORDER_NOT_FOUND));
+        orderEntity.setActive(true);
+        orderEntity.getUserEntity().getCartEntity().getCartDetailEntities().clear();
+        mailService.sendEmailOrder(orderEntity);
     }
 }

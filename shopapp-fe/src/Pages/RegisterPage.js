@@ -12,9 +12,9 @@ function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false); 
-  const [message, setSuccessMessage] = useState(""); 
-  const [isLoading, setIsLoading] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [message, setSuccessMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -26,17 +26,22 @@ function RegisterPage() {
     }
 
     try {
-      setIsLoading(true)
-      const response = await axios.post("http://localhost:8080/api/v1/users/register", {
-        email,
-        fullName,
-        password,
-        confirmPassword,
-      });
-      setIsLoading(false)
-      window.location.href = `/verify-account?email=${encodeURIComponent(email)}`;
+      setIsLoading(true);
+      const response = await axios.post(
+        "http://localhost:8080/api/v1/users/register",
+        {
+          email,
+          fullName,
+          password,
+          confirmPassword,
+        }
+      );
+      setIsLoading(false);
+      window.location.href = `/verify-account?email=${encodeURIComponent(
+        email
+      )}`;
     } catch (error) {
-      setIsLoading(false)
+      setIsLoading(false);
       setError(error.response?.data || "Signup failed. Try again!");
     }
   };

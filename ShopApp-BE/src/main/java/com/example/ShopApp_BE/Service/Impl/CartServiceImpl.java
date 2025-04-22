@@ -82,12 +82,9 @@ public class CartServiceImpl implements CartService {
         if(userEntity.getCartEntity() == null){
             return new CartResponse();
         }
-        List<CartDetailEntity> cartDetailEntities = cartDetailRepository
-                .findByCartEntity_Id(userEntity.getCartEntity().getId());
-        return CartResponse.builder()
-                .cartDetailResponses(CartDetailResponse.fromCartDetailEntities(cartDetailEntities))
-                .id(userEntity.getCartEntity().getId())
-                .build();
+//        List<CartDetailEntity> cartDetailEntities = cartDetailRepository
+//                .findByCartEntity_Id(userEntity.getCartEntity().getId());
+        return CartResponse.fromCartEntity(userEntity.getCartEntity());
     }
 
     @Override

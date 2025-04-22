@@ -26,7 +26,7 @@ public interface UserService {
 
     UserResponse getUserDetails(String token) throws Exception;
 
-    Page<UserResponse> getAllUsers(PageRequest pageRequest);
+    Page<UserResponse> getAllUsers(String keyword,PageRequest pageRequest);
 
     UserResponse getById(Long id) throws Exception;
 

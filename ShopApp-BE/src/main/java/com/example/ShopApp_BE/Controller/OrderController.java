@@ -31,16 +31,10 @@ public class OrderController {
     private final JwtTokenUtils jwtTokenUtils;
     private final MailService mailService;
 
-    @PostMapping("")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> createOrder(@RequestBody OrderDTO orderDTO,
-                                         @RequestHeader("Authorization") String authorization) throws Exception {
-
-        OrderEntity orderEntity = orderService.createOrder(orderDTO,
-                    jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS));
-        mailService.sendEmailOrder(orderEntity);
+    @PutMapping("/success")
+    public ResponseEntity<?> createOrder(@RequestParam(name = "orderId") Long orderId) throws Exception {
+        orderService.confirmOrder(orderId);
         return ResponseEntity.accepted().body(MessageKeys.CREATE_ORDER_SUCCESS);
-
     }
 
     @PutMapping("/{id}")

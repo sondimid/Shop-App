@@ -47,12 +47,12 @@ function LoginPage() {
           Cookies.set("localLogin", "true");
           window.location.href = '/'
         } catch (error) {
-          setError(error.response.data || "Login failed. Try again!");
+          setError(error.message || "Login failed. Try again!");
         }
       }
       
     } catch (error) {
-      setError(error.response.data || "Login failed. Try again!");
+      setError(error.message || "Login failed. Try again!");
     }
   };
   const handleGoogleLogin = () => {

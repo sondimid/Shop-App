@@ -17,6 +17,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.security.SecureRandom;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
@@ -29,9 +30,13 @@ public class MailServiceImpl implements MailService {
     public void sendMailOrderCreate(OrderEntity orderEntity) throws Exception {
         Context context = new Context();
         context.setVariable("fullName", orderEntity.getFullName());
-        context.setVariable("orderId", orderEntity.getId());
+        context.setVariable("orderId", orderEntity.getCode());
         context.setVariable("status", OrderStatus.fromString(orderEntity.getStatus()).getEmailSubject());
-        context.setVariable("orderDate", orderEntity.getOrderDate());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy/HH/mm");
+        String formattedDate = orderEntity.getOrderDate().format(formatter);
+        context.setVariable("orderDate", formattedDate);
+
 
         String htmlContent = thymeleafEngine.process("email/order-create", context);
 
@@ -42,7 +47,7 @@ public class MailServiceImpl implements MailService {
     public void sendEmailOrder(OrderEntity orderEntity) throws Exception {
         Context context = new Context();
         context.setVariable("fullName", orderEntity.getFullName());
-        context.setVariable("orderId", orderEntity.getId());
+        context.setVariable("orderId", orderEntity.getCode());
         context.setVariable("status", OrderStatus.fromString(orderEntity.getStatus()).getEmailSubject());
         context.setVariable("orderDate", orderEntity.getOrderDate());
 

@@ -21,7 +21,7 @@ function ProductDetail() {
     const storedProduct = JSON.parse(localStorage.getItem("product"));
     localStorage.setItem("productId", storedProduct.id);
     setProduct(storedProduct);
-    setMainImage(storedProduct.imageResponses[0].url);
+    setMainImage(storedProduct.imageResponses[0]?.url || "/assets/images/product/3.png");
   }, []);
 
   useEffect(() => {
@@ -402,7 +402,7 @@ function ProductDetail() {
                         }
                       >
                         <img
-                          src={product.imageResponses[0].url}
+                          src={product.imageResponses[0].url || "/assets/images/product/3.png"}
                           className="card-img-top"
                           alt={product.name}
                         />

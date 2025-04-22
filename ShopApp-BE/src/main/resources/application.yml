@@ -58,9 +58,14 @@ jwt:
   expiration: 1800
   expiration-refresh-token: 86400
   expiration-reset-token: 300
-  secret-key: "RIw1DJ/txeArNX2Nf6CmAbxobAI5LH9Qc1HJagsurGPiZROq91Ywe+2zKJ1fn1Ta"
-  refresh-key: "/LUlafmFDnG8hvW2ffNwk6zzzoJ+m3KLn3LVKoVzuWJVxHW2HqM74mGl9RsFKgCG"
-  reset-key : "oObnn/FToWBrFtOMaflVzzAnb4nJpu91Lp8CtDw6z35U5sJHaRqwaZIAGWRp+GP6"
+  secret-key: RIw1DJ/txeArNX2Nf6CmAbxobAI5LH9Qc1HJagsurGPiZROq91Ywe+2zKJ1fn1Ta
+  refresh-key: /LUlafmFDnG8hvW2ffNwk6zzzoJ+m3KLn3LVKoVzuWJVxHW2HqM74mGl9RsFKgCG
+  reset-key : oObnn/FToWBrFtOMaflVzzAnb4nJpu91Lp8CtDw6z35U5sJHaRqwaZIAGWRp+GP6
+
+payos:
+  client-id: 7b479982-4625-4274-b556-d0cb1db31fb7
+  api-key: c546de94-7c37-4b62-819b-3d22d9ce98b5
+  checksum-key: bc0ff4e5dbfbe559f24ad075d85a8de0d057ddb4b5d59a688ab1503eb09bdab4
 
 
 logging:

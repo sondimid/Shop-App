@@ -3,13 +3,15 @@ import { Navigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
 function UserRoute({ children }) {
-  const user = Cookies.get("user");
+  const userData = Cookies.get("user");
+  const user = JSON.parse(userData)
 
-  if (!user) {
-    window.location.href = "/";
+  if(user.role === "USER" || user.role === "ADMIN"){
+    return children
   }
 
-  return children;
+  window.location.href = "/"
+  
 }
 
 export default UserRoute;

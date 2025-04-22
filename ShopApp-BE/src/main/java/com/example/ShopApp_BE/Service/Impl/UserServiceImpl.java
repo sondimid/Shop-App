@@ -156,8 +156,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserResponse> getAllUsers(PageRequest pageRequest) {
-        Page<UserEntity> userPage = userRepository.findAll(pageRequest);
+    public Page<UserResponse> getAllUsers(String keyword, PageRequest pageRequest) {
+        Page<UserEntity> userPage = userRepository.findByKeyword(keyword,pageRequest);
         return userPage.map(UserResponse::fromUserEntity);
     }
 

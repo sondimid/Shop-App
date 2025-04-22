@@ -3,13 +3,14 @@ import { Navigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
 function AdminRoute({ children }) {
-  const user = JSON.parse(Cookies.get("user"));
+  const userData = Cookies.get("user");
+    const user = JSON.parse(userData)
+  
+    if (user.role === "ADMIN") {
+      return children
+    }
 
-  if (user.role !== "ADMIN") {
-    window.location.href = "/";
-  }
-
-  return children;
+  window.location.href = "/"
 }
 
 export default AdminRoute;

@@ -1,5 +1,6 @@
 package com.example.ShopApp_BE.Service;
 
+import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
 import com.example.ShopApp_BE.DTO.OrderDTO;
 import com.example.ShopApp_BE.Model.Entity.OrderEntity;
 import com.example.ShopApp_BE.Model.Response.OrderResponse;
@@ -25,4 +26,6 @@ public interface OrderService {
     OrderEntity deleteOrders(List<Long> orderIds) throws Exception;
 
     Page<OrderResponse> getByKeyWord(String status, String phoneNumber, Pageable pageable) throws Exception;
+
+    void confirmOrder(Long orderId) throws Exception;
 }

@@ -4,11 +4,13 @@ public class ConfixSql {
 
     public interface Product{
         String SEARCH_BY_CATEGORY = "SELECT p FROM ProductEntity p WHERE p.categoryEntity.id = :categoryId" +
-                " AND (p.name LIKE CONCAT('%', :keyword, '%') OR p.description LIKE CONCAT('%', :keyword, '%') ) AND p.finalPrice >= :fromPrice AND p.finalPrice <= :toPrice  ";
+                " AND (p.name LIKE CONCAT('%', :keyword, '%') OR p.description LIKE CONCAT('%', :keyword, '%') ) " +
+                "AND p.finalPrice >= :fromPrice AND p.finalPrice <= :toPrice  ";
 
-        String SEARCH_BY_CREATED_AT = "SELECT p FROM ProductEntity p ORDER BY p.createdAt DESC";
-
-        String SEARCH_BY_DISCOUNT = "SELECT p FROM ProductEntity p ORDER BY p.discount DESC";
+        String SEARCH_BY_KEYWORD = "SELECT p FROM ProductEntity p WHERE (" +
+                " p.name LIKE CONCAT('%', :keyword, '%')" +
+                " OR p.categoryEntity.name LIKE CONCAT('%', :keyword, '%') )" +
+                " AND p.price >= :fromPrice AND p.price <= :toPrice";
     }
 
     public interface Category{
@@ -25,5 +27,10 @@ public class ConfixSql {
     public interface CartDetail{
         String SEARCH_BY_CART = "SELECT c FROM CartDetailEntity c WHERE c.cartEntity.id = :cartId ORDER BY c.createdAt DESC," +
                 " c.updatedAt DESC";
+    }
+
+    public interface User{
+        String SEARCH_BY_KEYWORD = "SELECT u from UserEntity u WHERE (u.fullName LIKE CONCAT('%', :keyword, '%')" +
+                " OR u.email LIKE CONCAT('%', :keyword , '%') OR u.phoneNumber LIKE CONCAT('%', :keyword , '%') ) AND (u.roleEntity.role = 'USER')";
     }
 }

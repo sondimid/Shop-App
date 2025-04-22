@@ -57,12 +57,12 @@ public class ProductController {
             @RequestParam(name = "sortField", defaultValue = "id") String sortField,
             @RequestParam(name = "fromPrice", defaultValue = "0") Double fromPrice,
             @RequestParam(name = "toPrice", defaultValue = "2000") Double toPrice,
-            @RequestParam(name = "categoryId") Long categoryId){
+            @RequestParam(name = "categoryId", defaultValue = "1") Long categoryId){
 
         Sort.Direction sortDirection =
                 sort.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, limit, sortDirection, sortField);
-        Page<ProductResponse> productPage = productService.getByCategoryId(categoryId, keyword, fromPrice, toPrice, pageable);
+        Page<ProductResponse> productPage = productService.getByCategoryId(categoryId, keyword.trim(), fromPrice, toPrice, pageable);
         return ResponseEntity.ok().body(PageResponse.builder()
                 .pageSize(limit)
                 .pageNumber(page)
@@ -73,11 +73,10 @@ public class ProductController {
 
     }
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateProduct(@ModelAttribute ProductUpdateDTO productUpdateDTO,
-                                           @PathVariable("id") Long id) throws Exception {
+    @PutMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateProduct(@ModelAttribute ProductUpdateDTO productUpdateDTO) throws Exception {
 
-        productService.updateProduct(productUpdateDTO, id);
+        productService.updateProduct(productUpdateDTO);
         return ResponseEntity.ok().body(MessageKeys.UPDATE_SUCCESS);
 
     }
@@ -89,16 +88,6 @@ public class ProductController {
         productService.deleteProductById(id);
         return ResponseEntity.ok().body(MessageKeys.DELETE_PRODUCT_SUCCESS);
 
-    }
-
-    @GetMapping("/lastest")
-    public ResponseEntity<?> getLastestProduct(){
-        return ResponseEntity.ok().body(productService.getLastestProduct());
-    }
-
-    @GetMapping("/best-deal")
-    public ResponseEntity<?> getBestDealProduct(){
-        return ResponseEntity.ok().body(productService.getBestDealProduct());
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -121,6 +110,26 @@ public class ProductController {
         }
         return ResponseEntity.ok().body(MessageKeys.FAKE_DATA_SUCCESS);
 
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllProduct(@RequestParam(name = "keyword", defaultValue = "") String keyword,
+                                           @RequestParam(name = "page", defaultValue = "0") Integer page,
+                                           @RequestParam(name = "limit", defaultValue = "10") Integer limit,
+                                           @RequestParam(name = "sort", defaultValue = "ASC") String sort,
+                                           @RequestParam(name = "sortField", defaultValue = "id") String sortField,
+                                           @RequestParam(name = "fromPrice", defaultValue = "0") Double fromPrice,
+                                           @RequestParam(name = "toPrice", defaultValue = "200000") Double toPrice){
+        Sort.Direction sortDirection = sort.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, limit, sortDirection, sortField);
+        Page<ProductResponse> productResponsePage = productService.getAll(keyword.trim(), fromPrice, toPrice, pageable);
+        return ResponseEntity.ok().body(PageResponse.builder()
+                .content(productResponsePage.getContent())
+                .totalPages(productResponsePage.getTotalPages())
+                .totalElements(productResponsePage.getTotalElements())
+                .pageNumber(productResponsePage.getNumber())
+                .pageSize(productResponsePage.getSize())
+                .build());
     }
 
 

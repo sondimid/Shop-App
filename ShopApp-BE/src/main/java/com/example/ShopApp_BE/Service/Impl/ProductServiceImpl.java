@@ -81,17 +81,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse updateProduct(ProductUpdateDTO productUpdateDTO, Long id) throws Exception {
-        ProductEntity productEntity = productRepository.findById(id)
+    public ProductResponse updateProduct(ProductUpdateDTO productUpdateDTO) throws Exception {
+         ProductEntity productEntity = (productUpdateDTO.getId() == null)
+                ? ProductEntity.builder()
+                 .cartDetailEntities(new ArrayList<>())
+                 .commentEntities(new ArrayList<>())
+                 .imageEntities(new ArrayList<>())
+                 .orderDetailEntities(new ArrayList<>())
+                 .build()
+                : productRepository.findById(productUpdateDTO.getId())
                 .orElseThrow(() -> new NotFoundException(MessageKeys.PRODUCT_NOT_FOUND));
         productEntity.setName(productUpdateDTO.getName());
         productEntity.setDescription(productUpdateDTO.getDescription());
         productEntity.setPrice(productUpdateDTO.getPrice());
         productEntity.setDiscount(productUpdateDTO.getDiscount());
+
         productEntity.setFinalPrice(productEntity.getPrice() - productEntity.getDiscount() / 100.0 * productEntity.getPrice());
         productEntity.setCategoryEntity(categoryRepository.findById(productUpdateDTO.getCategoryId()).orElseThrow(
-                () -> new NotFoundException(MessageKeys.CATEGORY_NOT_FOUND)
-        ));
+                () -> new NotFoundException(MessageKeys.CATEGORY_NOT_FOUND)));
 
         Path uploadPath = Paths.get(fileProperties.getDir());
         if(!Files.exists(uploadPath)) {
@@ -113,7 +120,6 @@ public class ProductServiceImpl implements ProductService {
                 ImageEntity imageEntity = imageRepository.findById(imageId).orElseThrow(
                         () -> new NotFoundException(MessageKeys.IMAGE_NOT_FOUND)
                 );
-//            productEntity.getImageEntities().remove(imageEntity);
                 imageRepository.delete(imageEntity);
             }
         }
@@ -133,16 +139,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> getLastestProduct() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<ProductEntity> productEntityPage = productRepository.findByCreatedAt(pageable);
-        return productEntityPage.getContent().stream().map(ProductResponse::fromProductEntity).toList();
-    }
-
-    @Override
-    public List<ProductResponse> getBestDealProduct() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<ProductEntity> productEntityPage = productRepository.findByDiscount(pageable);
-        return productEntityPage.getContent().stream().map(ProductResponse::fromProductEntity).toList();
+    public Page<ProductResponse> getAll(String keyword, Double fromPrice, Double toPrice, Pageable pageable) {
+        Page<ProductEntity> productEntityPage = productRepository.findByKeyword(keyword, fromPrice, toPrice, pageable);
+        return productEntityPage.map(ProductResponse::fromProductEntity);
     }
 }

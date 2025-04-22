@@ -11,7 +11,15 @@ import lombok.*;
 public class OrderDetailDTO{
     private Long productId;
 
+    private String name;
+
     private Integer numberOfProducts;
+
+    private Double price;
+
+    private Double discount;
+
+    private Double totalMoney;
 
     private String color;
 }

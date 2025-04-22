@@ -14,12 +14,12 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class CategoryEntity extends AbstractEntity {
-    @Column(name = "name", nullable = false, length = 200)
+    @Column(name = "name", unique = true, nullable = false, length = 200)
     private String name;
 
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
-    @OneToMany(mappedBy = "categoryEntity", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "categoryEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductEntity> productEntities = new ArrayList<>();
 }

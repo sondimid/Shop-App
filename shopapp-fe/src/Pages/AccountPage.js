@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Profile from "../components/Profile";
-import { isOauth } from "../utils/AuthUtils";
 import Cookies from "js-cookie";
 import Loading from "../components/Loading";
 import ChangePasswordPage from "../components/ChangePassword";
@@ -45,11 +44,10 @@ function AccountPage() {
       <Header />
       <div className="profile-container">
         <div className="sidebar">
-          <div className="avatar"></div>
           <ul className="menu">
             <li>
-              👤 Tài Khoản Của Tôi
-              <ul>
+               Tài Khoản Của Tôi
+              <ul className="submenu">
                 <li
                   className={activeMenu === "Hồ Sơ" ? "active" : ""}
                   onClick={() => setActiveMenu("Hồ Sơ")}
@@ -67,8 +65,8 @@ function AccountPage() {
               </ul>
             </li>
             <li>
-              📦 Đơn Hàng
-              <ul>
+               Đơn Hàng
+              <ul className="submenu">
                 <li
                   className={activeMenu === "Chờ Xác Nhận" ? "active" : ""}
                   onClick={() => setActiveMenu("Chờ Xác Nhận")}

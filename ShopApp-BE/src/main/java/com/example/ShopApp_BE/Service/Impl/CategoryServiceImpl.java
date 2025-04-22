@@ -22,9 +22,12 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     @Override
-    public CategoryEntity createCategory(CategoryDTO categoryDTO) throws IOException {
-        CategoryEntity categoryEntity = CategoryEntity.builder()
-                .name(categoryDTO.getName()).build();
+    public CategoryEntity createCategory(CategoryDTO categoryDTO) throws IOException, NotFoundException {
+        CategoryEntity categoryEntity = (categoryDTO.getId() == null)
+                ? CategoryEntity.builder().build()
+                : categoryRepository.findById(categoryDTO.getId())
+                .orElseThrow(() -> new NotFoundException(MessageKeys.CATEGORY_NOT_FOUND));
+        categoryEntity.setName(categoryDTO.getName());
         categoryEntity.setImageUrl(UploadImages.uploadImage(categoryDTO.getImage()));
         return categoryRepository.save(categoryEntity);
     }

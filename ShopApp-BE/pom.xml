@@ -126,7 +126,11 @@
 			<artifactId>google-api-client</artifactId>
 			<version>1.32.1</version>
 		</dependency>
-
+		<dependency>
+			<groupId>vn.payos</groupId>
+			<artifactId>payos-java</artifactId>
+			<version>1.0.3</version>
+		</dependency>
 
 	</dependencies>
 

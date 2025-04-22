@@ -17,6 +17,8 @@ public class CartResponse extends AbstractResponse{
 
     private List<CartDetailResponse> cartDetailResponses;
 
+    private Long quantityProduct;
+
     public static CartResponse fromCartEntity(CartEntity cartEntity) {
         List<CartDetailResponse> cartDetailResponses =
                 CartDetailResponse.fromCartDetailEntities(cartEntity.getCartDetailEntities());
@@ -24,6 +26,7 @@ public class CartResponse extends AbstractResponse{
                 .cartDetailResponses(cartDetailResponses)
                 .id(cartEntity.getId())
                 .totalMoney(cartDetailResponses.stream().mapToDouble(CartDetailResponse::getTotalMoney).sum())
+                .quantityProduct(cartDetailResponses.stream().mapToLong(CartDetailResponse::getNumberOfProducts).sum())
                 .build();
         cartResponse.setCreatedAt(cartEntity.getCreatedAt());
         cartResponse.setUpdatedAt(cartEntity.getUpdatedAt());

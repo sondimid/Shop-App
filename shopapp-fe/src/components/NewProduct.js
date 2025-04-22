@@ -14,8 +14,15 @@ function NewProduct() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/v1/products/lastest");
-        setProducts(response.data);
+        const response = await axios.get(
+          "http://localhost:8080/api/v1/products/all",{
+            params:{
+              sort: "DESC",
+              sortField: "createdAt"
+            }
+          }
+        );
+        setProducts(response.data.content);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -83,7 +90,7 @@ function NewProduct() {
                       }
                     >
                       <img
-                        src={product.imageResponses[0].url}
+                        src={product.imageResponses[0]?.url || "/assets/images/product/3.png"}
                         className="card-img-top"
                         alt={product.name}
                       />

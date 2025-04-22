@@ -14,9 +14,14 @@ function DealOfTheDays() {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8080/api/v1/products/best-deal"
+          "http://localhost:8080/api/v1/products/all",{
+            params:{
+              sort: "DESC",
+              sortField: "discount"
+            }
+          }
         );
-        setProducts(response.data);
+        setProducts(response.data.content);
         setLoading(false);
       } catch (error) {
         console.error(error);
@@ -72,7 +77,7 @@ function DealOfTheDays() {
                   <a href={`/product/${product.id}`}
                     onClick={() => localStorage.setItem("product", JSON.stringify(product))}>
                       <img
-                        src={product.imageResponses[0].url}
+                        src={product.imageResponses[0].url || "/assets/images/product/3.png"}
                         className="card-img-top"
                         alt={product.name}
                       />

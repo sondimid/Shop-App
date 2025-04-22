@@ -18,13 +18,11 @@ public interface ProductService {
 
     Page<ProductResponse> getByCategoryId(Long categoryId, String keyword, Double fromPrice, Double toPrice, Pageable pageable);
 
-    ProductResponse updateProduct(ProductUpdateDTO productUpdateDTO, Long id) throws Exception;
+    ProductResponse updateProduct(ProductUpdateDTO productUpdateDTO) throws Exception;
 
     void deleteProductById(Long id) throws Exception;
 
     boolean existByName(String name);
 
-    List<ProductResponse> getLastestProduct();
-
-    List<ProductResponse> getBestDealProduct();
+    Page<ProductResponse> getAll(String keyword, Double fromPrice, Double toPrice, Pageable pageable);
 }

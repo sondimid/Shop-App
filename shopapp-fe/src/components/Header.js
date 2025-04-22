@@ -6,9 +6,16 @@ import Cookies from "js-cookie";
 import { useState, useEffect } from "react";
 import axiosInstance from "../utils/RefreshToken";
 import axios from "axios";
+import Loading from "./Loading";
+
 function Header() {
   const [user, setUser] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [cart, setCart] = useState({
+    quantityProduct: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     function fetchUser() {
       const userData = Cookies.get("user");
@@ -22,7 +29,9 @@ function Header() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const response = await axios.get("http://localhost:8080/api/v1/categories");
+        const response = await axios.get(
+          "http://localhost:8080/api/v1/categories"
+        );
         setCategories(response.data);
       } catch (error) {
         alert("Lôi không thể lấy danh sách danh mục sản phẩm");
@@ -30,7 +39,33 @@ function Header() {
     }
     fetchCategories();
   }, []);
-  
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      const accessToken = Cookies.get("accessToken");
+      if (accessToken) {
+        try {
+          const response = await axiosInstance.get("/carts", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          setCart(response.data);
+          setLoading(false);
+        } catch (error) {
+          alert(error.response);
+          setLoading(false);
+        }
+      }
+      setLoading(false);
+    };
+    fetchCart();
+  }, []);
+
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
     <>
       <header>
@@ -101,6 +136,12 @@ function Header() {
                           className="bi bi-cart"
                           style={{ fontSize: "30px", display: "flex" }}
                         ></i>
+                        <span
+                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
+                          style={{ backgroundColor: "#f6891a" }}
+                        >
+                          {cart.quantityProduct || ""}
+                        </span>
                       </a>
                     </div>
                     {Cookies.get("user") && (

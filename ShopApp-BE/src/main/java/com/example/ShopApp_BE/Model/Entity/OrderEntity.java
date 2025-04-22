@@ -57,6 +57,12 @@ public class OrderEntity extends AbstractEntity {
     @Column(name = "payment_method", nullable = false, length = 50)
     private String paymentMethod;
 
+    @Column(name = "code", nullable = false, length = 50)
+    private Long code;
+
+    @Column(name = "active", nullable = false)
+    private Boolean active;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity userEntity;

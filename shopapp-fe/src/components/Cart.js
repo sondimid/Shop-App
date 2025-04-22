@@ -4,15 +4,19 @@
 import React from "react";
 import { useState } from "react";
 import Cookies from "js-cookie";
-import { useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import axiosInstance from "../utils/RefreshToken";
 import Loading from "./Loading";
 import { set } from "lodash";
+import { useNavigate } from "react-router-dom";
 
 function Cart() {
   const [isLoading, setIsLoading] = useState(true);
   const [cart, setCart] = useState(null);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [orderedProducts, setOrderedProducts] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -157,6 +161,29 @@ function Cart() {
   const calculateTotalAmount = () => {
     return calculateOriginalPrice() - calculateDiscountPrice();
   };
+
+  const handleCheckout = () => {
+  if (selectedProducts.length === 0) {
+    alert("Vui lòng chọn ít nhất một sản phẩm để mua!");
+    return;
+  }
+
+  const selectedProductDetails = cart.cartDetailResponses
+    .filter((item) => selectedProducts.includes(item.productResponse.id))
+    .map((item) => ({
+      id: item.productResponse.id,
+      name: item.productResponse.name,
+      price: item.productResponse.finalPrice,
+      quantity: item.numberOfProducts,
+      discount: item.productResponse.discount,
+      totalPrice: item.productResponse.finalPrice * item.numberOfProducts,
+      totalDiscount:
+        ((item.productResponse.price * item.productResponse.discount) / 100) *
+        item.numberOfProducts,
+    }));
+
+  navigate("/order", { state: { selectedProductDetails } });
+};
 
   if (isLoading) {
     return <Loading />;
@@ -363,10 +390,10 @@ function Cart() {
                 </div>
                 <div className="checkout-btn mt-5">
                   <a
-                    href="checkout.html"
                     className="btn btn-primary btn-lg w-100"
+                    onClick={() => handleCheckout()}
                   >
-                    Thanh Toán
+                    Mua Hàng
                   </a>
                 </div>
               </div>
