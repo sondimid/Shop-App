@@ -12,9 +12,11 @@ import com.example.ShopApp_BE.Utils.JwtTokenUtils;
 import com.example.ShopApp_BE.Utils.MessageKeys;
 import com.example.ShopApp_BE.Utils.TokenType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("${api.prefix}/orders")
 @RequiredArgsConstructor
@@ -43,6 +46,7 @@ public class OrderController {
                                          @PathVariable("id") Long orderId,
                                          @RequestHeader("Authorization") String authorization) throws Exception {
 
+
         orderService.updateOrder(orderDTO, orderId,
                     jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS));
         return ResponseEntity.accepted().body(MessageKeys.UPDATE_SUCCESS);
@@ -53,7 +57,7 @@ public class OrderController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getAllOrders(@RequestHeader("Authorization") String authorization,
                                           @RequestParam(value = "page", defaultValue = "0") Integer page,
-                                          @RequestParam(value = "limit", defaultValue = "5") Integer limit) throws Exception {
+                                          @RequestParam(value = "limit", defaultValue = "20") Integer limit) throws Exception {
 
         Pageable pageable = PageRequest.of(page, limit);
         Page<OrderResponse> pageResponse = orderService.
@@ -85,7 +89,6 @@ public class OrderController {
 
         OrderEntity orderEntity = orderService.cancelOrder(jwtTokenUtils.
                 extractEmail(authorization.substring(7), TokenType.ACCESS), orderId);
-        mailService.sendEmailOrder(orderEntity);
         return ResponseEntity.accepted().body(MessageKeys.UPDATE_SUCCESS);
 
     }
@@ -112,9 +115,9 @@ public class OrderController {
     public ResponseEntity<?> getOrderByStatus(@PathVariable(name = "keyword") String keyword,
                                               @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization,
                                               @RequestParam(name = "page", defaultValue = "0") Integer page,
-                                              @RequestParam(name = "limit", defaultValue = "5") Integer limit) throws Exception {
-
-        Pageable pageable = PageRequest.of(page, limit);
+                                              @RequestParam(name = "limit", defaultValue = "10") Integer limit) throws Exception {
+        Sort.Direction sort = Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, limit, sort, "createdAt");
         Page<OrderResponse> pageResponse = orderService.getByKeyWord(keyword,
                 jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS),pageable);
 

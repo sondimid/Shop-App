@@ -188,7 +188,7 @@ function AdminProduct() {
       })
       .then((response) => {
         alert("Cập nhật sản phẩm thành công!");
-        console.log(response.data.message)
+        console.log(response.data.message);
         setShowModal(false);
         fetchProducts();
       })
@@ -224,6 +224,79 @@ function AdminProduct() {
 
   return (
     <>
+      <style>
+        {`
+    .table-container {
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 200px); /* Trừ chiều cao của header và footer */
+    }
+
+    .table-responsive {
+      flex-grow: 1; /* Để bảng chiếm toàn bộ không gian còn lại */
+      overflow-y: auto; /* Thêm thanh cuộn dọc nếu nội dung vượt quá chiều cao */
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .table th,
+    .table td {
+      padding: 12px 15px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .table th {
+      background-color: #f4f4f4;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .table tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    .table td img {
+      border-radius: 4px;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .table td img:hover {
+      transform: scale(1.1);
+      cursor: pointer;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .pagination-container {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+    }
+  `}
+      </style>
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Chỉnh Sửa Sản Phẩm</Modal.Title>
@@ -310,8 +383,8 @@ function AdminProduct() {
                   }
                 />
               </Form.Group>
-              
-              {editingProduct.imageResponses.length >0 && (
+
+              {editingProduct.imageResponses.length > 0 && (
                 <Form.Group className="mb-3">
                   <Form.Label>Hình Ảnh Hiện Tại</Form.Label>
                   <div className="d-flex flex-wrap">
@@ -349,7 +422,7 @@ function AdminProduct() {
                   </div>
                 </Form.Group>
               )}
-              
+
               <Form.Group className="mb-3">
                 <Form.Label>Tải Lên Hình Ảnh</Form.Label>
                 <Form.Control
@@ -389,7 +462,7 @@ function AdminProduct() {
         </Modal.Footer>
       </Modal>
       <main>
-        <div className="product-wishlist">
+        <div >
           <div className="container">
             <div className="row">
               <div className="col-12">
@@ -451,8 +524,8 @@ function AdminProduct() {
               </div>
             </div>
           </div>
-          <section className="mt-5 mb-5">
-            <div className="container-fluid">
+          <section >
+            <div className="container-fluid table-container">
               <div className="row">
                 <div className="col-lg-12">
                   <div className="table-responsive">
@@ -496,7 +569,6 @@ function AdminProduct() {
                                 </a>
                               </div>
                             </td>
-
                             <td className="align-middle">
                               {product.name.length > 50
                                 ? product.name.substring(0, 50) + "..."
@@ -504,7 +576,6 @@ function AdminProduct() {
                             </td>
                             <td className="align-middle">{product.price}$</td>
                             <td className="align-middle">{product.category}</td>
-
                             <td className="align-middle">
                               <span
                                 className={`discount-badge ${
@@ -518,7 +589,6 @@ function AdminProduct() {
                                 {product.discount}%
                               </span>
                             </td>
-
                             <td className="align-middle">
                               <button
                                 className="btn btn-primary btn-sm me-2"

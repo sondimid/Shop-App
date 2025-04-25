@@ -5,6 +5,7 @@ import Profile from "../components/Profile";
 import Cookies from "js-cookie";
 import Loading from "../components/Loading";
 import ChangePasswordPage from "../components/ChangePassword";
+import UserOrder from "../components/UserOrder";
 
 function AccountPage() {
   const [activeMenu, setActiveMenu] = useState("Hồ Sơ");
@@ -25,13 +26,13 @@ function AccountPage() {
       case "Đổi Mật Khẩu":
         return <ChangePasswordPage />;
       case "Chờ Xác Nhận":
-        return <div>Đây là danh sách đơn hàng Chờ Xác Nhận.</div>;
+        return <UserOrder status={"PENDING"} header={"Đơn Hàng Chờ Xác Nhận"}/>;
       case "Đang Vận Chuyển":
-        return <div>Đây là danh sách đơn hàng Đang Vận Chuyển.</div>;
+        return <UserOrder status={"IN_TRANSIT"} header={"Đơn Hàng Đang Vận Chuyển"}/>;
       case "Đơn Đã Giao Hàng":
-        return <div>Đây là danh sách đơn hàng Đã Giao Hàng.</div>;
+        return <UserOrder status={"COMPLETED"} header={"Đơn Hàng Giao Thành Công"}/>;
       case "Đã Huỷ":
-        return <div>Đây là danh sách đơn hàng Đã Huỷ.</div>;
+        return <UserOrder status={"CANCELLED"} header={"Đơn Hàng Đã Huỷ"}/>;
       default:
         return <div>Chọn một mục để xem nội dung.</div>;
     }

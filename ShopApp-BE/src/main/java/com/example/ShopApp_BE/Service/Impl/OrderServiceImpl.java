@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -65,23 +66,16 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderEntity updateOrder(OrderDTO orderDTO, Long orderId, String email) throws Exception {
-        OrderEntity orderEntity = orderRepository.findById(orderId)
+        OrderEntity orderEntity = orderRepository.findByCode(orderId)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.ORDER_NOT_FOUND));
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
-        orderEntity = modelMapper.map(orderDTO, OrderEntity.class);
-        orderEntity.setUserEntity(userEntity);
-        orderEntity.setOrderDetailEntities(new ArrayList<>());
-        for(OrderDetailDTO orderDetailDTO : orderDTO.getOrderDetailDTOs()){
-            ProductEntity productEntity = productRepository.findById(orderDetailDTO.getProductId()).orElseThrow(
-                    () -> new NotFoundException(MessageKeys.PRODUCT_NOT_FOUND)
-            );
-            OrderDetailEntity orderDetailEntity = modelMapper.map(orderDetailDTO,OrderDetailEntity.class);
-            orderDetailEntity.setOrderEntity(orderEntity);
-            orderDetailEntity.setProductEntity(productEntity);
-            orderEntity.getOrderDetailEntities().add(orderDetailEntity);
-            orderDetailRepository.save(orderDetailEntity);
+        if(!Objects.equals(orderEntity.getUserEntity().getId(), userEntity.getId())){
+            throw new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED);
         }
+        orderEntity.setPhoneNumber(orderDTO.getPhoneNumber());
+        orderEntity.setAddress(orderDTO.getAddress());
+        orderEntity.setFullName(orderDTO.getFullName());
         return orderRepository.save(orderEntity);
     }
 

@@ -4,22 +4,76 @@ import Footer from "../components/Footer";
 import AdminUser from "../components/AdminUser";
 import AdminProduct from "../components/AdminProduct";
 import AdminCategory from "../components/AdminCategory";
-
+import AdminOrders from "../components/AdminOrders";
 
 function AdminPage() {
   const [activeMenu, setActiveMenu] = useState("Quản Lý Người Dùng");
 
   const renderContent = () => {
-    if(activeMenu === "Quản Lý Người Dùng"){
-      return <AdminUser/>
+    if (activeMenu === "Quản Lý Người Dùng") {
+      return <AdminUser />;
     }
-    if(activeMenu === "Quản Lý Sản Phẩm"){
-      return <AdminProduct/>
+    if (activeMenu === "Quản Lý Sản Phẩm") {
+      return <AdminProduct />;
     }
-    if(activeMenu === "Quản Lý Danh Mục"){
-      return <AdminCategory/>
+    if (activeMenu === "Quản Lý Danh Mục") {
+      return <AdminCategory />;
     }
-  }
+    if (activeMenu === "Đơn Chờ Xác Nhận") {
+      return (
+        <AdminOrders
+          status={"PENDING"}
+          updateStatus={"CONFIRMED"}
+          header={"Đơn Hàng Chờ Xác Nhận"}
+        />
+      );
+    }
+    if (activeMenu === "Đơn Đã Xác Nhận") {
+      return (
+        <AdminOrders
+          status={"CONFIRMED"}
+          updateStatus={"PACKAGED"}
+          header={"Đơn Hàng Đã Xác Nhận"}
+        />
+      );
+    }
+    if (activeMenu === "Đơn Đã Đóng Gói") {
+      return (
+        <AdminOrders
+          status={"PACKAGED"}
+          updateStatus={"IN_TRANSIT"}
+          header={"Đơn Hàng Đã Đóng Gói"}
+        />
+      );
+    }
+    if (activeMenu === "Đơn Đang Giao") {
+      return (
+        <AdminOrders
+          status={"IN_TRANSIT"}
+          updateStatus={"COMPLETED"}
+          header={"Đơn Hàng Đang Giao"}
+        />
+      );
+    }
+    if (activeMenu === "Đơn Đã Giao Thành Công") {
+      return (
+        <AdminOrders
+          status={"COMPLETED"}
+          updateStatus={"COMPLETED"}
+          header={"Đơn Hàng Đang Giao Thành Công"}
+        />
+      );
+    }
+    if (activeMenu === "Đơn Đã Hủy") {
+      return (
+        <AdminOrders
+          status={"CANCELLED"}
+          updateStatus={"CANCELLED"}
+          header={"Đơn Hàng Đã Huỷ"}
+        />
+      );
+    }
+  };
 
   return (
     <>
@@ -43,7 +97,7 @@ function AdminPage() {
               className={activeMenu === "Quản Lý Danh Mục" ? "active" : ""}
               onClick={() => setActiveMenu("Quản Lý Danh Mục")}
             >
-              Quản Lý Danh Mục  
+              Quản Lý Danh Mục
             </li>
             <li>
               Quản Lý Đơn Hàng
@@ -90,9 +144,7 @@ function AdminPage() {
             </li>
           </ul>
         </div>
-        <div className="content">
-        {renderContent()}
-        </div>
+        <div className="content">{renderContent()}</div>
       </div>
 
       <Footer />

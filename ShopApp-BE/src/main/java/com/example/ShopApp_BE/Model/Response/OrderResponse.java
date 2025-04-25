@@ -17,6 +17,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderResponse extends AbstractResponse{
+    private Long id;
+
+    private Long code;
+
     private String fullName;
 
     private String email;

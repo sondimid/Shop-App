@@ -1338,7 +1338,8 @@ h2 {
   background-color: #f8f9fa;
   padding: 20px;
   border-right: 1px solid #dee2e6;
-  height: 100%;
+  /* height: 100%; */
+  width: 25%;
 }
 
 .sidebar .menu {
@@ -1471,4 +1472,8 @@ h2 {
   background-color: #28a745; /* Màu xanh cho giảm giá thấp */
 }
 
-
+.content{
+  flex-grow: 1;
+  width: 100%;
+  overflow-y: auto;
+}
