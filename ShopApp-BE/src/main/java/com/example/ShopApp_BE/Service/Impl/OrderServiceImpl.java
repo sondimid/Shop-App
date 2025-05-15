@@ -93,7 +93,6 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new NotFoundException(MessageKeys.ORDER_NOT_FOUND));
         OrderStatus orderStatus = OrderStatus.fromString(status);
         orderEntity.setStatus(orderStatus.toString());
-        mailService.sendEmailOrder(orderEntity);
         return orderRepository.save(orderEntity);
     }
 
@@ -149,6 +148,6 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new NotFoundException(MessageKeys.ORDER_NOT_FOUND));
         orderEntity.setActive(true);
         orderEntity.getUserEntity().getCartEntity().getCartDetailEntities().clear();
-        mailService.sendEmailOrder(orderEntity);
+        mailService.sendMailOrderCreate(orderEntity);
     }
 }

@@ -10,8 +10,6 @@ function AuthenticateOAuth2() {
     const code = urlParams.get("code");
     const provider = urlParams.get("state");
 
-    console.log("Authorization code:", code);
-    console.log(urlParams.get("state"));
     if (code) {
       axiosInstance
         .get(`/users/oauth2/${provider}`, {
@@ -23,19 +21,19 @@ function AuthenticateOAuth2() {
           const accessToken = response.data.accessToken;
           if (accessToken) {
             try {
-              const response = await axiosInstance.get(
-                "users/profiles",
-                {
-                  headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                  },
-                }
-              );
+              const response = await axiosInstance.get("users/profiles", {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                },
+              });
               Cookies.set("user", JSON.stringify(response.data));
+              console.log(response);
+              response.data.role === "ADMIN"
+                ? (window.location.href = "/admin")
+                : (window.location.href = "/");
             } catch (error) {
               window.location.href = "/login";
             }
-            window.location.href = "/";
           }
         })
         .catch((error) => {

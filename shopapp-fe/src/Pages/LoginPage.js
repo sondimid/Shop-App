@@ -33,24 +33,21 @@ function LoginPage() {
       const accessToken = response.data.accessToken;
       if (accessToken) {
         try {
-          const response = await axiosInstance.get(
-            "/users/profiles",
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
-
-          console.log(response.data);
+          const response = await axiosInstance.get("/users/profiles", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          
           Cookies.set("user", JSON.stringify(response.data));
           Cookies.set("localLogin", "true");
-          window.location.href = '/'
+          response.data.role === "ADMIN"
+            ? (window.location.href = "/admin")
+            : (window.location.href = "/");
         } catch (error) {
           setError(error.message || "Login failed. Try again!");
         }
       }
-      
     } catch (error) {
       setError(error.message || "Login failed. Try again!");
     }
@@ -65,8 +62,6 @@ function LoginPage() {
       "&access_type=offline" +
       "&state=google";
   };
-
-
 
   const handleFacebookLogin = () => {
     window.location.href =

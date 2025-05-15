@@ -250,7 +250,7 @@ function Cart() {
                           />
                           <div>
                             <a
-                              href={`/product/${item.productResponse.name}`}
+                              href={`/product/${item.productResponse.id}`}
                               onClick={() =>
                                 localStorage.setItem(
                                   "product",

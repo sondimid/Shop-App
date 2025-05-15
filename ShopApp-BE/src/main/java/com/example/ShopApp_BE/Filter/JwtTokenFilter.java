@@ -54,6 +54,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 String.format("%s/users/oauth2/**", prefix),
                 String.format("%s/products/**", prefix),
                 String.format("%s/categories/**", prefix),
+                String.format("%s/chat/**", prefix),
                 "/uploads/**"
         ));
     }

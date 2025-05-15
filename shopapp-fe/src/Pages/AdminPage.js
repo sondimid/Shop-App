@@ -23,29 +23,29 @@ function AdminPage() {
       return (
         <AdminOrders
           status={"PENDING"}
-          updateStatus={"CONFIRMED"}
+          updateStatus={"IN_TRANSIT"}
           header={"Đơn Hàng Chờ Xác Nhận"}
         />
       );
     }
-    if (activeMenu === "Đơn Đã Xác Nhận") {
-      return (
-        <AdminOrders
-          status={"CONFIRMED"}
-          updateStatus={"PACKAGED"}
-          header={"Đơn Hàng Đã Xác Nhận"}
-        />
-      );
-    }
-    if (activeMenu === "Đơn Đã Đóng Gói") {
-      return (
-        <AdminOrders
-          status={"PACKAGED"}
-          updateStatus={"IN_TRANSIT"}
-          header={"Đơn Hàng Đã Đóng Gói"}
-        />
-      );
-    }
+    // if (activeMenu === "Đơn Đã Xác Nhận") {
+    //   return (
+    //     <AdminOrders
+    //       status={"CONFIRMED"}
+    //       updateStatus={"PACKAGED"}
+    //       header={"Đơn Hàng Đã Xác Nhận"}
+    //     />
+    //   );
+    // }
+    // if (activeMenu === "Đơn Đã Đóng Gói") {
+    //   return (
+    //     <AdminOrders
+    //       status={"PACKAGED"}
+    //       updateStatus={"IN_TRANSIT"}
+    //       header={"Đơn Hàng Đã Đóng Gói"}
+    //     />
+    //   );
+    // }
     if (activeMenu === "Đơn Đang Giao") {
       return (
         <AdminOrders
@@ -55,7 +55,7 @@ function AdminPage() {
         />
       );
     }
-    if (activeMenu === "Đơn Đã Giao Thành Công") {
+    if (activeMenu === "Đã Giao Thành Công") {
       return (
         <AdminOrders
           status={"COMPLETED"}
@@ -108,7 +108,7 @@ function AdminPage() {
                 >
                   Đơn Chờ Xác Nhận
                 </li>
-                <li
+                {/* <li
                   className={activeMenu === "Đơn Đã Xác Nhận" ? "active" : ""}
                   onClick={() => setActiveMenu("Đơn Đã Xác Nhận")}
                 >
@@ -119,7 +119,7 @@ function AdminPage() {
                   onClick={() => setActiveMenu("Đơn Đã Đóng Gói")}
                 >
                   Đơn Đã Đóng Gói
-                </li>
+                </li> */}
                 <li
                   className={activeMenu === "Đơn Đang Giao" ? "active" : ""}
                   onClick={() => setActiveMenu("Đơn Đang Giao")}
@@ -128,9 +128,9 @@ function AdminPage() {
                 </li>
                 <li
                   className={
-                    activeMenu === "Đơn Đã Giao Thành Công" ? "active" : ""
+                    activeMenu === " Đã Giao Thành Công" ? "active" : ""
                   }
-                  onClick={() => setActiveMenu("Đơn Đã Giao Thành Công")}
+                  onClick={() => setActiveMenu("Đã Giao Thành Công")}
                 >
                   Đơn Đã Giao Thành Công
                 </li>

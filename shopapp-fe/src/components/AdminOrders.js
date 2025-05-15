@@ -9,6 +9,9 @@ import Pagination from "./Pagination";
 function AdminOrders({ status, updateStatus, header }) {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
   const [page, setPage] = useState({
     pageNumber: 0,
     totalPages: 1,
@@ -48,7 +51,7 @@ function AdminOrders({ status, updateStatus, header }) {
     try {
       await axiosInstance.put(
         `/orders/${id}/status`,
-        { status: updateStatus }, // ✅ gửi đúng dạng JSON object
+        { status: updateStatus },
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -80,6 +83,20 @@ function AdminOrders({ status, updateStatus, header }) {
         pageNumber: prev.pageNumber + 1,
       }));
     }
+  };
+
+  const handleViewOrder = (order) => {
+    setSelectedOrder(order);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedOrder(null);
+  };
+
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
   };
 
   if (isLoading) {
@@ -167,6 +184,73 @@ function AdminOrders({ status, updateStatus, header }) {
           }
         `}
       </style>
+      <Modal show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Chi Tiết Đơn Hàng</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedOrder && (
+            <div>
+              <p>
+                <strong>Mã Đơn Hàng:</strong> {selectedOrder.code}
+              </p>
+              <p>
+                <strong>Tên Người Nhận:</strong> {selectedOrder.fullName}
+              </p>
+              <p>
+                <strong>Số Điện Thoại:</strong> {selectedOrder.phoneNumber}
+              </p>
+              <p>
+                <strong>Địa Chỉ:</strong> {selectedOrder.address}
+              </p>
+              <p>
+                <strong>Ngày Đặt:</strong>{" "}
+                {new Date(selectedOrder.orderDate).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Trạng Thái:</strong> {selectedOrder.status}
+              </p>
+              <p>
+                <strong>Tổng Tiền:</strong> {selectedOrder.totalMoney} $
+              </p>
+              <h5 className="mt-4">Danh Sách Sản Phẩm</h5>
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Hình Ảnh</th>
+                    <th>Tên Sản Phẩm</th>
+                    <th>Số Lượng</th>
+                    <th>Đơn Giá</th>
+                    <th>Tổng</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedOrder.orderDetails.map((detail, index) => (
+                    <tr key={index}>
+                      <td>
+                        <img
+                          src={detail.image}
+                          alt="Sản phẩm"
+                          onClick={() => handleProductClick(detail.productId)}
+                        />
+                      </td>
+                      <td>{detail.name}</td>
+                      <td>{detail.numberOfProducts}</td>
+                      <td>{detail.price} $</td>
+                      <td>{detail.totalMoney} $</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="danger" onClick={handleCloseModal}>
+            Đóng
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <div className="container">
         <h1 className="mb-4">{header}</h1>
         <table className="table text-nowrap table-with-checkbox">
@@ -178,9 +262,7 @@ function AdminOrders({ status, updateStatus, header }) {
               <th className="text-center">Địa Chỉ Giao Hàng</th>
               <th className="text-center">Số Điện Thoại</th>
               <th className="text-center">Tổng Tiền</th>
-              {status !== "CANCELLED" && (
-                <th className="text-center">Xác Nhận Đơn</th>
-              )}
+              <th className="text-center">Hành Động</th>
             </tr>
           </thead>
           <tbody>
@@ -198,16 +280,23 @@ function AdminOrders({ status, updateStatus, header }) {
                 <td className="align-middle text-center">
                   {order.totalMoney} $
                 </td>
-                {status !== "CANCELLED" && (
-                  <td className="align-middle text-center">
+
+                <td className="align-middle text-center">
+                  <button
+                    className="btn btn-primary btn-sm me-2"
+                    onClick={() => handleViewOrder(order)}
+                  >
+                    Xem Chi Tiết
+                  </button>
+                  {status !== "CANCELLED" && status !== "COMPLETED" ? (
                     <button
                       className="btn btn-primary btn-sm me-2"
                       onClick={() => handleConfirm(order.id)}
                     >
                       Cập nhật trạng thái
                     </button>
-                  </td>
-                )}
+                  ) : null}
+                </td>
               </tr>
             ))}
           </tbody>

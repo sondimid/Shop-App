@@ -60,6 +60,7 @@ public class MessageKeys {
     public static final String ORDER_NOT_FOUND = "Không tìm thấy đơn hàng.";
     public static final String STATUS_IN_VALID = "Trạng thái không hợp lệ.";
     public static final String CANNOT_CANCEL_ORDER = "Không thể hủy đơn hàng.";
+    public static final String PAYMENT_IN_VALID = "Phương thức thanh toán không hợp lệ";
 
     // Comment
     public static final String CREATE_COMMENT_SUCCESS = "Thêm bình luận thành công.";

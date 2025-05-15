@@ -6,6 +6,7 @@ import SuccessModal from "../components/SuccessModal";
 import { Link } from "react-router-dom";
 import Loading from "../components/Loading";
 import axios from "axios";
+
 function RegisterPage() {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");

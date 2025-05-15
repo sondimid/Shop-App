@@ -25,7 +25,8 @@ function OrderPage() {
     fetchUser();
   }, []);
 
-  const handlePayment = async () => {
+  const handlePayment = async (e) => {
+    e.preventDefault();
     setLoading(true);
     const code = parseInt(Date.now().toString().slice(-6));
     const orderDetailDTOs = selectedProductDetails.map((product) => ({
@@ -64,11 +65,12 @@ function OrderPage() {
       );
       Cookies.set("orderCode", code);
       console.log(response.data);
-      window.location.href = response.data
+      window.location.assign(response.data);
     } catch (error) {
       console.log(error.response);
     } finally {
       setLoading(false);
+      
     }
   };
 
@@ -99,247 +101,257 @@ function OrderPage() {
                   </nav>
                 </div>
               </div>
+              <form onSubmit={handlePayment}>
+                <div class="row mt-50">
+                  <div class="col-lg-7">
+                    <h4 class="title-2 mb-4">Chi Tiết Hoá Đơn</h4>
+                    <div class="checkout-info">
+                      <form action="#">
+                        <h6>Thông Tin Cá Nhân</h6>
+                        <div class="row">
+                          <div class="col-md-12 mb-4">
+                            <div class="input-item input-item-name gs_input_area">
+                              <input
+                                type="text"
+                                name="gs_name"
+                                placeholder="Họ Và Tên Người Nhận"
+                                value={user?.fullName}
+                                onChange={(e) => {
+                                  setUser({
+                                    ...user,
+                                    fullName: e.target.value,
+                                  });
+                                }}
+                              />
+                            </div>
+                          </div>
 
-              <div class="row mt-50">
-                <div class="col-lg-7">
-                  <h4 class="title-2 mb-4">Chi Tiết Hoá Đơn</h4>
-                  <div class="checkout-info">
-                    <form action="#">
-                      <h6>Thông Tin Cá Nhân</h6>
-                      <div class="row">
-                        <div class="col-md-12 mb-4">
-                          <div class="input-item input-item-name gs_input_area">
-                            <input
-                              type="text"
-                              name="gs_name"
-                              placeholder="Họ Và Tên Người Nhận"
-                              value={user?.fullName}
-                              onChange={(e) => {
-                                setUser({
-                                  ...user,
-                                  fullName: e.target.value,
-                                });
-                              }}
-                            />
+                          <div class="col-md-12 mb-4">
+                            <div class="input-item input-item-phone gs_input_area">
+                              <input
+                                type="text"
+                                name="gs_phone"
+                                placeholder="Số Điện Thoại"
+                                value={user?.phoneNumber}
+                                onChange={(e) => {
+                                  setUser({
+                                    ...user,
+                                    phoneNumber: e.target.value,
+                                  });
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          <div class="col-md-12 mb-4">
+                            <div class="input-item input-item-email gs_input_area">
+                              <input
+                                type="email"
+                                name="gs_email"
+                                placeholder="Email"
+                                value={user?.email}
+                                onChange={(e) => {
+                                  setUser({
+                                    ...user,
+                                    email: e.target.value,
+                                  });
+                                }}
+                              />
+                            </div>
                           </div>
                         </div>
-
-                        <div class="col-md-12 mb-4">
-                          <div class="input-item input-item-phone gs_input_area">
-                            <input
-                              type="text"
-                              name="gs_phone"
-                              placeholder="Số Điện Thoại"
-                              value={user?.phoneNumber}
-                              onChange={(e) => {
-                                setUser({
-                                  ...user,
-                                  phoneNumber: e.target.value,
-                                });
-                              }}
-                            />
+                        <div class="row">
+                          <div class="col-lg-12 col-md-12">
+                            <h6>Address</h6>
+                            <div class="row">
+                              <div class="col-md-12 mb-4">
+                                <div class="input-item gs_input_area">
+                                  <input
+                                    type="text"
+                                    placeholder="Địa Chỉ Cụ Thể"
+                                    required
+                                    value={user?.address}
+                                    onChange={(e) => {
+                                      setUser({
+                                        ...user,
+                                        address: e.target.value,
+                                      });
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
+                        <h6>Ghi Chú (Không Bắt Buộc)</h6>
+                        <div class="input-item input-item-textarea gs_input_area">
+                          <textarea
+                            name="gs_message"
+                            rows="6"
+                            placeholder="Notes about your order, e.g. Special notes for Delivery:"
+                            required=""
+                            onChange={(e) => {
+                              setOrder({
+                                ...order,
+                                note: e.target.value,
+                              });
+                            }}
+                          ></textarea>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                  <div class="col-lg-5 mt-5">
+                    <div class="card bg-white">
+                      <div class="card-header bg-white px-4">
+                        <h2>Đơn Hàng Của Bạn</h2>
+                      </div>
+                      <div class="card-body p-0">
+                        <div class="d-flex justify-content-between px-4 py-3">
+                          <span class="p-summary-title">
+                            <b>Sản Phẩm</b>
+                          </span>
+                          <span class="p-summary-price">
+                            <b>Giá Tiền</b>
+                          </span>
+                        </div>
 
-                        <div class="col-md-12 mb-4">
-                          <div class="input-item input-item-email gs_input_area">
-                            <input
-                              type="email"
-                              name="gs_email"
-                              placeholder="Email"
-                              value={user?.email}
-                              onChange={(e) => {
-                                setUser({
-                                  ...user,
-                                  email: e.target.value,
-                                });
-                              }}
-                            />
+                        {selectedProductDetails.map((product, index) => (
+                          <div className="cart-item" key={index}>
+                            <div className="d-flex justify-content-between border-t">
+                              <span className="p-summary-title">
+                                {product.name} x {product.quantity}
+                              </span>
+                              <span className="p-summary-price">
+                                {product.price * product.quantity}$
+                              </span>
+                            </div>
                           </div>
+                        ))}
+
+                        <div className="d-flex justify-content-between border-t">
+                          <span className="p-summary-title">
+                            Phí Vận Chuyển
+                          </span>
+                          <span className="p-summary-price">5$</span>
+                        </div>
+
+                        <div className="d-flex justify-content-between mt-2 border-t">
+                          <span className="p-summary-total-title">
+                            Giảm Giá
+                          </span>
+                          <span className="p-summary-price text-danger">
+                            -
+                            {selectedProductDetails.reduce(
+                              (total, product) => total + product.totalDiscount,
+                              0
+                            )}
+                            $
+                          </span>
+                        </div>
+
+                        <div className="d-flex justify-content-between mt-2 border-t">
+                          <span className="p-summary-total-title">
+                            Tổng Tiền
+                          </span>
+                          <span className="p-summary-total-price">
+                            {selectedProductDetails.reduce(
+                              (total, product) =>
+                                total + product.price * product.quantity,
+                              5
+                            )}
+                            $
+                          </span>
                         </div>
                       </div>
-                      <div class="row">
-                        <div class="col-lg-12 col-md-12">
-                          <h6>Address</h6>
-                          <div class="row">
-                            <div class="col-md-12 mb-4">
-                              <div class="input-item gs_input_area">
+                    </div>
+
+                    <div class="card mt-4">
+                      <div class="card-header bg-white px-4">
+                        <h2>Phương Thức Thanh Toán</h2>
+                      </div>
+                      <div class="border-top border-width-3 border-color-1 pt-3 mb-3">
+                        <div class="accordion" id="paymentAccordion">
+                          <div class="border-bottom border-color-1 border-dotted-bottom">
+                            <div class="p-3" id="vnpayHeading">
+                              <div class="custom-control custom-radio">
                                 <input
-                                  type="text"
-                                  placeholder="Địa Chỉ Cụ Thể"
-                                  required
-                                  value={user?.address}
-                                  onChange={(e) => {
-                                    setUser({
-                                      ...user,
-                                      address: e.target.value,
+                                  type="radio"
+                                  class="custom-control-input"
+                                  id="vnpayRadio"
+                                  name="paymentMethod"
+                                  data-bs-toggle="collapse"
+                                  data-bs-target="#vnpayCollapse"
+                                  aria-expanded="false"
+                                  aria-controls="vnpayCollapse"
+                                  onClick={() => {
+                                    setOrder({
+                                      ...order,
+                                      paymentMethod: "PAYOS",
                                     });
                                   }}
                                 />
+                                <label
+                                  class="custom-control-label form-label"
+                                  for="vnpayRadio"
+                                >
+                                  <img
+                                    src="/assets/images/download.png"
+                                    alt="VNPay"
+                                    style={{
+                                      height: "20px",
+                                      marginRight: "8px",
+                                    }}
+                                  />
+                                  Chuyển Khoản Ngân Hàng
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="border-color-1 border-dotted-bottom">
+                            <div class="p-3" id="codHeading">
+                              <div class="custom-control custom-radio">
+                                <input
+                                  type="radio"
+                                  class="custom-control-input"
+                                  id="codRadio"
+                                  name="paymentMethod"
+                                  data-bs-toggle="collapse"
+                                  data-bs-target="#codCollapse"
+                                  aria-expanded="false"
+                                  aria-controls="codCollapse"
+                                  onClick={() => {
+                                    setOrder({
+                                      ...order,
+                                      paymentMethod: "COD",
+                                    });
+                                  }}
+                                />
+                                <label
+                                  class="custom-control-label form-label"
+                                  for="codRadio"
+                                >
+                                  Thanh toán khi nhận hàng (COD)
+                                </label>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                      <h6>Ghi Chú (Không Bắt Buộc)</h6>
-                      <div class="input-item input-item-textarea gs_input_area">
-                        <textarea
-                          name="gs_message"
-                          rows="6"
-                          placeholder="Notes about your order, e.g. Special notes for Delivery:"
-                          required=""
-                          onChange={(e) => {
-                            setOrder({
-                              ...order,
-                              note: e.target.value,
-                            });
-                          }}
-                        ></textarea>
+
+                      <div class="checkout-btn mx-3 my-4">
+                        <button
+                          class="btn btn-primary btn-lg w-100"
+                          type="submit"
+                        >
+                          Đặt hàng
+                        </button>
                       </div>
-                    </form>
-                  </div>
-                </div>
-                <div class="col-lg-5 mt-5">
-                  <div class="card bg-white">
-                    <div class="card-header bg-white px-4">
-                      <h2>Đơn Hàng Của Bạn</h2>
-                    </div>
-                    <div class="card-body p-0">
-                      <div class="d-flex justify-content-between px-4 py-3">
-                        <span class="p-summary-title">
-                          <b>Sản Phẩm</b>
-                        </span>
-                        <span class="p-summary-price">
-                          <b>Giá Tiền</b>
-                        </span>
-                      </div>
-
-                      {selectedProductDetails.map((product, index) => (
-                        <div className="cart-item" key={index}>
-                          <div className="d-flex justify-content-between border-t">
-                            <span className="p-summary-title">
-                              {product.name} x {product.quantity}
-                            </span>
-                            <span className="p-summary-price">
-                              {product.price * product.quantity}$
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-
-                      <div className="d-flex justify-content-between border-t">
-                        <span className="p-summary-title">Phí Vận Chuyển</span>
-                        <span className="p-summary-price">5$</span>
-                      </div>
-
-                      <div className="d-flex justify-content-between mt-2 border-t">
-                        <span className="p-summary-total-title">Giảm Giá</span>
-                        <span className="p-summary-price text-danger">
-                          -
-                          {selectedProductDetails.reduce(
-                            (total, product) => total + product.totalDiscount,
-                            0
-                          )}
-                          $
-                        </span>
-                      </div>
-
-                      <div className="d-flex justify-content-between mt-2 border-t">
-                        <span className="p-summary-total-title">Tổng Tiền</span>
-                        <span className="p-summary-total-price">
-                          {selectedProductDetails.reduce(
-                            (total, product) =>
-                              total + product.price * product.quantity,
-                            5
-                          )}
-                          $
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="card mt-4">
-                    <div class="card-header bg-white px-4">
-                      <h2>Phương Thức Thanh Toán</h2>
-                    </div>
-                    <div class="border-top border-width-3 border-color-1 pt-3 mb-3">
-                      <div class="accordion" id="paymentAccordion">
-                        <div class="border-bottom border-color-1 border-dotted-bottom">
-                          <div class="p-3" id="vnpayHeading">
-                            <div class="custom-control custom-radio">
-                              <input
-                                type="radio"
-                                class="custom-control-input"
-                                id="vnpayRadio"
-                                name="paymentMethod"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#vnpayCollapse"
-                                aria-expanded="false"
-                                aria-controls="vnpayCollapse"
-                                onClick={() => {
-                                  setOrder({
-                                    ...order,
-                                    paymentMethod: "VNPAY",
-                                  });
-                                }}
-                              />
-                              <label
-                                class="custom-control-label form-label"
-                                for="vnpayRadio"
-                              >
-                                <img
-                                  src="/assets/images/download.png"
-                                  alt="VNPay"
-                                  style={{ height: "20px", marginRight: "8px" }}
-                                />
-                                Chuyển Khoản Trực Tiếp (VNPay)
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="border-color-1 border-dotted-bottom">
-                          <div class="p-3" id="codHeading">
-                            <div class="custom-control custom-radio">
-                              <input
-                                type="radio"
-                                class="custom-control-input"
-                                id="codRadio"
-                                name="paymentMethod"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#codCollapse"
-                                aria-expanded="false"
-                                aria-controls="codCollapse"
-                                onClick={() => {
-                                  setOrder({
-                                    ...order,
-                                    paymentMethod: "COD",
-                                  });
-                                }}
-                              />
-                              <label
-                                class="custom-control-label form-label"
-                                for="codRadio"
-                              >
-                                Thanh toán khi nhận hàng (COD)
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="checkout-btn mx-3 my-4">
-                      <button
-                        onClick={handlePayment}
-                        class="btn btn-primary btn-lg w-100"
-                      >
-                        Đặt hàng
-                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         </div>

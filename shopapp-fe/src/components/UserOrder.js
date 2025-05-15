@@ -3,13 +3,15 @@ import axiosInstance from "../utils/RefreshToken";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import Loading from "./Loading";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Form } from "react-bootstrap";
 import Pagination from "./Pagination";
 function UserOrder({ header, status }) {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showCommentModal, setShowCommentModal] = useState(false);
+  const [commentDetails, setCommentDetails] = useState([]);
   const navigate = useNavigate();
   const [page, setPage] = useState({
     pageNumber: 0,
@@ -70,20 +72,22 @@ function UserOrder({ header, status }) {
   };
 
   const handleCancelOrder = async (id) => {
-    const accessToken = Cookies.get("accessToken")
-    if (window.confirm("Bạn Có Muốn Huỷ Đơn, Nếu Huỷ Bạn Sẽ Không Được Hoàn Tiền")) {
+    const accessToken = Cookies.get("accessToken");
+    if (
+      window.confirm("Bạn Có Muốn Huỷ Đơn, Nếu Huỷ Bạn Sẽ Không Được Hoàn Tiền")
+    ) {
       try {
         await axiosInstance.put(`orders/${id}/cancel`, null, {
           headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        })
-        alert("Huỷ Đơn Hàng Thành Công")
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        alert("Huỷ Đơn Hàng Thành Công");
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     }
-  }
+  };
 
   const handleProductClick = (productId) => {
     navigate(`/product/${productId}`);
@@ -107,12 +111,54 @@ function UserOrder({ header, status }) {
     }
   };
 
+  const handleComment = (orderDetails) => {
+    setCommentDetails(
+      orderDetails.map((detail) => ({
+        productDetail: detail,
+        comment: "",
+        image: null,
+      }))
+    );
+    setShowCommentModal(true);
+  };
+
+  const handleCommentChange = (index, field, value) => {
+    const updatedComments = [...commentDetails];
+    updatedComments[index][field] = value;
+    setCommentDetails(updatedComments);
+  };
+
+  const handleSubmitComments = async () => {
+    const accessToken = Cookies.get("accessToken");
+    try {
+      await Promise.all(
+        commentDetails.map(async (comment) => {
+          const formData = new FormData();
+          formData.append("content", comment.comment);
+          if (comment.image) {
+            formData.append("image", comment.image); // Chỉ thêm ảnh nếu có
+          }
+          formData.append("productId", comment.productDetail.productId);
+
+          // Gửi dữ liệu đến API
+          await axiosInstance.post("/comments", formData, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "multipart/form-data",
+            },
+          });
+        })
+      );
+      alert("Đánh giá thành công!");
+      setShowCommentModal(false); // Đóng modal sau khi gửi thành công
+    } catch (error) {
+      console.error("Lỗi khi gửi đánh giá:", error);
+      alert("Đã xảy ra lỗi khi gửi đánh giá. Vui lòng thử lại.");
+    }
+  };
+
   if (isLoading) {
     return <Loading />;
-  }
-
-  if (orders.length === 0) {
-    return <div>Không có đơn hàng nào </div>;
   }
 
   return (
@@ -197,6 +243,84 @@ function UserOrder({ header, status }) {
           }
         `}
         </style>
+        <Modal
+          show={showCommentModal}
+          onHide={() => setShowCommentModal(false)}
+          centered
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Đánh Giá Sản Phẩm</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {commentDetails.map((detail, index) => (
+              <div key={index} className="mb-3">
+                <p>
+                  <strong>Hình Ảnh:</strong>
+                  <img
+                    onClick={() =>
+                      (window.location.href = `product/${detail.productDetail.productId}`)
+                    }
+                    src={detail.productDetail.image}
+                    alt={detail.productDetail.image}
+                    style={{
+                      width: "150px",
+                      height: "150px",
+                      objectFit: "cover",
+                      cursor: "pointer",
+                    }}
+                  />
+                </p>
+                <p>
+                  <strong>Tên Sản Phẩm:</strong> {detail.productDetail.name}
+                </p>
+                <p>
+                  <strong>Số Lượng:</strong>{" "}
+                  {detail.productDetail.numberOfProducts}
+                </p>
+                <p>
+                  <strong>Đơn Giá:</strong> {detail.productDetail.price} $
+                </p>
+                <p>
+                  <strong>Tổng Tiền:</strong> {detail.productDetail.totalMoney}{" "}
+                  $
+                </p>
+
+                <Form.Group>
+                  <Form.Label>Bình Luận</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={detail.comment}
+                    onChange={(e) =>
+                      handleCommentChange(index, "comment", e.target.value)
+                    }
+                  />
+                </Form.Group>
+                <Form.Group className="mt-2">
+                  <Form.Label>Hình Ảnh</Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept="image/*" 
+                    onChange={(e) =>
+                      handleCommentChange(index, "image", e.target.files[0])
+                    }
+                  />
+                </Form.Group>
+              </div>
+            ))}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              variant="secondary"
+              onClick={() => setShowCommentModal(false)}
+            >
+              Đóng
+            </Button>
+            <Button variant="primary" onClick={handleSubmitComments}>
+              Gửi Đánh Giá
+            </Button>
+          </Modal.Footer>
+        </Modal>
         <Modal show={showModal} onHide={handleCloseModal} centered>
           <Modal.Header closeButton>
             <Modal.Title>Chi Tiết Đơn Hàng</Modal.Title>
@@ -286,7 +410,7 @@ function UserOrder({ header, status }) {
                             onClick={() => handleProductClick(detail.productId)}
                           />
                         </td>
-                        <td>{detail.productId}</td>
+                        <td>{detail.name}</td>
                         <td>{detail.numberOfProducts}</td>
                         <td>{detail.price} $</td>
                         <td>{detail.totalMoney} $</td>
@@ -348,6 +472,14 @@ function UserOrder({ header, status }) {
                         onClick={() => handleCancelOrder(order.id)}
                       >
                         Huỷ Đơn
+                      </button>
+                    )}
+                    {status === "COMPLETED" && (
+                      <button
+                        className="btn btn-info btn-sm me-2"
+                        onClick={() => handleComment(order.orderDetails)}
+                      >
+                        Đánh Giá
                       </button>
                     )}
                   </td>

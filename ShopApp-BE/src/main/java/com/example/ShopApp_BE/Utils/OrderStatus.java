@@ -23,10 +23,10 @@ public enum OrderStatus {
         this.statusCode = statusCode;
     }
 
-    public static OrderStatus fromString(String status) throws Exception {
+    public static OrderStatus fromString(String status) {
         return Arrays.stream(OrderStatus.values())
                 .filter(e -> e.name().equalsIgnoreCase(status))
                 .findFirst()
-                .orElseThrow(() -> new Exception(MessageKeys.STATUS_IN_VALID));
+                .orElseThrow(() -> new IllegalArgumentException(MessageKeys.STATUS_IN_VALID));
     }
 }

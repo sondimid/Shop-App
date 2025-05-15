@@ -12,6 +12,8 @@ import lombok.*;
 public class OrderDetailResponse extends AbstractResponse{
     private Double price;
 
+    private String name;
+
     private Integer numberOfProducts;
 
     private Double totalMoney;
@@ -33,7 +35,8 @@ public class OrderDetailResponse extends AbstractResponse{
                 .color(orderDetailEntity.getColor())
                 .numberOfProducts(orderDetailEntity.getNumberOfProducts())
                 .totalMoney(orderDetailEntity.getTotalMoney())
-                .price(orderDetailEntity.getPrice())
+                .price(orderDetailEntity.getProductEntity().getFinalPrice())
+                .name(orderDetailEntity.getProductEntity().getName())
                 .discount(orderDetailEntity.getDiscount())
                 .image(orderDetailEntity.getProductEntity().getImageEntities().get(0).getUrl())
                 .build();

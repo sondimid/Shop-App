@@ -16,6 +16,7 @@ import AdminRoute from "./utils/AdminRoute";
 import AdminPage from "./Pages/AdminPage";
 import OrderPage from "./Pages/OrderPage";
 import OrderSuccess from "./components/OrderSuccess";
+import ChatWidget from "./components/ChatWidget";
 
 function App() {
   return (
@@ -29,8 +30,8 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/authenticate" element={<AuthenticateOAuth2 />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/category/:id" element={<CategoryPage />} />
+          <Route path="/product/:productId" element={<ProductDetail />} />
+          <Route path="/category/:categoryId" element={<CategoryPage />} />
           <Route
             path="/account"
             element={
@@ -47,7 +48,7 @@ function App() {
               </UserRoute>
             }
           />
-           <Route
+          <Route
             path="/order"
             element={
               <UserRoute>
@@ -74,6 +75,7 @@ function App() {
 
           <Route path="*" element={<HomePage />} />
         </Routes>
+        <ChatWidget />
       </>
     </BrowserRouter>
   );

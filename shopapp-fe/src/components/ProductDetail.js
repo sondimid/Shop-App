@@ -8,21 +8,36 @@ import { formatDate } from "../utils/AuthUtils";
 import axiosInstance from "../utils/RefreshToken";
 import Cookies from "js-cookie";
 import { handleAddToCart } from "../utils/AddToCart";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 
 function ProductDetail() {
   const [product, setProduct] = useState(null);
+  const { productId } = useParams();
   const [loading, setLoading] = useState(true);
   const [relatedProducts, setRelatedProducts] = useState(null);
   const [mainImage, setMainImage] = useState(null);
   const [numberOfProduct, setNumberOfProduct] = useState(1);
 
   useEffect(() => {
-    const storedProduct = JSON.parse(localStorage.getItem("product"));
-    localStorage.setItem("productId", storedProduct.id);
-    setProduct(storedProduct);
-    setMainImage(storedProduct.imageResponses[0]?.url || "/assets/images/product/3.png");
-  }, []);
+    const fetchProduct = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:8080/api/v1/products/${productId}`
+        );
+        console.log("API Response:", response.data); // Kiểm tra dữ liệu trả về
+        setProduct(response.data);
+        setMainImage(
+          response.data?.imageResponses[0]?.url ||
+            "/assets/images/product/3.png"
+        );
+      } catch (error) {
+        console.error("Lỗi khi gọi API:", error);
+      } 
+    };
+
+    fetchProduct();
+  }, [productId]);
 
   useEffect(() => {
     const fetchRelatedProducts = async () => {

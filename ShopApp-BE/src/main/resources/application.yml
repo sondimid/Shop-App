@@ -1,5 +1,3 @@
 spring:
-  application:
-    name: Shop-App
   profiles:
-    active: @spring.profiles.active@
+      active: dev

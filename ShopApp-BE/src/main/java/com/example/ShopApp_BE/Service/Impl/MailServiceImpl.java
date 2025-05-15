@@ -33,9 +33,12 @@ public class MailServiceImpl implements MailService {
         context.setVariable("orderId", orderEntity.getCode());
         context.setVariable("status", OrderStatus.fromString(orderEntity.getStatus()).getEmailSubject());
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy/HH/mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yy");
         String formattedDate = orderEntity.getOrderDate().format(formatter);
         context.setVariable("orderDate", formattedDate);
+
+        context.setVariable("orderDetails", orderEntity.getOrderDetailEntities());
+        context.setVariable("totalMoney", orderEntity.getTotalMoney());
 
 
         String htmlContent = thymeleafEngine.process("email/order-create", context);
@@ -49,7 +52,14 @@ public class MailServiceImpl implements MailService {
         context.setVariable("fullName", orderEntity.getFullName());
         context.setVariable("orderId", orderEntity.getCode());
         context.setVariable("status", OrderStatus.fromString(orderEntity.getStatus()).getEmailSubject());
-        context.setVariable("orderDate", orderEntity.getOrderDate());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yy");
+        String formattedDate = orderEntity.getOrderDate().format(formatter);
+        context.setVariable("orderDate", formattedDate);
+
+        context.setVariable("orderDetails", orderEntity.getOrderDetailEntities());
+        context.setVariable("totalMoney", orderEntity.getTotalMoney());
+
 
         String htmlContent = thymeleafEngine.process("email/order-status", context);
 

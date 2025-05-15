@@ -41,10 +41,10 @@ public class ProductController {
 
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getProductById(@PathVariable("id") Long id) throws Exception {
+    @GetMapping("/{productId}")
+    public ResponseEntity<?> getProductById(@PathVariable("productId") Long productId) throws Exception {
 
-        return ResponseEntity.ok().body(productService.getProduct(id));
+        return ResponseEntity.ok().body(productService.getProduct(productId));
 
     }
 
