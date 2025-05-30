@@ -33,4 +33,8 @@ public class ConfixSql {
         String SEARCH_BY_KEYWORD = "SELECT u from UserEntity u WHERE (u.fullName LIKE CONCAT('%', :keyword, '%')" +
                 " OR u.email LIKE CONCAT('%', :keyword , '%') OR u.phoneNumber LIKE CONCAT('%', :keyword , '%') ) AND (u.roleEntity.role = 'USER')";
     }
+
+    public interface Message{
+        String SEARCH_BY_CREATED_AT = "SELECT m from MessageEntity m WHERE m.createdAt = (select max(m1.createdAt) from MessageEntity m1 where m.roomId = m1.roomId) order by m.createdAt DESC limit 5";
+    }
 }

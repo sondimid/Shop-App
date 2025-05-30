@@ -6,6 +6,7 @@ import Select from "react-select";
 import Cookies from "js-cookie";
 import Pagination from "./Pagination";
 import { Form, Modal, Button } from "react-bootstrap";
+import { Editor } from "@tinymce/tinymce-react";
 
 function AdminProduct() {
   const [loading, setLoading] = useState(true);
@@ -371,16 +372,31 @@ function AdminProduct() {
               </div>
               <Form.Group className="mb-3">
                 <Form.Label>Mô Tả</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={7}
-                  value={editingProduct.description}
-                  onChange={(e) =>
+                <Editor
+                  apiKey="qye6ktec8ak0vo3irq6raf1xgti73p86xqzzwjjiio7pb7cr"
+                  initialValue={editingProduct.description}
+                  init={{
+                    height: 400,
+                    branding: false,
+                    menubar: true,
+                    content_style:
+                      "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+                    plugins: [
+                      "preview importcss searchreplace autolink autosave save directionality",
+                      "visualblocks visualchars fullscreen image link media template codesample",
+                      "table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount",
+                      "help charmap quickbars emoticons",
+                    ],
+                    toolbar:
+                      "undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl",
+                    content_css: "//www.tiny.cloud/css/codepen.min.css",
+                  }}
+                  onEditorChange={(content, editor) => {
                     setEditingProduct({
                       ...editingProduct,
-                      description: e.target.value,
-                    })
-                  }
+                      description: content,
+                    });
+                  }}
                 />
               </Form.Group>
 
@@ -462,7 +478,7 @@ function AdminProduct() {
         </Modal.Footer>
       </Modal>
       <main>
-        <div >
+        <div>
           <div className="container">
             <div className="row">
               <div className="col-12">
@@ -524,7 +540,7 @@ function AdminProduct() {
               </div>
             </div>
           </div>
-          <section >
+          <section>
             <div className="container-fluid table-container">
               <div className="row">
                 <div className="col-lg-12">

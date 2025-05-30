@@ -163,27 +163,27 @@ function Cart() {
   };
 
   const handleCheckout = () => {
-  if (selectedProducts.length === 0) {
-    alert("Vui lòng chọn ít nhất một sản phẩm để mua!");
-    return;
-  }
+    if (selectedProducts.length === 0) {
+      alert("Vui lòng chọn ít nhất một sản phẩm để mua!");
+      return;
+    }
 
-  const selectedProductDetails = cart.cartDetailResponses
-    .filter((item) => selectedProducts.includes(item.productResponse.id))
-    .map((item) => ({
-      id: item.productResponse.id,
-      name: item.productResponse.name,
-      price: item.productResponse.finalPrice,
-      quantity: item.numberOfProducts,
-      discount: item.productResponse.discount,
-      totalPrice: item.productResponse.finalPrice * item.numberOfProducts,
-      totalDiscount:
-        ((item.productResponse.price * item.productResponse.discount) / 100) *
-        item.numberOfProducts,
-    }));
+    const selectedProductDetails = cart.cartDetailResponses
+      .filter((item) => selectedProducts.includes(item.productResponse.id))
+      .map((item) => ({
+        id: item.productResponse.id,
+        name: item.productResponse.name,
+        price: item.productResponse.finalPrice,
+        quantity: item.numberOfProducts,
+        discount: item.productResponse.discount,
+        totalPrice: item.productResponse.finalPrice * item.numberOfProducts,
+        totalDiscount:
+          ((item.productResponse.price * item.productResponse.discount) / 100) *
+          item.numberOfProducts,
+      }));
 
-  navigate("/order", { state: { selectedProductDetails } });
-};
+    navigate("/order", { state: { selectedProductDetails } });
+  };
 
   if (isLoading) {
     return <Loading />;
@@ -192,7 +192,7 @@ function Cart() {
   return (
     <main>
       <div className="product-cart">
-        <div className="mt-4">
+        {/* <div className="mt-4">
           <div className="container">
             <div className="row">
               <div className="col-12">
@@ -209,14 +209,16 @@ function Cart() {
               </div>
             </div>
           </div>
-        </div>
-        <style></style>
+        </div> */}
         <section className="mt-5 mb-5">
-          <div className="container">
-            <div className="row">
-              <div className="col-lg-8">
+          <div className="container" style={{ maxWidth: 1300 }}>
+            <div
+              className="row cart-main-row"
+              style={{ alignItems: "flex-start" }}
+            >
+              <div className="col-lg-8 ">
                 <h2>My Cart ({cart.cartDetailResponses.length})</h2>
-                <div className="card">
+                <div className="card h-100">
                   <div className="card-header bg-white px-4 d-flex justify-content-between align-items-center">
                     <div>
                       <input
@@ -309,12 +311,19 @@ function Cart() {
                                     name="qty"
                                     value={item.numberOfProducts}
                                     className="input-qty input-cornered"
-                                    onChange={(e) =>
+                                    min={1}
+                                    max={item.productResponse.quantity}
+                                    onChange={(e) => {
+                                      let val = Number(e.target.value);
+                                      if (val < 1) val = 1;
+                                      if (val > item.productResponse.quantity)
+                                        val = item.productResponse.quantity;
                                       handleNumberOfProductChange(
                                         item.productResponse.id,
-                                        e.target.value
-                                      )
-                                    }
+                                        val
+                                      );
+                                    }}
+                                    style={{ width: 60, textAlign: "center" }}
                                   />
                                   <button
                                     className="qty-btn-plus count-increament"
@@ -322,8 +331,15 @@ function Cart() {
                                     onClick={() =>
                                       handleNumberOfProductChange(
                                         item.productResponse.id,
-                                        item.numberOfProducts + 1
+                                        item.numberOfProducts <
+                                          item.productResponse.quantity
+                                          ? item.numberOfProducts + 1
+                                          : item.numberOfProducts
                                       )
+                                    }
+                                    disabled={
+                                      item.numberOfProducts >=
+                                      item.productResponse.quantity
                                     }
                                     style={{
                                       backgroundColor: "#f6891a",
@@ -359,7 +375,7 @@ function Cart() {
                 </div>
               </div>
               <div className="col-lg-4">
-                <div className="card bg-white">
+                <div className="card bg-white h-100">
                   <div className="card-header bg-white px-4">
                     <h2>Chi Tiết Thanh Toán</h2>
                   </div>

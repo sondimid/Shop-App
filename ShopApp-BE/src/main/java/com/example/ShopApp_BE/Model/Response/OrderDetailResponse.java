@@ -14,7 +14,7 @@ public class OrderDetailResponse extends AbstractResponse{
 
     private String name;
 
-    private Integer numberOfProducts;
+    private Long numberOfProducts;
 
     private Double totalMoney;
 

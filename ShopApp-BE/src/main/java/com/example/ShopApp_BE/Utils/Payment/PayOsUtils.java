@@ -33,7 +33,7 @@ public class PayOsUtils {
             ItemData item = ItemData.builder()
                     .name(orderDetailDTO.getName())
                     .price((int)Math.round(orderDetailDTO.getPrice()))
-                    .quantity(orderDetailDTO.getNumberOfProducts())
+                    .quantity(Integer.parseInt(orderDetailDTO.getNumberOfProducts().toString()))
                     .build();
             items.add(item);
         }
@@ -49,6 +49,7 @@ public class PayOsUtils {
         String checkoutUrl = data.getCheckoutUrl();
         orderDTO.setActive(Boolean.FALSE);
         String email = jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS);
+        orderService.createOrder(orderDTO, email);
         return checkoutUrl;
     }
 }

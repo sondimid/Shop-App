@@ -1,5 +1,6 @@
 package com.example.ShopApp_BE.Service;
 
+import com.example.ShopApp_BE.DTO.OrderDTO;
 import com.example.ShopApp_BE.DTO.ProductDTO;
 import com.example.ShopApp_BE.DTO.ProductUpdateDTO;
 import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
@@ -25,4 +26,5 @@ public interface ProductService {
     boolean existByName(String name);
 
     Page<ProductResponse> getAll(String keyword, Double fromPrice, Double toPrice, Pageable pageable);
+
 }

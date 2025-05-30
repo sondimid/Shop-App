@@ -12,8 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -56,7 +59,7 @@ public class CommentController {
     public ResponseEntity<?> getCommentsByProduct(@PathVariable("productId") Long productId,
                                                   @RequestParam(name = "page", defaultValue = "0") Integer page,
                                                   @RequestParam(name = "limit", defaultValue = "5") Integer limit){
-        Pageable pageable = PageRequest.of(page, limit);
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "id");
         Page<CommentResponse> commentResponsePage = commentService.getByProduct(productId, pageable);
         return ResponseEntity.ok().body(PageResponse.builder()
                 .content(commentResponsePage.getContent())

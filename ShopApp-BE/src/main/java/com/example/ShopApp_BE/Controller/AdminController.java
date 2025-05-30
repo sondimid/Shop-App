@@ -1,5 +1,6 @@
 package com.example.ShopApp_BE.Controller;
 
+import com.example.ShopApp_BE.DTO.UserLoginDTO;
 import com.example.ShopApp_BE.Model.Response.PageResponse;
 import com.example.ShopApp_BE.Model.Response.UserResponse;
 import com.example.ShopApp_BE.Service.UserService;
@@ -60,5 +61,10 @@ public class AdminController {
 
         return ResponseEntity.accepted().body(userService.unLockByIds(ids));
 
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> adminLogin(@RequestBody UserLoginDTO userLoginDTO){
+        return ResponseEntity.accepted().body(userService.adminLogin(userLoginDTO));
     }
 }

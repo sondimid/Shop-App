@@ -1,5 +1,6 @@
 package com.example.ShopApp_BE.Service.Impl;
 
+import com.example.ShopApp_BE.ControllerAdvice.Exceptions.UnauthorizedAccessException;
 import com.example.ShopApp_BE.DTO.*;
 import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
 import com.example.ShopApp_BE.Model.Entity.CartEntity;
@@ -112,6 +113,29 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userOptional.get();
         if(!passwordEncoder.matches(userLoginDTO.getPassword(), userEntity.getPassword())){
             throw new DataIntegrityViolationException(MessageKeys.LOGIN_FAILED);
+        }
+        String accessToken = jwtTokenUtils.generateToken(userEntity, TokenType.ACCESS);
+        TokenEntity tokenEntity = TokenEntity.builder()
+                .refreshToken(jwtTokenUtils.generateToken(userEntity, TokenType.REFRESH))
+                .userEntity(userEntity)
+                .revoked(Boolean.FALSE)
+                .build();
+        tokenRepository.save(tokenEntity);
+        return TokenResponse.fromTokenEntity(tokenEntity, accessToken);
+    }
+
+    @Override
+    public TokenResponse adminLogin(UserLoginDTO userLoginDTO) {
+        Optional<UserEntity> userOptional = userRepository.findByEmail(userLoginDTO.getEmail());
+        if(userOptional.isEmpty()){
+            throw new DataIntegrityViolationException(MessageKeys.LOGIN_FAILED);
+        }
+        UserEntity userEntity = userOptional.get();
+        if(!passwordEncoder.matches(userLoginDTO.getPassword(), userEntity.getPassword())){
+            throw new DataIntegrityViolationException(MessageKeys.LOGIN_FAILED);
+        }
+        if(!userEntity.getRoleEntity().getRole().equals("ADMIN")){
+            throw new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED);
         }
         String accessToken = jwtTokenUtils.generateToken(userEntity, TokenType.ACCESS);
         TokenEntity tokenEntity = TokenEntity.builder()

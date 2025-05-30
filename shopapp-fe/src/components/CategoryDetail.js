@@ -8,6 +8,7 @@ import { set } from "lodash";
 import Select from "react-select";
 import axios from "axios";
 import Pagination from "./Pagination";
+import { handleAddToCart } from "../utils/AddToCart";
 
 function CategoryDetail() {
   const [isLoading, setIsLoading] = useState(true);
@@ -22,6 +23,7 @@ function CategoryDetail() {
     pageNumber: 0,
     totalPages: 1,
   });
+  const [limit, setLimit] = useState(6);
 
   const options = [
     { value: "high-to-low-price", label: "Giá: Cao-Thấp" },
@@ -41,7 +43,7 @@ function CategoryDetail() {
             params: {
               categoryId: categoryId,
               page: page.pageNumber,
-              limit: 6,
+              limit: limit,
               sort: sortBy,
               sortField: sortField,
               keyword: keyword,
@@ -64,7 +66,7 @@ function CategoryDetail() {
       }
     };
     fetchProducts();
-  }, [sortBy, sortField, page.pageNumber]);
+  }, [sortBy, sortField, page.pageNumber, limit]);
 
   useEffect(() => {
     const fetchProductsByKeyWord = async (e) => {
@@ -74,7 +76,7 @@ function CategoryDetail() {
           {
             params: {
               categoryId: localStorage.getItem("categoryId"),
-              limit: 6,
+              limit: limit,
               page: 0,
               sort: sortBy,
               sortField: sortField,
@@ -98,7 +100,7 @@ function CategoryDetail() {
       }
     };
     fetchProductsByKeyWord();
-  }, [keyword, toPrice, fromPrice]);
+  }, [keyword, toPrice, fromPrice, limit]);
 
   const handleSortChange = (selectedOption) => {
     const value = selectedOption.value;
@@ -258,6 +260,23 @@ function CategoryDetail() {
                             defaultValue={options[0]}
                           />
                         </div>
+                        <div style={{ marginLeft: 16 }}>
+                          <select
+                            className="form-select"
+                            style={{ width: 200 }}
+                            value={limit}
+                            onChange={(e) => {
+                              setLimit(Number(e.target.value));
+                              setPage((prev) => ({ ...prev, pageNumber: 0 }));
+                            }}
+                          >
+                            <option value={3}>3 sản phẩm/trang</option>
+                            <option value={6}>6 sản phẩm/trang</option>
+                            <option value={9}>9 sản phẩm/trang</option>
+                            <option value={12}>12 sản phẩm/trang</option>
+                            <option value={15}>15 sản phẩm/trang</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -341,8 +360,11 @@ function CategoryDetail() {
                                 )}
                               </div>
                               <a
-                                href="#"
+                                style={{
+                                  cursor: "pointer",
+                                }}
                                 className="d-block rounded py-2 text-center border mx-3 mb-3 btn-cart"
+                                onClick={() => handleAddToCart(product.id, 1)}
                               >
                                 Add to Cart
                               </a>

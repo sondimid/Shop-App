@@ -2,6 +2,7 @@ package com.example.ShopApp_BE.DTO;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -15,12 +16,16 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderDTO {
+    @NotBlank
     private String fullName;
 
+    @NotBlank
     private String email;
 
+    @NotBlank
     private String phoneNumber;
 
+    @NotBlank
     private String address;
 
     private String note;
@@ -37,6 +42,7 @@ public class OrderDTO {
 
     private String trackingNumber;
 
+    @NotBlank
     private String paymentMethod;
 
     private Long code;

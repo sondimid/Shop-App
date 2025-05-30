@@ -137,7 +137,7 @@ function Header() {
                           style={{ fontSize: "30px", display: "flex" }}
                         ></i>
                         <span
-                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
+                          className="position-absolute top-0 start-100 translate-middle badge rounded-pill"
                           style={{ backgroundColor: "#f6891a" }}
                         >
                           {cart.quantityProduct || ""}
@@ -166,7 +166,7 @@ function Header() {
                         </button>
                       </div>
                     )}
-                    <div className="list-inline-item d-inline-block d-lg-none">
+                    <div className="list-inline-item d-lg-none">
                       <button
                         className="navbar-toggler collapsed"
                         type="button"
@@ -174,8 +174,9 @@ function Header() {
                         data-bs-target="#navbar-default"
                         aria-controls="navbar-default"
                         aria-label="Toggle navigation"
-                      />
-                      <i className="bi bi-text-indent-left"></i>
+                      >
+                        <i className="bi bi-text-indent-left"></i>
+                      </button>
                     </div>
                   </div>
                 </div>

@@ -1,6 +1,8 @@
 package com.example.ShopApp_BE.Model.Entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -17,16 +19,25 @@ public class ProductEntity extends AbstractEntity{
     @Column(name = "name", nullable = false, length = 200)
     private String name;
 
+    @Min(value = 0)
     @Column(name = "price", nullable = false)
     private Double price;
 
     @Column(name = "discount")
+    @Min(value = 0)
+    @Max(value = 50)
     private Double discount;
 
-    @Column(name = "description", length = 1000)
+    @Column(name = "quantity")
+    @Min(value = 0)
+    private Long quantity;
+
+    @Column(name = "description")
+    @Lob
     private String description;
 
     @Column(name = "final_price")
+    @Min(value = 0)
     private Double finalPrice;
 
     @ManyToOne

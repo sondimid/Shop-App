@@ -92,6 +92,13 @@ public class OrderServiceImpl implements OrderService {
         OrderEntity orderEntity = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.ORDER_NOT_FOUND));
         OrderStatus orderStatus = OrderStatus.fromString(status);
+        if(orderStatus.equals(OrderStatus.IN_TRANSIT)){
+            for(OrderDetailEntity orderDetailEntity : orderEntity.getOrderDetailEntities()){
+                ProductEntity productEntity = orderDetailEntity.getProductEntity();
+                productEntity.setQuantity(productEntity.getQuantity() - orderDetailEntity.getNumberOfProducts());
+                productRepository.save(productEntity);
+            }
+        }
         orderEntity.setStatus(orderStatus.toString());
         return orderRepository.save(orderEntity);
     }

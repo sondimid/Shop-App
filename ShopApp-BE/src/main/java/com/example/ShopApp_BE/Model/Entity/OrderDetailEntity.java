@@ -18,7 +18,7 @@ public class OrderDetailEntity extends AbstractEntity{
     private Double price;
 
     @Column(name = "number_of_products", nullable = false)
-    private Integer numberOfProducts;
+    private Long numberOfProducts;
 
     @Column(name = "total_money", nullable = false)
     private Double totalMoney;

@@ -17,8 +17,19 @@ import AdminPage from "./Pages/AdminPage";
 import OrderPage from "./Pages/OrderPage";
 import OrderSuccess from "./components/OrderSuccess";
 import ChatWidget from "./components/ChatWidget";
+import ChatAdminWidget from "./components/ChatAdminWidget";
+import { getUser } from "./utils/AuthUtils";
 
 function App() {
+  const userInfo = getUser();
+  const isLoggedIn = !!userInfo;
+  const adminId = 1;
+
+  console.log("User Info:", userInfo);
+  console.log("Is Logged In:", isLoggedIn);
+
+  const showChat = isLoggedIn;
+
   return (
     <BrowserRouter>
       <>
@@ -64,18 +75,17 @@ function App() {
               </UserRoute>
             }
           />
-          <Route
-            path="/admin"
-            element={
-              <AdminRoute>
-                <AdminPage />
-              </AdminRoute>
-            }
-          />
 
           <Route path="*" element={<HomePage />} />
         </Routes>
         <ChatWidget />
+        {showChat && (
+          <ChatAdminWidget
+            isLoggedIn={isLoggedIn}
+            senderId={userInfo.id}
+            recipientId={adminId}
+          />
+        )}
       </>
     </BrowserRouter>
   );

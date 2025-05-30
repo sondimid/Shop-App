@@ -6,6 +6,7 @@ import com.example.ShopApp_BE.Model.Entity.ProductEntity;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Getter
@@ -28,6 +29,8 @@ public class ProductResponse extends AbstractResponse {
 
     private Double discount;
 
+    private Long quantity;
+
     private Double finalPrice;
 
     private List<ImageResponse> imageResponses;
@@ -44,8 +47,9 @@ public class ProductResponse extends AbstractResponse {
                 .category(productEntity.getCategoryEntity().getName())
                 .discount(productEntity.getDiscount())
                 .categoryId(productEntity.getCategoryEntity().getId())
+                .quantity(productEntity.getQuantity())
                 .imageResponses(productEntity.getImageEntities().stream().map(ImageResponse::fromImageEntity).toList())
-                .comments(productEntity.getCommentEntities().stream().map(CommentResponse::fromCommentEntity).toList())
+                .comments(productEntity.getCommentEntities().stream().sorted(Comparator.comparing(CommentEntity::getCreatedAt).reversed()).map(CommentResponse::fromCommentEntity).toList())
                 .build();
         productResponse.setCreatedAt(productEntity.getCreatedAt());
         productResponse.setUpdatedAt(productEntity.getUpdatedAt());

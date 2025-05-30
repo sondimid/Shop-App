@@ -20,6 +20,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -28,17 +30,19 @@ public class CommentServiceImpl implements CommentService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
+
     @Override
-    public CommentEntity createComment(CommentDTO commentDTO, String email) throws Exception {
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
-        ProductEntity productEntity = productRepository.findById(commentDTO.getProductId())
-                .orElseThrow(() -> new NotFoundException(MessageKeys.PRODUCT_NOT_FOUND));
-        CommentEntity commentEntity = modelMapper.map(commentDTO, CommentEntity.class);
-        commentEntity.setUserEntity(userEntity);
-        commentEntity.setProductEntity(productEntity);
-        commentEntity.setImageUrl(UploadImages.uploadImage(commentDTO.getImage()));
-        return commentRepository.save(commentEntity);
+    public void createComment(CommentDTO commentDTO, String email) throws Exception {
+
+            UserEntity userEntity = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
+            ProductEntity productEntity = productRepository.findById(commentDTO.getProductId())
+                    .orElseThrow(() -> new NotFoundException(MessageKeys.PRODUCT_NOT_FOUND));
+            CommentEntity commentEntity = modelMapper.map(commentDTO, CommentEntity.class);
+            commentEntity.setUserEntity(userEntity);
+            commentEntity.setProductEntity(productEntity);
+            commentEntity.setImageUrl(UploadImages.uploadImage(commentDTO.getImage()));
+            commentRepository.save(commentEntity);
     }
 
     @Override

@@ -69,13 +69,16 @@ public class UserEntity extends AbstractEntity implements UserDetails {
     private RoleEntity roleEntity = new RoleEntity();
 
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
-    private List<SocialAccountEntity> socialAccountEntities;
+    private List<SocialAccountEntity> socialAccountEntities = new ArrayList<>();
 
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
     private List<CommentEntity> commentEntities = new ArrayList<>();
 
-    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
-    List<SocialAccountEntity> socialImageEntities = new ArrayList<>();
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+    private List<MessageEntity> messageEntities1 = new ArrayList<>();
+
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL)
+    private List<MessageEntity> messageEntities2 = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

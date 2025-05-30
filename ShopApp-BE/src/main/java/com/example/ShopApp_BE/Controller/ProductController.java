@@ -115,7 +115,7 @@ public class ProductController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllProduct(@RequestParam(name = "keyword", defaultValue = "") String keyword,
                                            @RequestParam(name = "page", defaultValue = "0") Integer page,
-                                           @RequestParam(name = "limit", defaultValue = "10") Integer limit,
+                                           @RequestParam(name = "limit", defaultValue = "100") Integer limit,
                                            @RequestParam(name = "sort", defaultValue = "ASC") String sort,
                                            @RequestParam(name = "sortField", defaultValue = "id") String sortField,
                                            @RequestParam(name = "fromPrice", defaultValue = "0") Double fromPrice,
@@ -123,6 +123,7 @@ public class ProductController {
         Sort.Direction sortDirection = sort.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, limit, sortDirection, sortField);
         Page<ProductResponse> productResponsePage = productService.getAll(keyword.trim(), fromPrice, toPrice, pageable);
+
         return ResponseEntity.ok().body(PageResponse.builder()
                 .content(productResponsePage.getContent())
                 .totalPages(productResponsePage.getTotalPages())

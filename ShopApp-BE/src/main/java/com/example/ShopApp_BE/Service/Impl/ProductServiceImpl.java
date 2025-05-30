@@ -1,11 +1,11 @@
 package com.example.ShopApp_BE.Service.Impl;
 
+import com.example.ShopApp_BE.DTO.OrderDTO;
+import com.example.ShopApp_BE.DTO.OrderDetailDTO;
 import com.example.ShopApp_BE.DTO.ProductDTO;
 import com.example.ShopApp_BE.DTO.ProductUpdateDTO;
 import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
-import com.example.ShopApp_BE.Model.Entity.CategoryEntity;
-import com.example.ShopApp_BE.Model.Entity.ImageEntity;
-import com.example.ShopApp_BE.Model.Entity.ProductEntity;
+import com.example.ShopApp_BE.Model.Entity.*;
 import com.example.ShopApp_BE.Model.Response.ProductResponse;
 import com.example.ShopApp_BE.Repository.CategoryRepository;
 import com.example.ShopApp_BE.Repository.ImageRepository;
@@ -13,6 +13,7 @@ import com.example.ShopApp_BE.Repository.ProductRepository;
 import com.example.ShopApp_BE.Service.ProductService;
 import com.example.ShopApp_BE.Utils.FileProperties;
 import com.example.ShopApp_BE.Utils.MessageKeys;
+import com.example.ShopApp_BE.Utils.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -95,6 +96,7 @@ public class ProductServiceImpl implements ProductService {
         productEntity.setDescription(productUpdateDTO.getDescription());
         productEntity.setPrice(productUpdateDTO.getPrice());
         productEntity.setDiscount(productUpdateDTO.getDiscount());
+        productEntity.setQuantity(productUpdateDTO.getQuantity());
 
         productEntity.setFinalPrice(productEntity.getPrice() - productEntity.getDiscount() / 100.0 * productEntity.getPrice());
         productEntity.setCategoryEntity(categoryRepository.findById(productUpdateDTO.getCategoryId()).orElseThrow(
@@ -143,4 +145,5 @@ public class ProductServiceImpl implements ProductService {
         Page<ProductEntity> productEntityPage = productRepository.findByKeyword(keyword, fromPrice, toPrice, pageable);
         return productEntityPage.map(ProductResponse::fromProductEntity);
     }
+
 }

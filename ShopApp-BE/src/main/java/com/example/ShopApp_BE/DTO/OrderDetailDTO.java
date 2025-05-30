@@ -13,7 +13,7 @@ public class OrderDetailDTO{
 
     private String name;
 
-    private Integer numberOfProducts;
+    private Long numberOfProducts;
 
     private Double price;
 

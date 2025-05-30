@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  mysql:
+    container_name: shopapp-mysql
+    image: "mysql:8.0"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456789a
+      MYSQL_DATABASE: test
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+  
+    networks:
+      app:
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p123456789a"]
+      interval: 5s
+      retries: 5
+      start_period: 60s
+    
+  backend:
+    container_name: shopapp-backend
+    build:
+      context: ./ShopApp-BE
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - D:/uploads/ShopApp-BE/:/shopapp/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - app 
+
+
+volumes:
+  mysql-data:
+
+networks:
+  app:

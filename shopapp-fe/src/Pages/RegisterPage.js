@@ -1,49 +1,55 @@
 import React, { useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import axiosInstance from "../utils/RefreshToken";
-import SuccessModal from "../components/SuccessModal";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Loading from "../components/Loading";
 import axios from "axios";
 
 function RegisterPage() {
-  const [email, setEmail] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: "",
+    fullName: "",
+    password: "",
+    confirmPassword: ""
+  });
   const [error, setError] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [message, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!email || !fullName || !password || !confirmPassword) {
+    // Validate form
+    if (!formData.email || !formData.fullName || !formData.password || !formData.confirmPassword) {
       setError("Please enter all fields!");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match!");
       return;
     }
 
     try {
       setIsLoading(true);
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:8080/api/v1/users/register",
-        {
-          email,
-          fullName,
-          password,
-          confirmPassword,
-        }
+        formData
       );
-      setIsLoading(false);
-      window.location.href = `/verify-account?email=${encodeURIComponent(
-        email
-      )}`;
+      navigate(`/verify-account?email=${encodeURIComponent(formData.email)}`);
     } catch (error) {
-      setIsLoading(false);
       setError(error.response?.data || "Signup failed. Try again!");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -58,55 +64,64 @@ function RegisterPage() {
               <div className="col-12 col-md-6 col-lg-4">
                 <div className="mb-5">
                   <h1 className="mb-1 h2 fw-bold">Signup</h1>
-                  <p>Welcome! Enter your phone number to create an account.</p>
+                  <p>Welcome! Enter your details to create an account.</p>
                 </div>
 
                 {error && <div className="alert alert-danger">{error}</div>}
+
                 <form onSubmit={handleRegister}>
                   <div className="row g-3">
                     <div className="col-12">
                       <input
                         type="text"
+                        name="fullName"
                         className="form-control"
                         placeholder="Full Name"
                         required
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
+                        value={formData.fullName}
+                        onChange={handleChange}
                       />
                     </div>
                     <div className="col-12">
                       <input
                         type="email"
+                        name="email"
                         className="form-control"
                         placeholder="Email"
                         required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={formData.email}
+                        onChange={handleChange}
                       />
                     </div>
                     <div className="col-12">
                       <input
                         type="password"
+                        name="password"
                         className="form-control"
                         placeholder="Password"
                         required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        value={formData.password}
+                        onChange={handleChange}
                       />
                     </div>
                     <div className="col-12">
                       <input
                         type="password"
+                        name="confirmPassword"
                         className="form-control"
                         placeholder="Confirm Password"
                         required
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
                       />
                     </div>
                     <div className="col-12 d-grid">
-                      <button type="submit" className="btn btn-primary">
-                        Register
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Registering..." : "Register"}
                       </button>
                     </div>
                   </div>
@@ -123,14 +138,6 @@ function RegisterPage() {
         </section>
       </main>
       <Footer />
-
-      {isModalOpen && (
-        <SuccessModal
-          message={message}
-          onClose={() => setIsModalOpen(false)}
-          onConfirm={() => (window.location.href = "/login")}
-        />
-      )}
     </>
   );
 }

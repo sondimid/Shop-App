@@ -23,6 +23,9 @@ public class ProductDTO {
     @NotBlank(message = "price is blank")
     private Double price;
 
+    @NotBlank(message = "quantity is blank")
+    private Long quantity;
+
     @NotBlank(message = "description is blank")
     private String description;
 

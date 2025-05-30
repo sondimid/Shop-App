@@ -2,6 +2,7 @@ package com.example.ShopApp_BE.Service;
 
 import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
 import com.example.ShopApp_BE.DTO.*;
+import com.example.ShopApp_BE.Model.Entity.TokenEntity;
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
 import com.example.ShopApp_BE.Model.Response.TokenResponse;
 import com.example.ShopApp_BE.Model.Response.UserResponse;
@@ -19,6 +20,8 @@ public interface UserService {
     UserEntity createUser(UserRegisterDTO userRegisterDTO) throws Exception;
 
     TokenResponse login(UserLoginDTO userLoginDTO);
+
+    TokenResponse adminLogin(UserLoginDTO userLoginDTO);
 
     UserResponse update(UserUpdateDTO userUpdateDTO, String token);
 
@@ -41,4 +44,5 @@ public interface UserService {
     UserEntity resetPassword(ResetPasswordDTO resetPasswordDTO) throws Exception;
 
     UserEntity verifyAccount(@Valid UserVerifyDTO userVerifyDTO) throws Exception;
+
 }

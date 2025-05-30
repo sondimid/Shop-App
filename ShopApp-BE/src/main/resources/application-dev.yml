@@ -4,13 +4,12 @@ spring:
   application:
     name: ShopApp-BE
   datasource:
-    url: jdbc:mysql://localhost:3306/test?createDatabaseIfNotExist=true
-    username: root
+    url: jdbc:mysql://mysql:3306/test?createDatabaseIfNotExist=true
     password: 123456789a
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
@@ -53,7 +52,7 @@ api:
   prefix: /api/v1
 file:
   url: http://localhost:8080/uploads/
-  dir: D:/uploads/ShopApp-BE/
+  dir: /shopapp/uploads
 
 jwt:
   expiration: 1800
@@ -69,7 +68,7 @@ payos:
   checksum-key: bc0ff4e5dbfbe559f24ad075d85a8de0d057ddb4b5d59a688ab1503eb09bdab4
 
 chat:
-  api-key: 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
+  api-key: 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
   end-point: https://openrouter.ai/api/v1/chat/completions
 
 

@@ -47,7 +47,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 String.format("%s/users/refresh-token", prefix),
                 String.format("%s/users/forgot-password", prefix),
                 String.format("%s/users/reset-password", prefix),
-                String.format("%s/users/verify-account", prefix)
+                String.format("%s/users/verify-account", prefix),
+                String.format("%s/admin/login", prefix)
         ));
 
         WHITE_LIST.put("GET", List.of(
@@ -55,6 +56,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 String.format("%s/products/**", prefix),
                 String.format("%s/categories/**", prefix),
                 String.format("%s/chat/**", prefix),
+                "/chat/**",
                 "/uploads/**"
         ));
     }

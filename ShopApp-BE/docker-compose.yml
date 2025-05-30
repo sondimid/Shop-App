@@ -1,0 +1,20 @@
+# version: '3'
+
+# services:
+#   mysql:
+#     image: "mysql:8.0"
+#     environment:
+#       MYSQL_ROOT_PASSWORD: 123456789a
+#       MYSQL_DATABASE: shopapp
+#       MYSQL_USER: root
+#       MYSQL_PASSWORD: 123456789a
+#     volumes:
+#       - mysql-data:/var/lib/mysql
+#     networks:
+#       app:
+
+# volumes:
+#   mysql-data:
+
+# networks:
+#   app:

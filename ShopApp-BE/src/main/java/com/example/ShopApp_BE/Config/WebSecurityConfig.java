@@ -49,7 +49,9 @@ public class WebSecurityConfig {
                 String.format("%s/products/lastest", apiProperties.getPrefix()),
                 String.format("%s/products/best-deal", apiProperties.getPrefix()),
                 String.format("%s/categories", apiProperties.getPrefix()),
-                String.format("%s/chat", apiProperties.getPrefix()),
+                String.format("%s/chat/**", apiProperties.getPrefix()),
+                String.format("%s/admin/login", apiProperties.getPrefix()),
+                "/chat/**",
                 "/uploads/**"
         );
     }

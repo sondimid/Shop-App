@@ -128,29 +128,37 @@ function UserOrder({ header, status }) {
     setCommentDetails(updatedComments);
   };
 
-  const handleSubmitComments = async () => {
+  const handleSubmitSingleComment = async (index) => {
     const accessToken = Cookies.get("accessToken");
+    const comment = commentDetails[index];
+    if (!comment.comment || comment.comment.trim() === "") {
+      alert("Vui lòng nhập nội dung đánh giá cho sản phẩm này!");
+      return;
+    }
+    if (!comment.image) {
+      alert("Vui lòng chọn ảnh cho sản phẩm này!");
+      return;
+    }
     try {
-      await Promise.all(
-        commentDetails.map(async (comment) => {
-          const formData = new FormData();
-          formData.append("content", comment.comment);
-          if (comment.image) {
-            formData.append("image", comment.image); // Chỉ thêm ảnh nếu có
-          }
-          formData.append("productId", comment.productDetail.productId);
+      const formData = new FormData();
+      formData.append("content", comment.comment);
+      formData.append("image", comment.image);
+      formData.append("productId", comment.productDetail.productId);
 
-          // Gửi dữ liệu đến API
-          await axiosInstance.post("/comments", formData, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "multipart/form-data",
-            },
-          });
-        })
-      );
+      await axiosInstance.post("/comments", formData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
       alert("Đánh giá thành công!");
-      setShowCommentModal(false); // Đóng modal sau khi gửi thành công
+      // Xoá nội dung đã gửi thành rỗng
+      setCommentDetails((prev) => {
+        const updated = [...prev];
+        updated[index].comment = "";
+        updated[index].image = null;
+        return updated;
+      });
     } catch (error) {
       console.error("Lỗi khi gửi đánh giá:", error);
       alert("Đã xảy ra lỗi khi gửi đánh giá. Vui lòng thử lại.");
@@ -166,82 +174,130 @@ function UserOrder({ header, status }) {
       <main>
         <style>
           {`
-          .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          }
-
-          .table th,
-          .table td {
-            padding: 12px 15px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-          }
-
-          .table th {
-            background-color: #f4f4f4;
-            font-weight: bold;
-            color: #333;
-          }
-
-          .table tr:hover {
-            background-color: #f9f9f9;
-          }
-
-          .table td img {
-            border-radius: 4px;
-            transition: transform 0.2s ease-in-out;
-          }
-
-          .table td img:hover {
-            transform: scale(1.1);
-            cursor: pointer;
-          }
-
-          .btn {
-            padding: 6px 12px;
-            font-size: 14px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-          }
-
-          .btn-primary {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-          }
-
-          .btn-primary:hover {
-            background-color: #0056b3;
-          }
-
-          .modal .table {
-            margin-top: 0;
-            box-shadow: none;
-            border-radius: 0;
-          }
-
-          .modal .table th {
-            background-color: #f4f4f4;
-            font-weight: bold;
-          }
-
-          .modal .table td {
-            text-align: left;
-          }
-
-          .modal .table img {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 4px;
-          }
-        `}
+            .table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 20px;
+              background-color: #fff;
+              border-radius: 10px;
+              overflow: hidden;
+              box-shadow: 0 2px 8px rgba(246,137,26,0.08);
+            }
+            .table th,
+            .table td {
+              padding: 14px 18px;
+              text-align: center;
+              border-bottom: 1px solid #f3e7d7;
+              font-size: 15px;
+            }
+            .table th {
+              background-color: #fff3e6;
+              font-weight: bold;
+              color: #f6891a;
+              border-bottom: 2px solid #f6891a;
+            }
+            .table tr:hover {
+              background-color: #fff8f1;
+            }
+            .table td img {
+              border-radius: 6px;
+              transition: transform 0.2s;
+              box-shadow: 0 1px 4px rgba(246,137,26,0.08);
+            }
+            .table td img:hover {
+              transform: scale(1.08);
+              cursor: pointer;
+              border: 2px solid #f6891a;
+            }
+            .btn,
+            button,
+            input[type="button"],
+            input[type="submit"] {
+              padding: 8px 18px;
+              background-color: #f6891a;
+              color: #fff;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-weight: 500;
+              font-size: 15px;
+              transition: background 0.2s, box-shadow 0.2s;
+              box-shadow: 0 2px 8px rgba(246,137,26,0.08);
+            }
+            .btn-primary,
+            button.btn-primary {
+              background-color: #f6891a;
+              border: none;
+            }
+            .btn-primary:hover,
+            button.btn-primary:hover,
+            .btn:hover,
+            button:hover,
+            input[type="button"]:hover,
+            input[type="submit"]:hover {
+              background-color: #e07c13;
+              color: #fff;
+              box-shadow: 0 4px 16px rgba(246,137,26,0.18);
+            }
+            .btn-danger {
+              background-color: #fff3e6;
+              color: #f6891a;
+              border: 1.5px solid #f6891a;
+            }
+            .btn-danger:hover {
+              background-color: #f6891a;
+              color: #fff;
+            }
+            .btn-info {
+              background-color: #ffe7c2;
+              color: #f6891a;
+              border: 1.5px solid #f6891a;
+            }
+            .btn-info:hover {
+              background-color: #f6891a;
+              color: #fff;
+            }
+            .pagination-container {
+              display: flex;
+              justify-content: center;
+              margin: 30px 0 10px 0;
+            }
+            .pagination-container .btn {
+              margin: 0 4px;
+              min-width: 36px;
+              background: #fff;
+              color: #f6891a;
+              border: 1.5px solid #f6891a;
+              font-weight: 600;
+            }
+            .pagination-container .btn.active,
+            .pagination-container .btn:active {
+              background: #f6891a;
+              color: #fff;
+            }
+            .pagination-container .btn:hover {
+              background: #ffe7c2;
+              color: #f6891a;
+            }
+            .modal .table {
+              margin-top: 0;
+              box-shadow: none;
+              border-radius: 0;
+            }
+            .modal .table th {
+              background-color: #f4f4f4;
+              font-weight: bold;
+            }
+            .modal .table td {
+              text-align: left;
+            }
+            .modal .table img {
+              width: 50px;
+              height: 50px;
+              object-fit: cover;
+              border-radius: 4px;
+            }
+          `}
         </style>
         <Modal
           show={showCommentModal}
@@ -253,7 +309,7 @@ function UserOrder({ header, status }) {
           </Modal.Header>
           <Modal.Body>
             {commentDetails.map((detail, index) => (
-              <div key={index} className="mb-3">
+              <div key={index} className="mb-3 border-bottom pb-3">
                 <p>
                   <strong>Hình Ảnh:</strong>
                   <img
@@ -300,12 +356,20 @@ function UserOrder({ header, status }) {
                   <Form.Label>Hình Ảnh</Form.Label>
                   <Form.Control
                     type="file"
-                    accept="image/*" 
+                    accept="image/*"
                     onChange={(e) =>
                       handleCommentChange(index, "image", e.target.files[0])
                     }
                   />
                 </Form.Group>
+                <div className="mt-2 text-end">
+                  <Button
+                    variant="primary"
+                    onClick={() => handleSubmitSingleComment(index)}
+                  >
+                    Gửi Đánh Giá
+                  </Button>
+                </div>
               </div>
             ))}
           </Modal.Body>
@@ -315,9 +379,6 @@ function UserOrder({ header, status }) {
               onClick={() => setShowCommentModal(false)}
             >
               Đóng
-            </Button>
-            <Button variant="primary" onClick={handleSubmitComments}>
-              Gửi Đánh Giá
             </Button>
           </Modal.Footer>
         </Modal>

@@ -10,7 +10,8 @@ import { useNavigate } from "react-router-dom";
 function OrderPage() {
   const [user, setUser] = useState(null);
   const location = useLocation();
-  const { selectedProductDetails } = location.state;
+  // Sửa lỗi destructure khi location.state không tồn tại
+  const selectedProductDetails = location.state?.selectedProductDetails || [];
   const [order, setOrder] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,24 @@ function OrderPage() {
   }, []);
 
   const handlePayment = async (e) => {
-    e.preventDefault();
+    // Validate required fields (không được rỗng hoặc chỉ chứa khoảng trắng)
+    if (
+      !user?.fullName ||
+      user.fullName.trim() === "" ||
+      !user?.email ||
+      user.email.trim() === "" ||
+      !user?.phoneNumber ||
+      user.phoneNumber.trim() === "" ||
+      !user?.address ||
+      user.address.trim() === "" ||
+      !order?.paymentMethod ||
+      (typeof order.paymentMethod === "string" &&
+        order.paymentMethod.trim() === "")
+    ) {
+      alert("Vui lòng nhập đầy đủ thông tin và chọn phương thức thanh toán!");
+      return;
+    }
+
     setLoading(true);
     const code = parseInt(Date.now().toString().slice(-6));
     const orderDetailDTOs = selectedProductDetails.map((product) => ({
@@ -70,9 +88,16 @@ function OrderPage() {
       console.log(error.response);
     } finally {
       setLoading(false);
-      
     }
   };
+
+  if (
+    !location.state ||
+    !selectedProductDetails ||
+    selectedProductDetails.length === 0
+  ) {
+    return <Navigate to="/cart" />;
+  }
 
   if (loading) {
     return <Loading />;
@@ -81,6 +106,135 @@ function OrderPage() {
     <>
       <Header />
       <main>
+        <style>
+          {`
+            .table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 20px;
+              background-color: #fff;
+              border-radius: 10px;
+              overflow: hidden;
+              box-shadow: 0 2px 8px rgba(246,137,26,0.08);
+            }
+            .table th,
+            .table td {
+              padding: 14px 18px;
+              text-align: center;
+              border-bottom: 1px solid #f3e7d7;
+              font-size: 15px;
+            }
+            .table th {
+              background-color: #fff3e6;
+              font-weight: bold;
+              color: #f6891a;
+              border-bottom: 2px solid #f6891a;
+            }
+            .table tr:hover {
+              background-color: #fff8f1;
+            }
+            .table td img {
+              border-radius: 6px;
+              transition: transform 0.2s;
+              box-shadow: 0 1px 4px rgba(246,137,26,0.08);
+            }
+            .table td img:hover {
+              transform: scale(1.08);
+              cursor: pointer;
+              border: 2px solid #f6891a;
+            }
+            .btn,
+            button,
+            input[type="button"],
+            input[type="submit"] {
+              padding: 8px 18px;
+              background-color: #f6891a;
+              color: #fff;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-weight: 500;
+              font-size: 15px;
+              transition: background 0.2s, box-shadow 0.2s;
+              box-shadow: 0 2px 8px rgba(246,137,26,0.08);
+            }
+            .btn-primary,
+            button.btn-primary {
+              background-color: #f6891a;
+              border: none;
+            }
+            .btn-primary:hover,
+            button.btn-primary:hover,
+            .btn:hover,
+            button:hover,
+            input[type="button"]:hover,
+            input[type="submit"]:hover {
+              background-color: #e07c13;
+              color: #fff;
+              box-shadow: 0 4px 16px rgba(246,137,26,0.18);
+            }
+            .btn-danger {
+              background-color: #fff3e6;
+              color: #f6891a;
+              border: 1.5px solid #f6891a;
+            }
+            .btn-danger:hover {
+              background-color: #f6891a;
+              color: #fff;
+            }
+            .btn-info {
+              background-color: #ffe7c2;
+              color: #f6891a;
+              border: 1.5px solid #f6891a;
+            }
+            .btn-info:hover {
+              background-color: #f6891a;
+              color: #fff;
+            }
+            .p-summary-title,
+            .p-summary-total-title {
+              color: #f6891a;
+              font-weight: 600;
+            }
+            .p-summary-price,
+            .p-summary-total-price {
+              font-weight: 600;
+              color: #333;
+            }
+            .p-summary-price.text-danger {
+              color: #e53935;
+            }
+            .checkout-btn .btn {
+              font-size: 18px;
+              padding: 12px 0;
+              border-radius: 8px;
+              font-weight: 600;
+            }
+            .card {
+              border-radius: 12px;
+              box-shadow: 0 2px 8px rgba(246,137,26,0.08);
+              border: 1.5px solid #ffe7c2;
+            }
+            .card-header {
+              background: #fff3e6 !important;
+              border-bottom: 1.5px solid #f6891a !important;
+            }
+            .product-checkout input,
+            .product-checkout textarea {
+              border: 1.5px solid #f6891a;
+              border-radius: 6px;
+              padding: 10px 12px;
+              font-size: 15px;
+              margin-bottom: 8px;
+            }
+            .product-checkout input:focus,
+            .product-checkout textarea:focus {
+              outline: none;
+              border-color: #f6891a;
+              box-shadow: 0 0 0 2px #ffe7c2;
+            }
+          `}
+        </style>
         <div class="product-checkout">
           <div class="mt-4">
             <div class="container">
