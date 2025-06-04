@@ -1,13 +1,13 @@
 package com.example.ShopApp_BE.Model.Response;
 
 import com.example.ShopApp_BE.Model.Entity.CategoryEntity;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class CategoryResponse {
     private Long id;
     private String name;
@@ -19,6 +19,6 @@ public class CategoryResponse {
                 .id(categoryEntity.getId())
                 .name(categoryEntity.getName())
                 .imageUrl(categoryEntity.getImageUrl())
-                .productQuantity((long) categoryEntity.getProductEntities().size()).build();
+                .productQuantity((long) 2).build();
     }
 }

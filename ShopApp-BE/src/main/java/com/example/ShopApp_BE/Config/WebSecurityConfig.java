@@ -52,7 +52,8 @@ public class WebSecurityConfig {
                 String.format("%s/chat/**", apiProperties.getPrefix()),
                 String.format("%s/admin/login", apiProperties.getPrefix()),
                 "/chat/**",
-                "/uploads/**"
+                "/uploads/**",
+                "/shopapp/uploads/**"
         );
     }
 

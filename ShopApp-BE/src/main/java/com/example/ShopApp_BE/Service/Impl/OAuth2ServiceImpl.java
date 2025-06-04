@@ -2,15 +2,14 @@ package com.example.ShopApp_BE.Service.Impl;
 
 import com.example.ShopApp_BE.Model.Entity.CartEntity;
 import com.example.ShopApp_BE.Model.Entity.RoleEntity;
-import com.example.ShopApp_BE.Model.Entity.TokenEntity;
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
 import com.example.ShopApp_BE.Model.Response.TokenResponse;
 import com.example.ShopApp_BE.Repository.RoleRepository;
-import com.example.ShopApp_BE.Repository.TokenRepository;
 import com.example.ShopApp_BE.Repository.UserRepository;
 import com.example.ShopApp_BE.Service.OAuth2Service;
 import com.example.ShopApp_BE.Utils.*;
 
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -33,7 +32,6 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     private final FacebookProperties facebookProperties;
     private final UserRepository userRepository;
     private final JwtTokenUtils jwtTokenUtils;
-    private final TokenRepository tokenRepository;
     private final RoleRepository roleRepository;
 
     @Override
@@ -96,16 +94,14 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                 userEntity.setFacebookAccountId(userMap.getOrDefault("id", "").toString());
             }
         }
-        String token = jwtTokenUtils.generateToken(userEntity, TokenType.ACCESS);
-        TokenEntity tokenEntity = TokenEntity.builder()
-                .userEntity(userEntity)
-                .refreshToken(jwtTokenUtils.generateToken(userEntity,TokenType.REFRESH))
-                .revoked(Boolean.FALSE).build();
-        if(userEntity.getTokenEntities() == null || userEntity.getTokenEntities().isEmpty()){
-            userEntity.setTokenEntities(new ArrayList<>(List.of(tokenEntity)));
-        }
-        else userEntity.getTokenEntities().add(tokenEntity);
-        return TokenResponse.fromTokenEntity(tokenRepository.save(tokenEntity), token);
+        String accessToken = jwtTokenUtils.generateToken(userEntity, TokenType.ACCESS);
+        String refreshToken = jwtTokenUtils.generateToken(userEntity, TokenType.REFRESH);
+        Cookie cookieRefresh = new Cookie(MessageKeys.REFRESH_TOKEN_HEADER, refreshToken);
+        cookieRefresh.setHttpOnly(true);
+        cookieRefresh.setPath("/");
+        return TokenResponse.builder()
+                .accessToken(accessToken)
+                .build();
     }
 
 

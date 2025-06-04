@@ -1,5 +1,6 @@
 package com.example.ShopApp_BE.Controller;
 
+import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
 import com.example.ShopApp_BE.DTO.OrderDTO;
 import com.example.ShopApp_BE.DTO.OrderDetailDTO;
 import com.example.ShopApp_BE.DTO.StatusDTO;
@@ -11,6 +12,8 @@ import com.example.ShopApp_BE.Service.OrderService;
 import com.example.ShopApp_BE.Utils.JwtTokenUtils;
 import com.example.ShopApp_BE.Utils.MessageKeys;
 import com.example.ShopApp_BE.Utils.TokenType;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,6 +24,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import vn.payos.PayOS;
+import vn.payos.type.PaymentLinkData;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,11 +38,23 @@ public class OrderController {
     private final OrderService orderService;
     private final JwtTokenUtils jwtTokenUtils;
     private final MailService mailService;
+    private final PayOS payOS;
 
     @PutMapping("/success")
-    public ResponseEntity<?> createOrder(@RequestParam(name = "orderId") Long orderId) throws Exception {
-        orderService.confirmOrder(orderId);
-        return ResponseEntity.accepted().body(MessageKeys.CREATE_ORDER_SUCCESS);
+    public ResponseEntity<?> createOrder(HttpServletRequest request) throws Exception {
+        Cookie cookie = Arrays.stream(request.getCookies())
+                .filter(cookie1 -> cookie1.getName().equals(MessageKeys.ORDER_CODE))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException(MessageKeys.ORDER_NOT_FOUND));
+        Long orderCode = Long.valueOf(cookie.getValue());
+        PaymentLinkData paymentLinkData = payOS.getPaymentLinkInformation(orderCode);
+        log.info("paymentLinkData: {}", paymentLinkData);
+        log.info(paymentLinkData.getStatus());
+        if(paymentLinkData.getStatus().equalsIgnoreCase("PAID")) {
+            orderService.confirmOrder(Long.valueOf(cookie.getValue()));
+            return ResponseEntity.accepted().body(MessageKeys.CREATE_ORDER_SUCCESS);
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     @PutMapping("/{id}")

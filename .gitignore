@@ -13,6 +13,8 @@ ShopApp-BE/.gitattributes
 ShopApp-BE/.gitignore
 ShopApp-BE/HELP
 ShopApp-BE/mvnw
-ShopApp-BE/mvnw
+ShopApp-BE/src/main/resources/application-dev.yml
+ShopApp-BE/src/main/resources/application-prod.yml
+
 
 

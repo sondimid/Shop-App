@@ -14,14 +14,9 @@ function DealOfTheDays() {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8080/api/v1/products/all",{
-            params:{
-              sort: "DESC",
-              sortField: "discount"
-            }
-          }
+          "http://localhost:8080/api/v1/products/best-discount",
         );
-        setProducts(response.data.content);
+        setProducts(response.data);
         setLoading(false);
       } catch (error) {
         console.error(error);

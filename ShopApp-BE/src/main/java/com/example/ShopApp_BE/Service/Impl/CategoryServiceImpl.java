@@ -21,6 +21,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
+    private final UploadImages uploadImages;
+
     @Override
     public CategoryEntity createCategory(CategoryDTO categoryDTO) throws IOException, NotFoundException {
         CategoryEntity categoryEntity = (categoryDTO.getId() == null)
@@ -28,7 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
                 : categoryRepository.findById(categoryDTO.getId())
                 .orElseThrow(() -> new NotFoundException(MessageKeys.CATEGORY_NOT_FOUND));
         categoryEntity.setName(categoryDTO.getName());
-        categoryEntity.setImageUrl(UploadImages.uploadImage(categoryDTO.getImage()));
+        categoryEntity.setImageUrl(uploadImages.uploadImage(categoryDTO.getImage()));
         return categoryRepository.save(categoryEntity);
     }
 
@@ -37,7 +39,7 @@ public class CategoryServiceImpl implements CategoryService {
         CategoryEntity categoryEntity = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.CATEGORY_NOT_FOUND));
         categoryEntity.setName(categoryDTO.getName());
-        categoryEntity.setImageUrl(UploadImages.uploadImage(categoryDTO.getImage()));
+        categoryEntity.setImageUrl(uploadImages.uploadImage(categoryDTO.getImage()));
         return categoryRepository.save(categoryEntity);
     }
 

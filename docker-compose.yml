@@ -28,12 +28,36 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - D:/uploads/ShopApp-BE/:/shopapp/uploads
+      - D:/uploads/ShopApp-BE/:/shopapp/uploads/
     depends_on:
       mysql:
         condition: service_healthy
     networks:
       - app 
+  
+  frontend-user:
+    container_name: shopapp-frontend-user
+    build:
+      context: ./shopapp-fe
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - app
+
+  frontend-admin:
+    container_name: shopapp-frontend-admin
+    build:
+      context: ./shopapp-fe - Admin
+      dockerfile: Dockerfile
+    ports:
+      - "4000:80"
+    depends_on:
+      - backend
+    networks:
+      - app
 
 
 volumes:

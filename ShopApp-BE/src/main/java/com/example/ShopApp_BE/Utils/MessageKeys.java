@@ -61,6 +61,7 @@ public class MessageKeys {
     public static final String STATUS_IN_VALID = "Trạng thái không hợp lệ.";
     public static final String CANNOT_CANCEL_ORDER = "Không thể hủy đơn hàng.";
     public static final String PAYMENT_IN_VALID = "Phương thức thanh toán không hợp lệ";
+    public static final String ORDER_CODE = "order_code";
 
     // Comment
     public static final String CREATE_COMMENT_SUCCESS = "Thêm bình luận thành công.";
@@ -72,4 +73,12 @@ public class MessageKeys {
     public static final String OTP_NOT_MATCH = "Mã OTP không khớp.";
     public static final String OTP_EXPIRED = "Mã OTP đã hết hạn.";
     public static final String EMAIL_NOT_MATCH = "Email không khớp.";
+
+    //key redis hash
+    public static final String BLACKLIST_HASH = "blacklist";
+    public static final String PRODUCT_HASH = "product";
+    public static final String NEW_HASH = "new";
+    public static final String DISCOUNT_HASH = "discount";
+    public static final String CART_HASH = "cart";
+    public static final String OTP_HASH = "otp";
 }

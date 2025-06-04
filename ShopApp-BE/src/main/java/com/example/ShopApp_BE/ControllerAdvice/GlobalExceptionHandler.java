@@ -1,6 +1,7 @@
 package com.example.ShopApp_BE.ControllerAdvice;
 
 import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
+import com.example.ShopApp_BE.ControllerAdvice.Exceptions.UnauthorizedAccessException;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -26,7 +27,7 @@ public class GlobalExceptionHandler  {
         }
 
         if(exception instanceof ExpiredJwtException){
-            return ResponseEntity.status(415).body(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
         }
 
         if(exception instanceof UsernameNotFoundException){
@@ -46,7 +47,11 @@ public class GlobalExceptionHandler  {
         if(exception instanceof DisabledException){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+
+        if(exception instanceof UnauthorizedAccessException){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
 }

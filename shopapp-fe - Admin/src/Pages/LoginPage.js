@@ -36,7 +36,6 @@ function LoginPage() {
         }
       );
       Cookies.set("accessToken", response.data.accessToken);
-      Cookies.set("refreshToken", response.data.refreshToken);
 
       const userRes = await axiosInstance.get("/users/profiles", {
         headers: {

@@ -30,6 +30,7 @@ public class CommentServiceImpl implements CommentService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
+    private final UploadImages uploadImages;
 
     @Override
     public void createComment(CommentDTO commentDTO, String email) throws Exception {
@@ -41,7 +42,7 @@ public class CommentServiceImpl implements CommentService {
             CommentEntity commentEntity = modelMapper.map(commentDTO, CommentEntity.class);
             commentEntity.setUserEntity(userEntity);
             commentEntity.setProductEntity(productEntity);
-            commentEntity.setImageUrl(UploadImages.uploadImage(commentDTO.getImage()));
+            commentEntity.setImageUrl(uploadImages.uploadImage(commentDTO.getImage()));
             commentRepository.save(commentEntity);
     }
 

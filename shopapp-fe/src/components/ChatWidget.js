@@ -66,7 +66,7 @@ function ChatWidget() {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer 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`,
+            Authorization: `Bearer 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`,
           },
         }
       );

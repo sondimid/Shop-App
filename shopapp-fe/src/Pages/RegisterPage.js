@@ -28,7 +28,6 @@ function RegisterPage() {
     e.preventDefault();
     setError("");
 
-    // Validate form
     if (!formData.email || !formData.fullName || !formData.password || !formData.confirmPassword) {
       setError("Please enter all fields!");
       return;

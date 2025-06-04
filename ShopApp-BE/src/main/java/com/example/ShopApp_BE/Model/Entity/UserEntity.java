@@ -6,9 +6,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -37,29 +40,20 @@ public class UserEntity extends AbstractEntity implements UserDetails {
     @Column(name = "avatar_url")
     private String avatarUrl;
 
-    @Column(name = "reset_token")
-    private String resetToken;
-
     @Column(name = "facebook_account_id")
     private String facebookAccountId;
 
     @Column(name = "google_account_id")
     private String googleAccountId;
 
-    @Column(name = "otp")
-    private String otp;
-
-    @Column(name = "otp_expiration")
-    private LocalDateTime otpExpiration;
+    @Column(name = "token_version")
+    private Long tokenVersion;
 
     @Column(name = "is_active")
     private Boolean isActive;
 
     @OneToOne(mappedBy = "userEntity", cascade = CascadeType.ALL)
     private CartEntity cartEntity = new CartEntity();
-
-    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
-    private List<TokenEntity> tokenEntities = new ArrayList<>();
 
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
     private List<OrderEntity> orderEntities = new ArrayList<>();
@@ -99,22 +93,22 @@ public class UserEntity extends AbstractEntity implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return isActive;
+        return isActive.equals(Boolean.TRUE);
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return isActive;
+        return isActive.equals(Boolean.TRUE);
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return isActive;
+        return isActive.equals(Boolean.TRUE);
     }
 
     @Override
     public boolean isEnabled() {
-        return isActive;
+        return isActive.equals(Boolean.TRUE);
     }
 
 }

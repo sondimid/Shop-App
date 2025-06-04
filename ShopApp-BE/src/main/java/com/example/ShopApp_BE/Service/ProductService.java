@@ -6,6 +6,7 @@ import com.example.ShopApp_BE.DTO.ProductUpdateDTO;
 import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
 import com.example.ShopApp_BE.Model.Entity.ProductEntity;
 import com.example.ShopApp_BE.Model.Response.ProductResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -27,4 +28,7 @@ public interface ProductService {
 
     Page<ProductResponse> getAll(String keyword, Double fromPrice, Double toPrice, Pageable pageable);
 
+    List<ProductResponse> getNewestProducts(Pageable pageable) throws JsonProcessingException;
+
+    List<ProductResponse> getBestDiscountProducts(Pageable pageable) throws JsonProcessingException;
 }

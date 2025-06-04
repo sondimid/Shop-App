@@ -1,35 +1,36 @@
 package com.example.ShopApp_BE.Controller;
 
+import com.example.ShopApp_BE.ControllerAdvice.Exceptions.UnauthorizedAccessException;
 import com.example.ShopApp_BE.DTO.*;
 import com.example.ShopApp_BE.Service.OAuth2Service;
-import com.example.ShopApp_BE.Service.TokenService;
+import com.example.ShopApp_BE.Service.RedisService;
 import com.example.ShopApp_BE.Service.UserService;
 import com.example.ShopApp_BE.Utils.MessageKeys;
 import com.example.ShopApp_BE.Utils.OAuth2Provider;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.util.Arrays;
 
+@Slf4j
 @RestController
 @RequestMapping("${api.prefix}/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final TokenService tokenService;
     private final OAuth2Service oAuth2Service;
 
     @PostMapping(value = "/login")
-    public ResponseEntity<?> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
-
-        return ResponseEntity.accepted().body(userService.login(userLoginDTO));
+    public ResponseEntity<?> login(@Valid @RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response) throws Exception {
+        return ResponseEntity.accepted().body(userService.login(userLoginDTO, response));
 
     }
 
@@ -58,25 +59,26 @@ public class UserController {
 
     @PutMapping("/password")
     public ResponseEntity<?> changePassword(@Valid @RequestBody UserChangePasswordDTO userChangePasswordDTO,
-                                            @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization){
-        String token = authorization.substring(7);
+                                            HttpServletRequest request,
+                                            HttpServletResponse response) throws Exception {
 
-        userService.changePassword(userChangePasswordDTO, token);
+        userService.changePassword(userChangePasswordDTO, request, response);
         return ResponseEntity.accepted().body(MessageKeys.UPDATE_SUCCESS);
-
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestHeader(MessageKeys.REFRESH_TOKEN_HEADER) String refreshToken) throws Exception {
-
-        return ResponseEntity.accepted().body(tokenService.refreshToken(refreshToken));
-
+    public ResponseEntity<?> refreshToken( HttpServletRequest request, HttpServletResponse response) throws Exception {
+        return ResponseEntity.ok().body(userService.refreshToken(request, response));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader(MessageKeys.REFRESH_TOKEN_HEADER) String refreshToken,
-                                    @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String accessToken) throws Exception {
-        tokenService.deleteToken(accessToken, refreshToken);
+    public ResponseEntity<?> logout(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String accessToken = request.getHeader(MessageKeys.AUTHORIZATION_HEADER).substring(7);
+        Cookie cookie = Arrays.stream(request.getCookies())
+                .filter(cookie1 -> cookie1.getName().equals(MessageKeys.REFRESH_TOKEN_HEADER))
+                .findFirst()
+                .orElseThrow(() -> new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED));
+        userService.logout(accessToken, cookie, response);
         return ResponseEntity.accepted().body(MessageKeys.DELETE_TOKEN_SUCCESS);
 
     }

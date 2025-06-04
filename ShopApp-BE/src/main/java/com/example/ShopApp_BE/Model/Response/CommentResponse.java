@@ -3,12 +3,14 @@ package com.example.ShopApp_BE.Model.Response;
 import com.example.ShopApp_BE.Model.Entity.CommentEntity;
 import lombok.*;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentResponse extends AbstractResponse {
+public class CommentResponse extends AbstractResponse implements Serializable {
     private String userName;
 
     private String avatar;

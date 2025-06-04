@@ -34,7 +34,7 @@ function Header() {
         );
         setCategories(response.data);
       } catch (error) {
-        alert("Lôi không thể lấy danh sách danh mục sản phẩm");
+        alert(error.response.data);
       }
     }
     fetchCategories();
@@ -53,7 +53,7 @@ function Header() {
           setCart(response.data);
           setLoading(false);
         } catch (error) {
-          alert(error.response);
+          alert(error.response.data);
           setLoading(false);
         }
       }

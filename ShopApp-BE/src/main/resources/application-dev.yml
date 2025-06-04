@@ -9,7 +9,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
@@ -44,6 +44,12 @@ spring:
           starttls:
             enable : true
             required: true
+  data:
+    redis:
+      host: locahost
+      port: 6379
+      database: 0
+      timeout: 10000
   config:
     activate:
       on-profile: dev
@@ -52,7 +58,7 @@ api:
   prefix: /api/v1
 file:
   url: http://localhost:8080/uploads/
-  dir: /shopapp/uploads
+  dir: /shopapp/uploads/
 
 jwt:
   expiration: 1800

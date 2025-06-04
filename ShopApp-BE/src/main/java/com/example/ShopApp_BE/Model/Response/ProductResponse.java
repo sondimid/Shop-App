@@ -5,16 +5,19 @@ import com.example.ShopApp_BE.Model.Entity.ImageEntity;
 import com.example.ShopApp_BE.Model.Entity.ProductEntity;
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductResponse extends AbstractResponse {
+@Data
+public class ProductResponse extends AbstractResponse implements Serializable {
     private Long id;
 
     private String name;

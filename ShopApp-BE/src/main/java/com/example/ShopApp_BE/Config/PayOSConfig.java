@@ -2,6 +2,7 @@ package com.example.ShopApp_BE.Config;
 
 import com.example.ShopApp_BE.Utils.PayOSProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import vn.payos.PayOS;
@@ -10,10 +11,17 @@ import vn.payos.PayOS;
 @RequiredArgsConstructor
 public class PayOSConfig {
 
-    private final PayOSProperties payOSProperties;
+    @Value("${payos.api-key}")
+    String apiKey;
+
+    @Value("${payos.client-id}")
+    String clientId;
+
+    @Value("${payos.checksum-key}")
+    String checksumKey;
 
     @Bean
     public PayOS payOS() {
-        return new PayOS(payOSProperties.getClientId(), payOSProperties.getApiKey(), payOSProperties.getChecksumKey());
+        return new PayOS(apiKey, clientId, checksumKey);
     }
 }

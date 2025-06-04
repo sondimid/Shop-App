@@ -13,15 +13,9 @@ function OrderSuccess() {
 
   useEffect(() => {
     if (status === "PAID" && orderCode) {
-      const accessToken = Cookies.get("accessToken");
       axiosInstance
         .put("/orders/success", null, {
-          params: {
-            orderId: parseInt(orderCode),
-          },
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          withCredentials: true
         })
         .then((res) => {
           console.log("Order confirmed:", res.data);

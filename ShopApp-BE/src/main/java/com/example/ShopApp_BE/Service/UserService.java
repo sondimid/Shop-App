@@ -2,10 +2,12 @@ package com.example.ShopApp_BE.Service;
 
 import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
 import com.example.ShopApp_BE.DTO.*;
-import com.example.ShopApp_BE.Model.Entity.TokenEntity;
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
 import com.example.ShopApp_BE.Model.Response.TokenResponse;
 import com.example.ShopApp_BE.Model.Response.UserResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,13 +21,13 @@ public interface UserService {
 
     UserEntity createUser(UserRegisterDTO userRegisterDTO) throws Exception;
 
-    TokenResponse login(UserLoginDTO userLoginDTO);
+    TokenResponse login(UserLoginDTO userLoginDTO, HttpServletResponse response) throws Exception;
 
-    TokenResponse adminLogin(UserLoginDTO userLoginDTO);
+    TokenResponse adminLogin(UserLoginDTO userLoginDTO,HttpServletResponse response) throws Exception;
 
     UserResponse update(UserUpdateDTO userUpdateDTO, String token);
 
-    void changePassword(@Valid UserChangePasswordDTO userChangePasswordDTO, String token);
+    void changePassword(@Valid UserChangePasswordDTO userChangePasswordDTO, HttpServletRequest request, HttpServletResponse response) throws Exception;
 
     UserResponse getUserDetails(String token) throws Exception;
 
@@ -44,5 +46,9 @@ public interface UserService {
     UserEntity resetPassword(ResetPasswordDTO resetPasswordDTO) throws Exception;
 
     UserEntity verifyAccount(@Valid UserVerifyDTO userVerifyDTO) throws Exception;
+
+    void logout(String accessToken, Cookie cookie, HttpServletResponse response) throws Exception;
+
+    TokenResponse refreshToken(HttpServletRequest request, HttpServletResponse response) throws Exception;
 
 }

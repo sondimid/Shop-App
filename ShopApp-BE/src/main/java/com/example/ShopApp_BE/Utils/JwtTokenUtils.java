@@ -27,11 +27,12 @@ public class JwtTokenUtils {
         claims.put("email", userEntity.getEmail());
         claims.put("role", userEntity.getRoleEntity().getRole());
         claims.put("id", userEntity.getId());
+        claims.put("token_version", userEntity.getTokenVersion());
         String token;
         if(tokenType.equals(TokenType.REFRESH)) {
             token = Jwts.builder()
                     .setClaims(claims)
-                    .setIssuedAt(new Date())
+                    .setIssuedAt(new Date(System.currentTimeMillis()))
                     .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpirationRefreshToken() * 1000))
                     .setSubject(userEntity.getPhoneNumber())
                     .signWith(getSignInKey(tokenType), SignatureAlgorithm.HS256)
@@ -40,7 +41,7 @@ public class JwtTokenUtils {
         else if (tokenType.equals(TokenType.ACCESS)){
             token = Jwts.builder()
                     .setClaims(claims)
-                    .setIssuedAt(new Date())
+                    .setIssuedAt(new Date(System.currentTimeMillis()))
                     .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration() * 1000))
                     .setSubject(userEntity.getPhoneNumber())
                     .signWith(getSignInKey(tokenType), SignatureAlgorithm.HS256)
@@ -49,7 +50,7 @@ public class JwtTokenUtils {
         else {
             token = Jwts.builder()
                     .setClaims(claims)
-                    .setIssuedAt(new Date())
+                    .setIssuedAt(new Date(System.currentTimeMillis()))
                     .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpirationResetToken() * 1000))
                     .setSubject(userEntity.getPhoneNumber())
                     .signWith(getSignInKey(tokenType), SignatureAlgorithm.HS256)
@@ -58,7 +59,7 @@ public class JwtTokenUtils {
         return token;
     }
 
-    private Claims extractAllClaims(String token, TokenType tokenType) {
+    public Claims extractAllClaims(String token, TokenType tokenType) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey(tokenType))
                 .build()
@@ -89,8 +90,16 @@ public class JwtTokenUtils {
         return extractClaim(token, claims -> claims.get("role", String.class), tokenType);
     }
 
+    public Long extractExpiration(String token, TokenType tokenType) {
+        return extractAllClaims(token, tokenType).getExpiration().getTime();
+    }
+
     public Long extractId(String token, TokenType tokenType) {
         return extractClaim(token, claims -> claims.get("id", Long.class), tokenType);
+    }
+
+    public Long extractTokenVersion(String token, TokenType tokenType) {
+        return extractClaim(token, claims -> claims.get("token_version", Long.class), tokenType);
     }
 
     public Boolean isNotExpired(String token, TokenType tokenType) {
@@ -100,7 +109,7 @@ public class JwtTokenUtils {
 
     public Boolean isValid(String token, UserEntity userEntity, TokenType tokenType) {
         String email = extractEmail(token, tokenType);
-        return userEntity.getEmail().equals(email) && isNotExpired(token, tokenType);
+        return userEntity.getEmail().equals(email) && isNotExpired(token, tokenType) && userEntity.getIsActive().equals(Boolean.TRUE);
     }
 
 }

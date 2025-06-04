@@ -1,7 +1,9 @@
 package com.example.ShopApp_BE.Utils;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -12,14 +14,17 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 @RequiredArgsConstructor
+@Component
+@Slf4j
 public class UploadImages {
     @Value("${file.dir}")
-    private static String DIR;
+    private String DIR;
 
     @Value("${file.url}")
-    private static String URL;
+    private String URL;
 
-    public static String uploadImage(MultipartFile file) throws IOException {
+    public String uploadImage(MultipartFile file) throws IOException {
+        log.info(DIR + " sondimid " + URL);
         Path uploadPath  = Paths.get(DIR);
         if(!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);

@@ -1,20 +1,8 @@
-# version: '3'
+version: '3.8'
 
-# services:
-#   mysql:
-#     image: "mysql:8.0"
-#     environment:
-#       MYSQL_ROOT_PASSWORD: 123456789a
-#       MYSQL_DATABASE: shopapp
-#       MYSQL_USER: root
-#       MYSQL_PASSWORD: 123456789a
-#     volumes:
-#       - mysql-data:/var/lib/mysql
-#     networks:
-#       app:
+services:
+  redis:
+    image: redis:7.4.2
+    ports:
+      - "6379:6379"
 
-# volumes:
-#   mysql-data:
-
-# networks:
-#   app:

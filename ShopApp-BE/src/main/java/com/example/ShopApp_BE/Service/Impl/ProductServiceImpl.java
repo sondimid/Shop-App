@@ -14,22 +14,27 @@ import com.example.ShopApp_BE.Service.ProductService;
 import com.example.ShopApp_BE.Utils.FileProperties;
 import com.example.ShopApp_BE.Utils.MessageKeys;
 import com.example.ShopApp_BE.Utils.OrderStatus;
+import com.example.ShopApp_BE.Utils.UploadImages;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+
+import static com.example.ShopApp_BE.Utils.MessageKeys.PRODUCT_HASH;
+
 
 @Service
 @RequiredArgsConstructor
@@ -37,8 +42,11 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
     private final CategoryRepository categoryRepository;
-    private final FileProperties fileProperties;
     private final ImageRepository imageRepository;
+    private final UploadImages uploadImages;
+    private final RedisServiceImpl<String, Long, Object> redisService;
+
+
     @Override
     public ProductEntity createProduct(ProductDTO productDTO) throws NotFoundException, IOException {
         ProductEntity productEntity = modelMapper.map(productDTO, ProductEntity.class);
@@ -47,16 +55,11 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new NotFoundException(MessageKeys.CATEGORY_NOT_FOUND));
         productEntity.setCategoryEntity(categoryEntity);
 
-        Path uploadPath = Paths.get(fileProperties.getDir());
-        if(!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
+
         List<ImageEntity> imageEntities = new ArrayList<>();
         if(productDTO.getImages() != null) {
             for(MultipartFile file : productDTO.getImages()) {
-                String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename().replace(" ","");
-                file.transferTo(new File(fileProperties.getDir() + fileName));
-                String url = fileProperties.getUrl() + fileName;
+                String url = uploadImages.uploadImage(file);
                 ImageEntity imageEntity = ImageEntity.builder()
                         .url(url)
                         .productEntity(productEntity)
@@ -70,8 +73,19 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse getProduct(Long id) throws Exception {
+        final String key = PRODUCT_HASH + id;
+        if (redisService.hasKey(key)) {
+            Object cached = redisService.get(key);
+            ObjectMapper mapper = new ObjectMapper();
+            ProductResponse productResponse = mapper.convertValue(cached, ProductResponse.class);
+
+            redisService.setTimeToLive(key, 3 * 60 * 1000);
+            return productResponse;
+        }
         ProductEntity productEntity = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.PRODUCT_NOT_FOUND));
+        redisService.set(key, ProductResponse.fromProductEntity(productEntity));
+        redisService.setTimeToLive(key, 3 * 60 * 1000);
         return ProductResponse.fromProductEntity(productEntity);
     }
 
@@ -102,15 +116,9 @@ public class ProductServiceImpl implements ProductService {
         productEntity.setCategoryEntity(categoryRepository.findById(productUpdateDTO.getCategoryId()).orElseThrow(
                 () -> new NotFoundException(MessageKeys.CATEGORY_NOT_FOUND)));
 
-        Path uploadPath = Paths.get(fileProperties.getDir());
-        if(!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
         if(productUpdateDTO.getImages() != null) {
             for(MultipartFile file : productUpdateDTO.getImages()) {
-                String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename().replace(" ","");
-                file.transferTo(new File(fileProperties.getDir() + fileName));
-                String url = fileProperties.getUrl() + fileName;
+                String url = uploadImages.uploadImage(file);
                 ImageEntity imageEntity = ImageEntity.builder()
                         .url(url)
                         .productEntity(productEntity).build();
@@ -145,5 +153,46 @@ public class ProductServiceImpl implements ProductService {
         Page<ProductEntity> productEntityPage = productRepository.findByKeyword(keyword, fromPrice, toPrice, pageable);
         return productEntityPage.map(ProductResponse::fromProductEntity);
     }
+
+    @Override
+    public List<ProductResponse> getNewestProducts(Pageable pageable) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        if(redisService.hasKey(MessageKeys.NEW_HASH)) {
+            String json = (String) redisService.get(MessageKeys.NEW_HASH);
+            List<ProductResponse> productResponseList = mapper.readValue(json, new TypeReference<>() {});
+            redisService.setTimeToLive(MessageKeys.NEW_HASH, 10 * 60 * 1000);
+            return productResponseList;
+        }
+        List<ProductEntity> productEntityList = productRepository.findNewest(pageable);
+        List<ProductResponse> productResponseList = productEntityList
+                .stream()
+                .map(ProductResponse::fromProductEntity)
+                .toList();
+        String json = mapper.writeValueAsString(productResponseList);
+        redisService.set(MessageKeys.NEW_HASH, json);
+        redisService.setTimeToLive(MessageKeys.NEW_HASH, 10 * 60 * 1000);
+        return productResponseList;
+    }
+
+    @Override
+    public List<ProductResponse> getBestDiscountProducts(Pageable pageable) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        if(redisService.hasKey(MessageKeys.DISCOUNT_HASH)){
+            String json = (String) redisService.get(MessageKeys.DISCOUNT_HASH);
+            List<ProductResponse> productResponseList = mapper.readValue(json, new TypeReference<>() {});
+            redisService.setTimeToLive(MessageKeys.DISCOUNT_HASH, 10 * 60 * 1000);
+            return productResponseList;
+        }
+        List<ProductEntity> productEntityList = productRepository.findNewest(pageable);
+        List<ProductResponse> productResponseList = productEntityList
+                .stream()
+                .map(ProductResponse::fromProductEntity)
+                .toList();
+        String json = mapper.writeValueAsString(productResponseList);
+        redisService.set(MessageKeys.DISCOUNT_HASH, json);
+        redisService.setTimeToLive(MessageKeys.DISCOUNT_HASH, 10 * 60 * 1000);
+        return productResponseList;
+    }
+
 
 }

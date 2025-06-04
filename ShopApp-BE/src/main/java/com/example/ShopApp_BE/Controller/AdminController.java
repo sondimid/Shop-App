@@ -4,6 +4,7 @@ import com.example.ShopApp_BE.DTO.UserLoginDTO;
 import com.example.ShopApp_BE.Model.Response.PageResponse;
 import com.example.ShopApp_BE.Model.Response.UserResponse;
 import com.example.ShopApp_BE.Service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -64,7 +65,7 @@ public class AdminController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> adminLogin(@RequestBody UserLoginDTO userLoginDTO){
-        return ResponseEntity.accepted().body(userService.adminLogin(userLoginDTO));
+    public ResponseEntity<?> adminLogin(@RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response) throws Exception {
+        return ResponseEntity.accepted().body(userService.adminLogin(userLoginDTO, response));
     }
 }

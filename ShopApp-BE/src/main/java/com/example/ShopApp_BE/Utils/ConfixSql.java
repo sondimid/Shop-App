@@ -11,6 +11,9 @@ public class ConfixSql {
                 " p.name LIKE CONCAT('%', :keyword, '%')" +
                 " OR p.categoryEntity.name LIKE CONCAT('%', :keyword, '%') )" +
                 " AND p.price >= :fromPrice AND p.price <= :toPrice";
+        String SEARCH_BY_ID = "SELECT p FROM ProductEntity p LEFT JOIN FETCH p.categoryEntity WHERE p.id = :id";
+
+        String SEARCH = "SELECT p FROM ProductEntity p";
     }
 
     public interface Category{

@@ -18,6 +18,7 @@ function LoginPage() {
   const [recaptchaToken, setRecaptchaToken] = useState("");
 
   const handleLogin = async (e) => {
+    axios.defaults.withCredentials = true;
     e.preventDefault();
     if (!email || !password) {
       setError("Please enter both phone and password!");
@@ -37,7 +38,6 @@ function LoginPage() {
         }
       );
       Cookies.set("accessToken", response.data.accessToken);
-      Cookies.set("refreshToken", response.data.refreshToken);
       const accessToken = response.data.accessToken;
       if (accessToken) {
         try {

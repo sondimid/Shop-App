@@ -1071,7 +1071,7 @@ function AdminProduct() {
                               <td className="align-middle">
                                 <div>
                                   <a
-                                    href={`/product/${product.id}`}
+                                    href="#"
                                     onClick={() =>
                                       localStorage.setItem(
                                         "product",

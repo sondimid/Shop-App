@@ -4,14 +4,22 @@ import Cookies from "js-cookie";
 
 function UserRoute({ children }) {
   const userData = Cookies.get("user");
-  const user = JSON.parse(userData)
-
-  if(user.role === "USER" || user.role === "ADMIN"){
-    return children
+  if (!userData) {
+    return <Navigate to="/" replace />;
   }
 
-  window.location.href = "/"
-  
+  let user;
+  try {
+    user = JSON.parse(userData);
+  } catch (e) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (user.role === "USER" || user.role === "ADMIN") {
+    return children;
+  }
+
+  return <Navigate to="/" replace />;
 }
 
 export default UserRoute;

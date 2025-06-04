@@ -1,14 +1,18 @@
 package com.example.ShopApp_BE.Model.Response;
 
 import com.example.ShopApp_BE.Model.Entity.ImageEntity;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+import java.io.Serializable;
+
+@EqualsAndHashCode(callSuper = true)
 @Getter
 @Setter
 @Builder
-public class ImageResponse extends AbstractResponse{
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class ImageResponse extends AbstractResponse implements Serializable {
     private Long id;
 
     private String url;

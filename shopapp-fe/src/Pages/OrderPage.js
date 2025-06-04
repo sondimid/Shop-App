@@ -76,14 +76,11 @@ function OrderPage() {
         "/checkout/create-payment-link",
         newOrder,
         {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          withCredentials: true,
         }
       );
       Cookies.set("orderCode", code);
-      console.log(response.data);
-      window.location.assign(response.data);
+      window.open(response.data, "_self"); 
     } catch (error) {
       console.log(error.response);
     } finally {

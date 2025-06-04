@@ -5,52 +5,54 @@ import com.example.ShopApp_BE.DTO.*;
 import com.example.ShopApp_BE.ControllerAdvice.Exceptions.NotFoundException;
 import com.example.ShopApp_BE.Model.Entity.CartEntity;
 import com.example.ShopApp_BE.Model.Entity.RoleEntity;
-import com.example.ShopApp_BE.Model.Entity.TokenEntity;
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
 import com.example.ShopApp_BE.Model.Response.TokenResponse;
 import com.example.ShopApp_BE.Model.Response.UserResponse;
 import com.example.ShopApp_BE.Repository.CartRepository;
 import com.example.ShopApp_BE.Repository.RoleRepository;
-import com.example.ShopApp_BE.Repository.TokenRepository;
 import com.example.ShopApp_BE.Repository.UserRepository;
 import com.example.ShopApp_BE.Service.MailService;
+import com.example.ShopApp_BE.Service.RedisService;
 import com.example.ShopApp_BE.Service.UserService;
 import com.example.ShopApp_BE.Utils.*;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.nio.channels.NotYetBoundException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
+
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final TokenRepository tokenRepository;
-    private final CartRepository cartRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final JwtTokenUtils jwtTokenUtils;
-    private final FileProperties fileProperties;
     private final MailService mailService;
+    private final UploadImages uploadImages;
+    private final CookieUtils cookieUtils;
+    private final RedisService<String, String, String> redisService;
 
 
     @Override
@@ -60,31 +62,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserEntity createUser(UserRegisterDTO userRegisterDTO) throws Exception {
-        if(!roleRepository.existsById(2L)){
-            RoleEntity roleAdmin = RoleEntity.builder()
-                    .role("ADMIN")
-                    .build();
-            roleRepository.save(roleAdmin);
-            RoleEntity roleUser = RoleEntity.builder()
-                    .role("USER")
-                    .build();
-            roleRepository.save(roleUser);
-        }
         if(!userRegisterDTO.getPassword().equals(userRegisterDTO.getConfirmPassword())){
             throw new DataIntegrityViolationException(MessageKeys.PASSWORD_NOT_MATCH);
         }
         Optional<UserEntity> userOptional = userRepository.findByEmail(userRegisterDTO.getEmail());
         SecureRandom random = new SecureRandom();
         String otp = String.format("%06d", random.nextInt(1000000));
-        LocalDateTime otpExp = LocalDateTime.now().plusMinutes(6L);
         if(userOptional.isPresent()) {
-            if(userOptional.get().getIsActive()) throw new DataIntegrityViolationException(MessageKeys.EMAIL_EXISTED);
+            if(userOptional.get().getIsActive().equals(Boolean.TRUE))
+                throw new DataIntegrityViolationException(MessageKeys.EMAIL_EXISTED);
             UserEntity userEntity = userOptional.get();
             userEntity.setPassword(passwordEncoder.encode(userRegisterDTO.getPassword()));
             userEntity.setFullName(userRegisterDTO.getFullName());
             userEntity.setEmail(userRegisterDTO.getEmail());
-            userEntity.setOtp(passwordEncoder.encode(otp));
-            userEntity.setOtpExpiration(otpExp);
+            redisService.set(MessageKeys.OTP_HASH + userEntity.getEmail(), otp);
+            redisService.setTimeToLive(MessageKeys.OTP_HASH + userEntity.getEmail(), 5 * 60 * 1000);
             mailService.sendEmailOtp(userEntity, otp);
             return userRepository.save(userEntity);
         }
@@ -97,15 +89,15 @@ public class UserServiceImpl implements UserService {
                 .cartDetailEntities(new ArrayList<>())
                 .build();
         userEntity.setCartEntity(cartEntity);
-        userEntity.setOtp(passwordEncoder.encode(otp));
-        userEntity.setOtpExpiration(otpExp);
+        redisService.set(MessageKeys.OTP_HASH + userEntity.getEmail(), otp);
+        redisService.setTimeToLive(MessageKeys.OTP_HASH + userEntity.getEmail(), 5 * 60 * 1000);
         userEntity.setIsActive(Boolean.FALSE);
         mailService.sendEmailOtp(userEntity, otp);
         return userRepository.save(userEntity);
     }
 
     @Override
-    public TokenResponse login(UserLoginDTO userLoginDTO) {
+    public TokenResponse login(UserLoginDTO userLoginDTO, HttpServletResponse response) {
         Optional<UserEntity> userOptional = userRepository.findByEmail(userLoginDTO.getEmail());
         if(userOptional.isEmpty()){
             throw new DataIntegrityViolationException(MessageKeys.LOGIN_FAILED);
@@ -115,17 +107,16 @@ public class UserServiceImpl implements UserService {
             throw new DataIntegrityViolationException(MessageKeys.LOGIN_FAILED);
         }
         String accessToken = jwtTokenUtils.generateToken(userEntity, TokenType.ACCESS);
-        TokenEntity tokenEntity = TokenEntity.builder()
-                .refreshToken(jwtTokenUtils.generateToken(userEntity, TokenType.REFRESH))
-                .userEntity(userEntity)
-                .revoked(Boolean.FALSE)
+        String refreshToken = jwtTokenUtils.generateToken(userEntity, TokenType.REFRESH);
+        Cookie cookieRefresh = cookieUtils.getCookie(refreshToken);
+        response.addCookie(cookieRefresh);
+        return TokenResponse.builder()
+                .accessToken(accessToken)
                 .build();
-        tokenRepository.save(tokenEntity);
-        return TokenResponse.fromTokenEntity(tokenEntity, accessToken);
     }
 
     @Override
-    public TokenResponse adminLogin(UserLoginDTO userLoginDTO) {
+    public TokenResponse adminLogin(UserLoginDTO userLoginDTO, HttpServletResponse response) {
         Optional<UserEntity> userOptional = userRepository.findByEmail(userLoginDTO.getEmail());
         if(userOptional.isEmpty()){
             throw new DataIntegrityViolationException(MessageKeys.LOGIN_FAILED);
@@ -134,17 +125,16 @@ public class UserServiceImpl implements UserService {
         if(!passwordEncoder.matches(userLoginDTO.getPassword(), userEntity.getPassword())){
             throw new DataIntegrityViolationException(MessageKeys.LOGIN_FAILED);
         }
-        if(!userEntity.getRoleEntity().getRole().equals("ADMIN")){
+        if(!userEntity.getRoleEntity().getRole().equals(MessageKeys.ROLE_ADMIN)){
             throw new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED);
         }
         String accessToken = jwtTokenUtils.generateToken(userEntity, TokenType.ACCESS);
-        TokenEntity tokenEntity = TokenEntity.builder()
-                .refreshToken(jwtTokenUtils.generateToken(userEntity, TokenType.REFRESH))
-                .userEntity(userEntity)
-                .revoked(Boolean.FALSE)
+        String refreshToken = jwtTokenUtils.generateToken(userEntity, TokenType.REFRESH);
+        Cookie cookieRefresh = cookieUtils.getCookie(refreshToken);
+        response.addCookie(cookieRefresh);
+        return TokenResponse.builder()
+                .accessToken(accessToken)
                 .build();
-        tokenRepository.save(tokenEntity);
-        return TokenResponse.fromTokenEntity(tokenEntity, accessToken);
     }
 
     @Override
@@ -156,17 +146,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changePassword(UserChangePasswordDTO userChangePasswordDTO, String token) {
-        UserEntity userEntity = userRepository.findByEmail(jwtTokenUtils.extractEmail(token, TokenType.ACCESS)).get();
+    public void changePassword(UserChangePasswordDTO userChangePasswordDTO, HttpServletRequest request, HttpServletResponse response) {
+        String accessToken = request.getHeader("Authorization").substring(7);
+        String refreshToken = Arrays.stream(request.getCookies())
+                .filter(cookie -> cookie.getName().equals(MessageKeys.REFRESH_TOKEN_HEADER))
+                .findFirst().get().getValue();
+        UserEntity userEntity = userRepository.findByEmail(jwtTokenUtils.extractEmail(accessToken, TokenType.ACCESS)).get();
 
         if(!passwordEncoder.matches(userChangePasswordDTO.getCurrentPassword(), userEntity.getPassword())){
             throw new DataIntegrityViolationException(MessageKeys.PASSWORD_NOT_MATCH);
         }
-
         if(!userChangePasswordDTO.getNewPassword().equals(userChangePasswordDTO.getConfirmPassword())){
             throw new DataIntegrityViolationException(MessageKeys.CONFIRM_PASSWORD_NOT_MATCH);
         }
-
+        userEntity.setTokenVersion(userEntity.getTokenVersion() + 1);
         userEntity.setPassword(passwordEncoder.encode(userChangePasswordDTO.getNewPassword()));
         userRepository.save(userEntity);
     }
@@ -217,18 +210,10 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository
                 .findByEmail(jwtTokenUtils.extractEmail(token, TokenType.ACCESS))
                 .orElseThrow(() -> new Exception(MessageKeys.ACCESS_TOKEN_INVALID));
-        Path uploadPath = Paths.get(fileProperties.getDir());
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
-        // save file to Drive D
-        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename().replace(" ","");
-        file.transferTo(new File(fileProperties.getDir() + fileName));
-
-        String url = fileProperties.getUrl() + fileName;
-        userEntity.setAvatarUrl(url);
+        String avatarUrl = uploadImages.uploadImage(file);
+        userEntity.setAvatarUrl(avatarUrl);
         userRepository.save(userEntity);
-        return url;
+        return avatarUrl;
     }
 
     @Override
@@ -236,10 +221,11 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
         if(userEntity.getIsActive().equals(Boolean.FALSE)){
-            throw new Exception(MessageKeys.ACCOUNT_LOCK);
+            throw new UnauthorizedAccessException(MessageKeys.ACCOUNT_LOCK);
         }
-        String resetToken = jwtTokenUtils.generateToken(userEntity, TokenType.RESET);
-        userEntity.setResetToken(resetToken);
+        String resetToken = UUID.randomUUID().toString();
+        redisService.set(MessageKeys.OTP_HASH + resetToken, email);
+        redisService.setTimeToLive(MessageKeys.OTP_HASH + resetToken, 5 * 60 * 1000);
         String confirmUrl = "http://localhost:3000/reset-password?token=" + resetToken;
         mailService.sendEmailResetPassword(confirmUrl, userRepository.save(userEntity));
         return MessageKeys.SEND_EMAIL_RESET_PASSWORD_SUCCESS;
@@ -248,34 +234,76 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserEntity resetPassword(ResetPasswordDTO resetPasswordDTO) throws Exception {
         if(!jwtTokenUtils.isNotExpired(resetPasswordDTO.getResetToken(), TokenType.RESET)){
-            throw new Exception(MessageKeys.RESET_TOKEN_INVALID);
+            throw new UnauthorizedAccessException(MessageKeys.RESET_TOKEN_INVALID);
         }
-        UserEntity userEntity = userRepository.findByResetToken(resetPasswordDTO.getResetToken())
-                .orElseThrow(() -> new Exception(MessageKeys.USER_ID_NOT_FOUND));
-        if(userEntity.getIsActive().equals(Boolean.FALSE)) throw new Exception(MessageKeys.ACCOUNT_LOCK);
-        if(!resetPasswordDTO.getNewPassword().equals(resetPasswordDTO.getConfirmPassword()))
-            throw new Exception(MessageKeys.CONFIRM_PASSWORD_NOT_MATCH);
-        userEntity.setPassword(passwordEncoder.encode(resetPasswordDTO.getNewPassword()));
-        userEntity.setResetToken(null);
-        userEntity.setTokenEntities(null);
-        return userRepository.save(userEntity);
+        if(redisService.hasKey(MessageKeys.OTP_HASH + resetPasswordDTO.getResetToken())){
+            String email  = redisService.get(MessageKeys.OTP_HASH + resetPasswordDTO.getResetToken());
+            UserEntity userEntity = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
+            if(userEntity.getIsActive().equals(Boolean.FALSE)) throw new Exception(MessageKeys.ACCOUNT_LOCK);
+            if(!resetPasswordDTO.getNewPassword().equals(resetPasswordDTO.getConfirmPassword()))
+                throw new Exception(MessageKeys.CONFIRM_PASSWORD_NOT_MATCH);
+            userEntity.setPassword(passwordEncoder.encode(resetPasswordDTO.getNewPassword()));
+            redisService.del(MessageKeys.OTP_HASH + resetPasswordDTO.getResetToken());
+            userEntity.setTokenVersion(userEntity.getTokenVersion() + 1);
+            return userRepository.save(userEntity);
+        }
+        throw new NotFoundException(MessageKeys.OTP_EXPIRED);
     }
 
     @Override
     public UserEntity verifyAccount(UserVerifyDTO userVerifyDTO) throws Exception {
         UserEntity userEntity = userRepository.findByEmail(userVerifyDTO.getEmail())
                 .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
-        if(userEntity.getEmail().equals(userVerifyDTO.getEmail())){
-                if(userEntity.getOtpExpiration().isAfter(LocalDateTime.now())){
-                if(passwordEncoder.matches(userVerifyDTO.getOtp(), userEntity.getOtp())){
-                    userEntity.setIsActive(Boolean.TRUE);
-                    userEntity.setOtpExpiration(LocalDateTime.now());
-                    return userRepository.save(userEntity);
-                }
-                throw new Exception(MessageKeys.OTP_NOT_MATCH);
+        if(userEntity.getIsActive().equals(Boolean.TRUE))
+            throw new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED);
+        if(redisService.hasKey(MessageKeys.OTP_HASH + userVerifyDTO.getEmail())){
+            if(redisService.get(MessageKeys.OTP_HASH + userVerifyDTO.getEmail()).equals(userVerifyDTO.getOtp())){
+                userEntity.setIsActive(Boolean.TRUE);
+                userEntity.setTokenVersion(1L);
+                redisService.del(MessageKeys.OTP_HASH + userVerifyDTO.getEmail());
+                return userRepository.save(userEntity);
             }
             throw new Exception(MessageKeys.OTP_EXPIRED);
         }
-        throw new Exception(MessageKeys.EMAIL_NOT_MATCH);
+        throw new NotFoundException(MessageKeys.OTP_EXPIRED);
+    }
+
+    @Override
+    public void logout(String accessToken, Cookie cookie, HttpServletResponse response) {
+        redisService.set(accessToken, MessageKeys.BLACKLIST_HASH);
+        redisService.setTimeToLive(accessToken,
+                jwtTokenUtils.extractExpiration(accessToken, TokenType.ACCESS) - System.currentTimeMillis());
+
+        String refreshToken = cookie.getValue();
+        redisService.set(refreshToken, MessageKeys.BLACKLIST_HASH);
+        redisService.setTimeToLive(refreshToken,
+                jwtTokenUtils.extractExpiration(refreshToken, TokenType.REFRESH) - System.currentTimeMillis());
+
+        cookieUtils.invalidateCookie(cookie, response);
+    }
+
+    @Override
+    public TokenResponse refreshToken(HttpServletRequest request, HttpServletResponse response)  {
+        Cookie cookie = Arrays.stream(request.getCookies()).filter(cookie1 -> cookie1.getName()
+                        .equals(MessageKeys.REFRESH_TOKEN_HEADER))
+                .findFirst()
+                .orElseThrow(() -> new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED));
+        String refreshToken = cookie.getValue();
+        UserEntity userEntity = userRepository
+                .findByEmail(jwtTokenUtils.extractEmail(refreshToken, TokenType.REFRESH))
+                .orElseThrow(() -> new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED));
+
+        if(jwtTokenUtils.isNotExpired(refreshToken, TokenType.REFRESH)) {
+            String newAccessToken = jwtTokenUtils.generateToken(userEntity, TokenType.ACCESS);
+            return new TokenResponse(newAccessToken);
+        }
+
+        redisService.set(refreshToken, MessageKeys.BLACKLIST_HASH);
+        redisService.setTimeToLive(refreshToken,
+                jwtTokenUtils.extractExpiration(refreshToken, TokenType.REFRESH) - System.currentTimeMillis());
+
+        cookieUtils.invalidateCookie(cookie, response);
+        throw new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED);
     }
 }

@@ -1,11 +1,8 @@
 package com.example.ShopApp_BE.Filter;
 
-import com.example.ShopApp_BE.Config.WebSecurityConfig;
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
-import com.example.ShopApp_BE.Repository.BackListTokenRepository;
-import com.example.ShopApp_BE.Repository.TokenRepository;
+import com.example.ShopApp_BE.Service.RedisService;
 import com.example.ShopApp_BE.Utils.ApiProperties;
-import com.example.ShopApp_BE.Utils.JwtProperties;
 import com.example.ShopApp_BE.Utils.JwtTokenUtils;
 import com.example.ShopApp_BE.Utils.TokenType;
 import jakarta.annotation.PostConstruct;
@@ -14,8 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
-import org.springframework.data.util.Pair;
+import lombok.SneakyThrows;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,6 +20,10 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
 
 @Component
@@ -32,8 +32,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtTokenUtils jwtTokenUtils;
     private final ApiProperties apiProperties;
     private final UserDetailsService userDetailsService;
-    private final TokenRepository tokenRepository;
-    private final BackListTokenRepository backListTokenRepository;
+    private final RedisService<String, String, Object> redisService;
     private static Map<String, List<String>> WHITE_LIST = new HashMap<>();
 
 
@@ -57,10 +56,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 String.format("%s/categories/**", prefix),
                 String.format("%s/chat/**", prefix),
                 "/chat/**",
-                "/uploads/**"
+                "/uploads/**",
+                "/shopapp/uploads/**"
         ));
     }
 
+    @SneakyThrows
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -71,21 +72,36 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             return;
         }
         final String token = authHeader.replace("Bearer ", "");
-        if(backListTokenRepository.existsByAccessToken(token)){
+        if(redisService.hasKey(token)){
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         String email = jwtTokenUtils.extractEmail(token, TokenType.ACCESS);
-        if(email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserEntity userEntity = (UserEntity) userDetailsService.loadUserByUsername(email);
-            if(jwtTokenUtils.isValid(token, userEntity, TokenType.ACCESS)) {
-                UsernamePasswordAuthenticationToken authenticationToken =
-                        new UsernamePasswordAuthenticationToken(userEntity,
-                                null,
-                                userEntity.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            }
+        UserEntity userEntity = (UserEntity) userDetailsService.loadUserByUsername(email);
+
+        if(userEntity.getIsActive() == Boolean.FALSE){
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        if(!jwtTokenUtils.isValid(token, userEntity, TokenType.ACCESS)){
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        if(jwtTokenUtils.extractTokenVersion(token, TokenType.ACCESS) < userEntity.getTokenVersion()){
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        if(SecurityContextHolder.getContext().getAuthentication() == null) {
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(userEntity,
+                            null,
+                            userEntity.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+
         }
         filterChain.doFilter(request, response);
     }

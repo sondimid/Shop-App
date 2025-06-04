@@ -8,6 +8,7 @@ import com.example.ShopApp_BE.Model.Response.ProductResponse;
 import com.example.ShopApp_BE.Service.ProductService;
 import com.example.ShopApp_BE.Utils.MessageKeys;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -113,7 +114,7 @@ public class ProductController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAllProduct(@RequestParam(name = "keyword", defaultValue = "") String keyword,
+    public ResponseEntity<?> getAllProducts(@RequestParam(name = "keyword", defaultValue = "") String keyword,
                                            @RequestParam(name = "page", defaultValue = "0") Integer page,
                                            @RequestParam(name = "limit", defaultValue = "100") Integer limit,
                                            @RequestParam(name = "sort", defaultValue = "ASC") String sort,
@@ -133,6 +134,20 @@ public class ProductController {
                 .build());
     }
 
+    @GetMapping("/newest")
+    public ResponseEntity<?> getNewestProducts() throws JsonProcessingException {
+        Sort.Direction sortDirection = Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(0, 1000, sortDirection, "createdAt");
+        List<ProductResponse> productResponseList = productService.getNewestProducts(pageable);
+        return ResponseEntity.ok().body(productResponseList);
+    }
 
+    @GetMapping("/best-discount")
+    public ResponseEntity<?> getBestDiscountProducts() throws JsonProcessingException {
+        Sort.Direction sortDirection = Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(0, 10, sortDirection, "discount");
+        List<ProductResponse> productResponseList = productService.getBestDiscountProducts(pageable);
+        return ResponseEntity.ok().body(productResponseList);
+    }
 
 }
