@@ -73,6 +73,7 @@ public class MessageKeys {
     public static final String OTP_NOT_MATCH = "Mã OTP không khớp.";
     public static final String OTP_EXPIRED = "Mã OTP đã hết hạn.";
     public static final String EMAIL_NOT_MATCH = "Email không khớp.";
+    public static final String TO0_MANY_REQUEST = "Quá nhiều requests vui lòng đợi";
 
     //key redis hash
     public static final String BLACKLIST_HASH = "blacklist";

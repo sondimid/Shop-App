@@ -26,4 +26,6 @@ public interface RedisService<K, F, V> {
 
     Map<F, V> hashGet(K key);
 
+    Boolean isAllowedForgotPassword(String username);
+
 }

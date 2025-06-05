@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -27,6 +28,7 @@ import java.util.Arrays;
 public class UserController {
     private final UserService userService;
     private final OAuth2Service oAuth2Service;
+    private final RedisService redisService;
 
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response) throws Exception {
@@ -101,8 +103,10 @@ public class UserController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@Valid @RequestBody EmailDTO emailDTO) throws Exception {
-        return ResponseEntity.accepted().body(userService.forgotPassword(emailDTO.getEmail()));
-
+        if(redisService.isAllowedForgotPassword(emailDTO.getEmail())) {
+            return ResponseEntity.accepted().body(userService.forgotPassword(emailDTO.getEmail()));
+        }
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(MessageKeys.TO0_MANY_REQUEST);
     }
 
     @PostMapping("/reset-password")
