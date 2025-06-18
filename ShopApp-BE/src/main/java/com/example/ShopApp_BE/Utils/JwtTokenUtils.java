@@ -1,6 +1,7 @@
 package com.example.ShopApp_BE.Utils;
 
 import com.example.ShopApp_BE.Model.Entity.UserEntity;
+import com.example.ShopApp_BE.Service.RedisService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -21,7 +22,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtTokenUtils {
     private final JwtProperties jwtProperties;
-
+    private final RedisService redisService;
     public String generateToken(UserEntity userEntity, TokenType tokenType) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", userEntity.getEmail());
@@ -109,7 +110,7 @@ public class JwtTokenUtils {
 
     public Boolean isValid(String token, UserEntity userEntity, TokenType tokenType) {
         String email = extractEmail(token, tokenType);
-        return userEntity.getEmail().equals(email) && isNotExpired(token, tokenType) && userEntity.getIsActive().equals(Boolean.TRUE);
+        return userEntity.getEmail().equals(email) && isNotExpired(token, tokenType);
     }
 
 }

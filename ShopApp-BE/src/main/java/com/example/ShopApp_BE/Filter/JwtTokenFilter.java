@@ -4,6 +4,7 @@ import com.example.ShopApp_BE.Model.Entity.UserEntity;
 import com.example.ShopApp_BE.Service.RedisService;
 import com.example.ShopApp_BE.Utils.ApiProperties;
 import com.example.ShopApp_BE.Utils.JwtTokenUtils;
+import com.example.ShopApp_BE.Utils.MessageKeys;
 import com.example.ShopApp_BE.Utils.TokenType;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.FilterChain;
@@ -65,39 +66,42 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+                                    FilterChain filterChain){
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         final String authHeader = request.getHeader("Authorization");
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Missing or invalid Authorization header");
             return;
         }
         final String token = authHeader.replace("Bearer ", "");
-        if(redisService.hasKey(token)){
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
 
         String email = jwtTokenUtils.extractEmail(token, TokenType.ACCESS);
         UserEntity userEntity = (UserEntity) userDetailsService.loadUserByUsername(email);
 
         if(userEntity.getIsActive() == Boolean.FALSE){
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write(MessageKeys.ACCOUNT_LOCK);
             return;
         }
 
-        if(!jwtTokenUtils.isValid(token, userEntity, TokenType.ACCESS)){
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        if(!jwtTokenUtils.isNotExpired(token, TokenType.ACCESS) || redisService.hasKey(token)){
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write(MessageKeys.ACCESS_TOKEN_INVALID);
             return;
         }
 
         if(jwtTokenUtils.extractTokenVersion(token, TokenType.ACCESS) < userEntity.getTokenVersion()){
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write(MessageKeys.ACCOUNT_LOGOUT);
             return;
         }
         if(SecurityContextHolder.getContext().getAuthentication() == null) {
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userEntity,
-                            null,
+                            authHeader.replace("Bearer ", ""),
                             userEntity.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 

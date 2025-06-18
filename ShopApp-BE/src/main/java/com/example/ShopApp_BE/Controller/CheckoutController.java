@@ -26,15 +26,14 @@ public class CheckoutController {
 
     @PostMapping( "/create-payment-link")
     public ResponseEntity<?> checkout(@RequestBody OrderDTO orderDTO,
-                                      @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization,
                                       HttpServletResponse response) throws Exception {
         String checkoutUrl = "";
         if(PaymentMethod.getPaymentMethod(orderDTO.getPaymentMethod()).equals(PaymentMethod.PAYOS)){
-            checkoutUrl = payOsUtils.createOrder(orderDTO, authorization);
+            checkoutUrl = payOsUtils.createOrder(orderDTO);
         }
 
         if(PaymentMethod.getPaymentMethod(orderDTO.getPaymentMethod()).equals(PaymentMethod.COD)){
-            checkoutUrl = codUtils.createOrder(orderDTO, authorization);
+            checkoutUrl = codUtils.createOrder(orderDTO);
         }
         Cookie cookie = cookieUtils.getOrderCodeCookie(orderDTO.getCode());
         response.addCookie(cookie);

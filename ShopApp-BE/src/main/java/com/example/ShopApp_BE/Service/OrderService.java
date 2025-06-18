@@ -11,21 +11,21 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface OrderService {
-    OrderEntity createOrder(OrderDTO orderDTO, String phoneNumber) throws Exception;
+    OrderEntity createOrder(OrderDTO orderDTO) throws Exception;
 
-    OrderEntity updateOrder(OrderDTO orderDTO, Long orderId, String phoneNumber) throws Exception;
+    OrderEntity updateOrder(OrderDTO orderDTO, Long orderId) throws Exception;
 
-    Page<OrderResponse> getOrderByUser(String phoneNumber, Pageable pageable) throws Exception;
+    Page<OrderResponse> getOrderByUser(Pageable pageable) throws Exception;
 
     OrderEntity setStatus(Long orderId, String status) throws Exception;
 
-    OrderEntity cancelOrder(String phoneNumber, Long orderId) throws Exception;
+    OrderEntity cancelOrder(Long orderId) throws Exception;
 
-    OrderResponse getById(Long orderId, String s) throws Exception;
+    OrderResponse getById(Long orderId) throws Exception;
 
     OrderEntity deleteOrders(List<Long> orderIds) throws Exception;
 
-    Page<OrderResponse> getByKeyWord(String status, String phoneNumber, Pageable pageable) throws Exception;
+    Page<OrderResponse> getByKeyWord(String keyword, Pageable pageable) throws Exception;
 
     void confirmOrder(Long orderId) throws Exception;
 }

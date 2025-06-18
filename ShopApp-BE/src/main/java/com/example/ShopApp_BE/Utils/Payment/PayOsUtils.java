@@ -24,7 +24,7 @@ public class PayOsUtils {
     private final OrderService orderService;
     private final PayOS payOS;
 
-    public String createOrder(OrderDTO orderDTO, String authorization) throws Exception {
+    public String createOrder(OrderDTO orderDTO) throws Exception {
         final String baseUrl = "http://localhost:3000";
         final String returnUrl = baseUrl + "/order/success";
         final String cancelUrl = baseUrl + "/cart";
@@ -48,8 +48,7 @@ public class PayOsUtils {
         CheckoutResponseData data = payOS.createPaymentLink(paymentData);
         String checkoutUrl = data.getCheckoutUrl();
         orderDTO.setActive(Boolean.FALSE);
-        String email = jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS);
-        orderService.createOrder(orderDTO, email);
+        orderService.createOrder(orderDTO);
         return checkoutUrl;
     }
 }

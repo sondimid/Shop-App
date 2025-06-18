@@ -2,8 +2,10 @@ package com.example.ShopApp_BE.Config;
 
 import com.example.ShopApp_BE.Filter.JwtTokenFilter;
 import com.example.ShopApp_BE.Utils.ApiProperties;
+import com.example.ShopApp_BE.Utils.MessageKeys;
 import com.example.ShopApp_BE.Utils.WhiteList;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -14,6 +16,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -31,6 +34,7 @@ import java.util.Set;
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
+@EnableMethodSecurity
 public class WebSecurityConfig {
     private final ApiProperties apiProperties;
     private final JwtTokenFilter jwtTokenFilter;
@@ -64,9 +68,16 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(request ->
                     request.requestMatchers(WHITE_LIST.toArray(new String[0])).permitAll()
                             .requestMatchers(HttpMethod.GET, String.format("%s/products/**", apiProperties.getPrefix()),
-                                    String.format("%s/categories/**", apiProperties.getPrefix()))
-                            .permitAll()
-                            .anyRequest().authenticated());
+                                    String.format("%s/categories/**", apiProperties.getPrefix())).permitAll()
+                            .requestMatchers("%s/admin/**".formatted(apiProperties.getPrefix())).hasRole(MessageKeys.ROLE_ADMIN)
+                            .anyRequest().authenticated())
+                .exceptionHandling(exception ->exception
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                            response.getWriter().write(MessageKeys.UNAUTHORIZED);
+                        }));
         return http.build();
     }
 }

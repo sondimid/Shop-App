@@ -23,32 +23,25 @@ public class CartController {
     private final CartService cartService;
 
     @PutMapping("")
-    public ResponseEntity<?> updateCart(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization,
-                                        @RequestBody CartDTO cartDTO) throws NotFoundException {
-        String email = jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS);
-        cartService.updateCart(cartDTO, email);
+    public ResponseEntity<?> updateCart(@RequestBody CartDTO cartDTO) throws NotFoundException {
+        cartService.updateCart(cartDTO);
         return ResponseEntity.accepted().body(MessageKeys.UPDATE_SUCCESS);
     }
 
     @GetMapping("")
-    public ResponseEntity<?> getCart(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) throws NotFoundException {
-        String email = jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS);
-        return ResponseEntity.ok().body(cartService.getCart(email));
+    public ResponseEntity<?> getCart() throws NotFoundException {
+        return ResponseEntity.ok().body(cartService.getCart());
     }
 
     @PutMapping("/number-of-product")
-    public ResponseEntity<?> changeNumberOfProduct(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization,
-                                                   @RequestBody ProductQuantityDTO productQuantityDTO) throws NotFoundException {
-        String email = jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS);
-        cartService.changeNumberOfProduct(productQuantityDTO, email);
+    public ResponseEntity<?> changeNumberOfProduct(@RequestBody ProductQuantityDTO productQuantityDTO) throws NotFoundException {
+        cartService.changeNumberOfProduct(productQuantityDTO);
         return ResponseEntity.accepted().body(MessageKeys.UPDATE_SUCCESS);
     }
 
     @DeleteMapping("/multi/{selectedProducts}")
-    public ResponseEntity<?> deleteProducts(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization,
-                                           @PathVariable("selectedProducts") List<Long> selectedProducts) throws NotFoundException {
-        String email = jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS);
-        cartService.deleteProducts(selectedProducts, email);
+    public ResponseEntity<?> deleteProducts(@PathVariable("selectedProducts") List<Long> selectedProducts) throws NotFoundException {
+        cartService.deleteProducts(selectedProducts);
         return ResponseEntity.accepted().body(MessageKeys.DELETE_PRODUCT_SUCCESS);
     }
 
@@ -56,7 +49,7 @@ public class CartController {
     public ResponseEntity<?> deleteProduct(@PathVariable("productId") Long productId,
                                            @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) throws NotFoundException {
         String email = jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS);
-        cartService.deleteProduct(productId, email);
+        cartService.deleteProduct(productId);
         return ResponseEntity.accepted().body(MessageKeys.DELETE_PRODUCT_SUCCESS);
     }
 
@@ -65,7 +58,7 @@ public class CartController {
                                         @PathVariable("productId") Long productId,
                                         @RequestParam("quantity") Integer quantity) throws NotFoundException, JsonProcessingException {
         String email = jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS);
-        cartService.addProduct(email, productId, quantity);
+        cartService.addProduct(productId, quantity);
         return ResponseEntity.accepted().body(MessageKeys.UPDATE_SUCCESS);
     }
 }

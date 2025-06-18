@@ -25,6 +25,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,9 +49,8 @@ public class CartServiceImpl implements CartService {
     static final String QUANTITY_HASH = "quantity";
 
     @Override
-    public CartEntity updateCart(CartDTO cartDTO, String email) throws NotFoundException {
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
+    public CartEntity updateCart(CartDTO cartDTO) throws NotFoundException {
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CartEntity cartEntity = userEntity.getCartEntity();
 
         for(Long id : cartDTO.getIdDeletes()){
@@ -85,40 +85,14 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartResponse getCart(String email) throws NotFoundException {
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
-        Map<Long, CartDetailResponse> cartDetailResponseMap = new HashMap<>();
-        ObjectMapper mapper = new ObjectMapper();
-
-        if(redisService.hasKey(CART_HASH + email)){
-            Map<String, Object> maps = redisService.hashGet(CART_HASH + email);
-            CartResponse cartResponse = new CartResponse();
-            for(Map.Entry<String, Object> map: maps.entrySet()){
-                String key = map.getKey();
-                Object value = map.getValue();
-                if(key.contains(QUANTITY_HASH)){
-                    Long productId = Long.valueOf(key.substring(15));
-                    CartDetailResponse cartDetailResponse = cartDetailResponseMap.getOrDefault(productId,
-                            CartDetailResponse.builder()
-                                    .numberOfProducts((Integer) value).build());
-                    cartDetailResponseMap.put(productId, cartDetailResponse);
-                    continue;
-                }
-                Long productId = Long.valueOf(key.substring(7));
-                CartDetailResponse cartDetailResponse = mapper.convertValue(value, CartDetailResponse.class);
-                cartDetailResponseMap.put(productId, cartDetailResponse);
-            }
-
-        }
-
+    public CartResponse getCart() throws NotFoundException {
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CartResponse.fromCartEntity(userEntity.getCartEntity());
     }
 
     @Override
-    public CartEntity changeNumberOfProduct(ProductQuantityDTO productQuantityDTO, String email) throws NotFoundException {
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
+    public CartEntity changeNumberOfProduct(ProductQuantityDTO productQuantityDTO) throws NotFoundException {
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CartEntity cartEntity = userEntity.getCartEntity();
         cartEntity.getCartDetailEntities().stream()
                 .filter(cartDetail -> cartDetail.getProductEntity().getId().equals(productQuantityDTO.getProductId()))
@@ -128,9 +102,8 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void deleteProducts(List<Long> productsId, String email) throws NotFoundException {
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
+    public void deleteProducts(List<Long> productsId) throws NotFoundException {
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CartEntity cartEntity = userEntity.getCartEntity();
         for(Long productId : productsId){
             CartDetailEntity cartDetailEntity = cartEntity.getCartDetailEntities().stream()
@@ -142,9 +115,8 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void deleteProduct(Long productId, String email) throws NotFoundException {
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
+    public void deleteProduct(Long productId) throws NotFoundException {
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CartEntity cartEntity = userEntity.getCartEntity();
         CartDetailEntity cartDetailEntity = cartEntity.getCartDetailEntities().stream()
                 .filter(cartDetail -> cartDetail.getProductEntity().getId().equals(productId))
@@ -154,10 +126,10 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void addProduct(String email, Long productId, Integer quantity) throws NotFoundException, JsonProcessingException {
+    public void addProduct(Long productId, Integer quantity) throws NotFoundException, JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = userEntity.getEmail();
         ProductEntity productEntity = productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.PRODUCT_NOT_FOUND));
 

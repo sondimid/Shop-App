@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,9 +41,8 @@ public class OrderServiceImpl implements OrderService {
     private final MailService mailService;
 
     @Override
-    public OrderEntity createOrder(OrderDTO orderDTO, String email) throws Exception {
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
+    public OrderEntity createOrder(OrderDTO orderDTO) throws Exception {
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         OrderEntity orderEntity = modelMapper.map(orderDTO, OrderEntity.class);
         orderEntity.setUserEntity(userEntity);
         orderEntity.setOrderDetailEntities(new ArrayList<>());
@@ -65,11 +65,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderEntity updateOrder(OrderDTO orderDTO, Long orderId, String email) throws Exception {
+    public OrderEntity updateOrder(OrderDTO orderDTO, Long orderId) throws Exception {
         OrderEntity orderEntity = orderRepository.findByCode(orderId)
                 .orElseThrow(() -> new NotFoundException(MessageKeys.ORDER_NOT_FOUND));
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(!Objects.equals(orderEntity.getUserEntity().getId(), userEntity.getId())){
             throw new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED);
         }
@@ -80,9 +79,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<OrderResponse> getOrderByUser(String email, Pageable pageable) throws Exception {
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
+    public Page<OrderResponse> getOrderByUser( Pageable pageable) throws Exception {
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Page<OrderEntity> orderEntityPage = orderRepository.findByUserEntity_Id(userEntity.getId(),pageable);
         return orderEntityPage.map(OrderResponse::fromOrderEntity);
     }
@@ -104,25 +102,28 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderEntity cancelOrder(String email, Long orderId) throws Exception {
-
-        OrderEntity orderEntity = orderRepository.findById(orderId)
+    public OrderEntity cancelOrder(Long orderId) throws Exception {
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        OrderEntity orderEntity = userEntity
+                .getOrderEntities()
+                .stream()
+                .filter(order -> order.getId().equals(orderId))
+                .findFirst()
                 .orElseThrow(() -> new NotFoundException(MessageKeys.ORDER_NOT_FOUND));
-        if(!orderEntity.getUserEntity().getEmail().equals(email)){
-            throw new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED);
-        }
         if(OrderStatus.fromString(orderEntity.getStatus()).getStatusCode() <= 2)
             return setStatus(orderId, OrderStatus.CANCELLED.toString());
         throw new UnauthorizedAccessException(MessageKeys.CANNOT_CANCEL_ORDER);
     }
 
     @Override
-    public OrderResponse getById(Long orderId, String phoneNumber) throws Exception {
-        OrderEntity orderEntity = orderRepository.findById(orderId)
+    public OrderResponse getById(Long orderId) throws Exception {
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        OrderEntity orderEntity = userEntity
+                .getOrderEntities()
+                .stream()
+                .filter(order -> order.getId().equals(orderId))
+                .findFirst()
                 .orElseThrow(() -> new NotFoundException(MessageKeys.ORDER_NOT_FOUND));
-        if(!orderEntity.getUserEntity().getPhoneNumber().equals(phoneNumber)){
-            throw new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED);
-        }
         return OrderResponse.fromOrderEntity(orderEntity);
     }
 
@@ -136,9 +137,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<OrderResponse> getByKeyWord(String keyword, String email, Pageable pageable) throws Exception {
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new Exception(MessageKeys.USER_ID_NOT_FOUND));
+    public Page<OrderResponse> getByKeyWord(String keyword, Pageable pageable) {
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Page<OrderEntity> orderEntityPage;
         if(userEntity.getRoleEntity().getRole().equals(MessageKeys.ROLE_ADMIN)){
             orderEntityPage = orderRepository.findByKeyword(keyword, pageable);

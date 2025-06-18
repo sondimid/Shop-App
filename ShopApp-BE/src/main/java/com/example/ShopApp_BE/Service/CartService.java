@@ -10,15 +10,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 
 public interface CartService {
-    CartEntity updateCart(CartDTO cartDTO, String email) throws NotFoundException;
+    CartEntity updateCart(CartDTO cartDTO) throws NotFoundException;
 
-    CartResponse getCart(String email) throws NotFoundException;
+    CartResponse getCart() throws NotFoundException;
 
-    CartEntity changeNumberOfProduct(ProductQuantityDTO productQuantityDTO, String email) throws NotFoundException;
+    CartEntity changeNumberOfProduct(ProductQuantityDTO productQuantityDTO) throws NotFoundException;
 
-    void deleteProducts(List<Long> productId, String email) throws NotFoundException;
+    void deleteProducts(List<Long> productId) throws NotFoundException;
 
-    void deleteProduct(Long productId, String email) throws NotFoundException;
+    void deleteProduct(Long productIdl) throws NotFoundException;
 
-    void addProduct(String email, Long productId, Integer quantity) throws NotFoundException, JsonProcessingException;
+    void addProduct(Long productId, Integer quantity) throws NotFoundException, JsonProcessingException;
 }

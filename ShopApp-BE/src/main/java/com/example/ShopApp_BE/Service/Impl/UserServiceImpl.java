@@ -23,6 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,9 @@ import org.springframework.data.domain.PageRequest;
 
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +44,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -138,8 +143,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse update(UserUpdateDTO userUpdateDTO, String token) {
-        UserEntity userEntity = userRepository.findByEmail(jwtTokenUtils.extractEmail(token, TokenType.ACCESS)).get();
+    public UserResponse update(UserUpdateDTO userUpdateDTO) {
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         modelMapper.map(userUpdateDTO, userEntity);
         return UserResponse.fromUserEntity(userRepository.save(userEntity));
@@ -165,10 +170,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getUserDetails(String token) throws Exception {
-        UserEntity userEntity = userRepository
-                .findById(jwtTokenUtils.extractId(token, TokenType.ACCESS))
-                .orElseThrow(() -> new NotFoundException(MessageKeys.USER_ID_NOT_FOUND));
+    public UserResponse getUserDetails(){
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return UserResponse.fromUserEntity(userEntity);
     }
 
@@ -203,13 +206,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String uploadAvatar(String token, MultipartFile file) throws Exception {
+    public String uploadAvatar(MultipartFile file) throws Exception {
         if(!ImageFileUtils.isImageFile(file)){
             throw new Exception(MessageKeys.IMAGE_NOT_VALID);
         }
-        UserEntity userEntity = userRepository
-                .findByEmail(jwtTokenUtils.extractEmail(token, TokenType.ACCESS))
-                .orElseThrow(() -> new Exception(MessageKeys.ACCESS_TOKEN_INVALID));
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String avatarUrl = uploadImages.uploadImage(file);
         userEntity.setAvatarUrl(avatarUrl);
         userRepository.save(userEntity);
@@ -270,7 +271,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void logout(String accessToken, Cookie cookie, HttpServletResponse response) {
+    public void logout(Cookie cookie, HttpServletResponse response) {
+        String accessToken = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
         redisService.set(accessToken, MessageKeys.BLACKLIST_HASH);
         redisService.setTimeToLive(accessToken,
                 jwtTokenUtils.extractExpiration(accessToken, TokenType.ACCESS) - System.currentTimeMillis());

@@ -60,25 +60,21 @@ public class OrderController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> updateOrder(@RequestBody OrderDTO orderDTO,
-                                         @PathVariable("id") Long orderId,
-                                         @RequestHeader("Authorization") String authorization) throws Exception {
+                                         @PathVariable("id") Long orderId) throws Exception {
 
 
-        orderService.updateOrder(orderDTO, orderId,
-                    jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS));
+        orderService.updateOrder(orderDTO, orderId);
         return ResponseEntity.accepted().body(MessageKeys.UPDATE_SUCCESS);
 
     }
 
     @GetMapping("")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> getAllOrders(@RequestHeader("Authorization") String authorization,
-                                          @RequestParam(value = "page", defaultValue = "0") Integer page,
+    public ResponseEntity<?> getAllOrders(@RequestParam(value = "page", defaultValue = "0") Integer page,
                                           @RequestParam(value = "limit", defaultValue = "20") Integer limit) throws Exception {
 
         Pageable pageable = PageRequest.of(page, limit);
-        Page<OrderResponse> pageResponse = orderService.
-                getOrderByUser(jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS),pageable);
+        Page<OrderResponse> pageResponse = orderService.getOrderByUser(pageable);
         return ResponseEntity.ok().body(PageResponse.builder()
                 .content(pageResponse.getContent())
                 .totalPages(pageResponse.getTotalPages())
@@ -101,21 +97,16 @@ public class OrderController {
 
     @PutMapping("/{orderId}/cancel")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> cancelOrder(@PathVariable(name = "orderId") Long orderId,
-                                         @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) throws Exception {
-
-        OrderEntity orderEntity = orderService.cancelOrder(jwtTokenUtils.
-                extractEmail(authorization.substring(7), TokenType.ACCESS), orderId);
+    public ResponseEntity<?> cancelOrder(@PathVariable(name = "orderId") Long orderId) throws Exception {
+        OrderEntity orderEntity = orderService.cancelOrder(orderId);
         return ResponseEntity.accepted().body(MessageKeys.UPDATE_SUCCESS);
 
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<?> getOrder(@PathVariable(name = "orderId") Long orderId,
-                                      @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) throws Exception {
+    public ResponseEntity<?> getOrder(@PathVariable(name = "orderId") Long orderId) throws Exception {
 
-        return ResponseEntity.ok().body(orderService.getById(orderId,
-                jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS)));
+        return ResponseEntity.ok().body(orderService.getById(orderId));
 
     }
 
@@ -135,8 +126,7 @@ public class OrderController {
                                               @RequestParam(name = "limit", defaultValue = "10") Integer limit) throws Exception {
         Sort.Direction sort = Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, limit, sort, "createdAt");
-        Page<OrderResponse> pageResponse = orderService.getByKeyWord(keyword,
-                jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS),pageable);
+        Page<OrderResponse> pageResponse = orderService.getByKeyWord(keyword,pageable);
 
         return ResponseEntity.ok().body(PageResponse.builder()
                 .content(pageResponse.getContent())

@@ -25,11 +25,11 @@ public interface UserService {
 
     TokenResponse adminLogin(UserLoginDTO userLoginDTO,HttpServletResponse response) throws Exception;
 
-    UserResponse update(UserUpdateDTO userUpdateDTO, String token);
+    UserResponse update(UserUpdateDTO userUpdateDTO);
 
     void changePassword(@Valid UserChangePasswordDTO userChangePasswordDTO, HttpServletRequest request, HttpServletResponse response) throws Exception;
 
-    UserResponse getUserDetails(String token) throws Exception;
+    UserResponse getUserDetails() throws Exception;
 
     Page<UserResponse> getAllUsers(String keyword,PageRequest pageRequest);
 
@@ -39,7 +39,7 @@ public interface UserService {
 
     String unLockByIds(List<Long> ids);
 
-    String uploadAvatar(String token, MultipartFile file) throws Exception;
+    String uploadAvatar(MultipartFile file) throws Exception;
 
     String forgotPassword(String email) throws Exception;
 
@@ -47,7 +47,7 @@ public interface UserService {
 
     UserEntity verifyAccount(@Valid UserVerifyDTO userVerifyDTO) throws Exception;
 
-    void logout(String accessToken, Cookie cookie, HttpServletResponse response) throws Exception;
+    void logout(Cookie cookie, HttpServletResponse response) throws Exception;
 
     TokenResponse refreshToken(HttpServletRequest request, HttpServletResponse response) throws Exception;
 

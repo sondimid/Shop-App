@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
@@ -51,12 +50,8 @@ public class UserController {
     }
 
     @PutMapping("/profiles")
-    public ResponseEntity<?> update(@Valid @RequestBody UserUpdateDTO userUpdateDTO,
-                                    @RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) {
-        String token = authorization.substring(7);
-
-        return ResponseEntity.accepted().body(userService.update(userUpdateDTO, token));
-
+    public ResponseEntity<?> update(@Valid @RequestBody UserUpdateDTO userUpdateDTO) {
+        return ResponseEntity.accepted().body(userService.update(userUpdateDTO));
     }
 
     @PutMapping("/password")
@@ -69,35 +64,31 @@ public class UserController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken( HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) throws Exception {
         return ResponseEntity.ok().body(userService.refreshToken(request, response));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String accessToken = request.getHeader(MessageKeys.AUTHORIZATION_HEADER).substring(7);
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) throws Exception {
         Cookie cookie = Arrays.stream(request.getCookies())
                 .filter(cookie1 -> cookie1.getName().equals(MessageKeys.REFRESH_TOKEN_HEADER))
                 .findFirst()
                 .orElseThrow(() -> new UnauthorizedAccessException(MessageKeys.UNAUTHORIZED));
-        userService.logout(accessToken, cookie, response);
+        userService.logout(cookie, response);
         return ResponseEntity.accepted().body(MessageKeys.DELETE_TOKEN_SUCCESS);
 
     }
 
     @GetMapping("/profiles")
-    public ResponseEntity<?> getUserDetails(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization) throws Exception {
-        String token = authorization.substring(7);
-        return ResponseEntity.ok().body(userService.getUserDetails(token));
-
+    public ResponseEntity<?> getUserDetails() throws Exception {
+        return ResponseEntity.ok().body(userService.getUserDetails());
     }
 
     @PutMapping("/avatar")
-    public ResponseEntity<?> uploadAvatar(@RequestHeader(MessageKeys.AUTHORIZATION_HEADER) String authorization,
-                                        @RequestBody MultipartFile file) throws Exception {
+    public ResponseEntity<?> uploadAvatar(@RequestBody MultipartFile file) throws Exception {
 
         return ResponseEntity.accepted()
-                .body(userService.uploadAvatar(authorization.substring(7), file));
+                .body(userService.uploadAvatar(file));
 
     }
 

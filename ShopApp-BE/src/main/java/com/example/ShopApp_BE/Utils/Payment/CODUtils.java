@@ -20,10 +20,9 @@ public class CODUtils {
     private final MailService mailService;
     private final ProductService productService;
 
-    public String createOrder(OrderDTO orderDTO, String authorization) throws Exception {
+    public String createOrder(OrderDTO orderDTO) throws Exception {
         orderDTO.setActive(Boolean.TRUE);
-        String email = jwtTokenUtils.extractEmail(authorization.substring(7), TokenType.ACCESS);
-        OrderEntity orderEntity = orderService.createOrder(orderDTO, email);
+        OrderEntity orderEntity = orderService.createOrder(orderDTO);
         mailService.sendMailOrderCreate(orderEntity);
         return "http://localhost:3000/order/success";
     }

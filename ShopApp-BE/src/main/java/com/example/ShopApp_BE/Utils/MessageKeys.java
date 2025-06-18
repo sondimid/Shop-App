@@ -15,6 +15,7 @@ public class MessageKeys {
     public static final String LOGIN_SUCCESS = "Đăng nhập thành công.";
     public static final String LOGIN_FAILED = "Đăng nhập thất bại.";
     public static final String ACCOUNT_LOCK = "Tài khoản đã bị khóa.";
+    public static final String ACCOUNT_LOGOUT = "Tài khoản đã đăng xuất";
 
     // User
     public static final String UPDATE_SUCCESS = "Cập nhật thông tin thành công.";
